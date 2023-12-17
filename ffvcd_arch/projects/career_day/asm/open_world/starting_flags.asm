@@ -483,6 +483,9 @@ if !free_tablets = 1
 endif
 
 
+
+
+
 ; tutorial section
 if !abbreviated = 0
     incsrc tutorial_event.asm

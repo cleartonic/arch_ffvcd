@@ -9,10 +9,9 @@ loc_id_start = 342000000
 class LocationData:
     def __init__(self, name, address = None, parent = None, area = None, event=False, type="Item"):
         self.name = name
-        try:
-            self.address = int(address, base=16) + loc_id_start
-        except:
-            print("No address for %s" % name)
+        if address:
+            self.address = int(address, base=16)
+        else:
             self.address = None
         self.address_hex = address
         self.parent = parent
@@ -120,8 +119,8 @@ LocationData("Walse - Water Crystal (TimeMage)", address = "C0FB24", area = "Wal
 LocationData("Walse - Water Crystal (Summoner)", address = "C0FB26", area = "Walse"),
 LocationData("Mua - Brave Blade (Brave Blade)", address = "C0FB28", area = "Mua"),
 LocationData("Mua - Chicken Knife (Chicken Knife)", address = "C0FB2A", area = "Mua"),
-LocationData("Tycoon Castle - Tycoon Castle Cabin (Cabin (1))", address = "C0FB2C", area = "Tycoon Castle"),
-LocationData("Tycoon Castle - Tycoon Castle Cabin (Cabin (2))", address = "C0FB2E", area = "Tycoon Castle"),
+LocationData("Tycoon Castle - Tycoon Castle Cabin (Cabin)", address = "C0FB2C", area = "Tycoon Castle"),
+LocationData("Tycoon Castle - Tycoon Castle Cabin (Cabin)", address = "C0FB2E", area = "Tycoon Castle"),
 LocationData("Walse - Walse Tower Chest (GoGo)", address = "C0FB30", area = "Walse"),
 LocationData("Pyramid - Pyramid Top (Pyramid Tablet)", address = "C0FB32", area = "Pyramid"),
 LocationData("Istory Falls - Toad Event (Toad)", address = "C0FB34", area = "Istory Falls"),
@@ -151,13 +150,13 @@ LocationData("Tule - Tule Barrel (Potion)", address = "D13252", area = "Tule"),
 LocationData("Tule - Tule Box (Tent)", address = "D13256", area = "Tule"),
 LocationData("Tule - Tule Bush (Phoenix Down)", address = "D1325A", area = "Tule"),
 LocationData("Ship Graveyard - Ship Graveyard Chest (Flail)", address = "D1325E", area = "Ship Graveyard"),
-LocationData("Ship Graveyard - Ship Graveyard Chest (Phoenix Down (1))", address = "D13262", area = "Ship Graveyard"),
+LocationData("Ship Graveyard - Ship Graveyard Chest (Phoenix Down)", address = "D13262", area = "Ship Graveyard"),
 LocationData("Ship Graveyard - Ship Graveyard Chest (Tent)", address = "D13266", area = "Ship Graveyard"),
 LocationData("Ship Graveyard - Ship Graveyard Box (990)", address = "D1326A", area = "Ship Graveyard"),
 LocationData("Ship Graveyard - Ship Graveyard Chest (Potion)", address = "D1326E", area = "Ship Graveyard"),
-LocationData("Ship Graveyard - Ship Graveyard Chest (Antidote (1))", address = "D13272", area = "Ship Graveyard"),
-LocationData("Ship Graveyard - Ship Graveyard Chest (Antidote (2))", address = "D13276", area = "Ship Graveyard"),
-LocationData("Ship Graveyard - Ship Graveyard Chest (Phoenix Down (2))", address = "D1327A", area = "Ship Graveyard"),
+LocationData("Ship Graveyard - Ship Graveyard Chest (Antidote)", address = "D13272", area = "Ship Graveyard"),
+LocationData("Ship Graveyard - Ship Graveyard Chest (Antidote)", address = "D13276", area = "Ship Graveyard"),
+LocationData("Ship Graveyard - Ship Graveyard Chest (Phoenix Down)", address = "D1327A", area = "Ship Graveyard"),
 LocationData("Carwen - Carwen Barrel (Antidote)", address = "D1327E", area = "Carwen"),
 LocationData("Carwen - Carwen Box (Ice Rod)", address = "D13282", area = "Carwen"),
 LocationData("Carwen - Carwen Pot (1000)", address = "D13286", area = "Carwen"),
@@ -165,11 +164,11 @@ LocationData("North Mountain - North Mountain Chest (Soft)", address = "D1328A",
 LocationData("North Mountain - North Mountain Chest (Phoenix Down)", address = "D1328E", area = "North Mountain"),
 LocationData("Walse - Walse Town Pot (Glasses)", address = "D13292", area = "Walse"),
 LocationData("Tycoon Castle - Tycoon Castle Pot (Hi-Potion)", address = "D13296", area = "Tycoon Castle"),
-LocationData("Tycoon Castle - Tycoon Castle Pot (Ether (1))", address = "D1329A", area = "Tycoon Castle"),
+LocationData("Tycoon Castle - Tycoon Castle Pot (Ether)", address = "D1329A", area = "Tycoon Castle"),
 LocationData("Tycoon Castle - Tycoon Castle Barrel (Elixir)", address = "D1329E", area = "Tycoon Castle"),
 LocationData("Tycoon Castle - Tycoon Castle Barrel (Phoenix Down)", address = "D132A2", area = "Tycoon Castle"),
 LocationData("Tycoon Castle - Tycoon Castle Barrel (Cabin)", address = "D132A6", area = "Tycoon Castle"),
-LocationData("Tycoon Castle - Tycoon Castle Pot (Ether 2)", address = "D132AA", area = "Tycoon Castle"),
+LocationData("Tycoon Castle - Tycoon Castle Pot (Ether)", address = "D132AA", area = "Tycoon Castle"),
 LocationData("Tycoon Castle - Tycoon Castle Pot (Elixir)", address = "D132AE", area = "Tycoon Castle"),
 LocationData("Tycoon Castle - Tycoon Castle Pot (Phoenix Down)", address = "D132B2", area = "Tycoon Castle"),
 LocationData("Tycoon Castle - Tycoon Castle Pot (Maiden's Kiss)", address = "D132B6", area = "Tycoon Castle"),

@@ -12,14 +12,13 @@ from Fill import fill_restrictive, FillError, sweep_from_pool
 from worlds.AutoWorld import World, WebWorld
 from worlds.generic.Rules import add_item_rule
 from .items import item_table, item_groups, create_items, FFVCDItem
-from .locations import location_data, loc_id_start
+from .locations import location_data
 from .options import ffvcd_options
 from .regions import create_regions
+from .rom import get_base_rom_path
 from .rules import set_rules
 from worlds.ffvcd.ffvcd_arch.utilities.data import conductor
 from .client import FFVCDSNIClient
-from .rom import LocalRom, get_base_rom_path, patch_rom, FFVCDDeltaPatch
-
 
 # lots of credit to others in the repository, such as pokemonrb, dkc3 and tloz
 
@@ -54,8 +53,7 @@ class FFVCDWorld(World):
     item_name_groups = item_groups
 
     web = FFVCDWebWorld()
-    set_rules = set_rules
-
+    
     
     def __init__(self, world: MultiWorld, player: int):
         self.rom_name_available_event = threading.Event()
@@ -88,7 +86,7 @@ class FFVCDWorld(World):
         for loc in locs:
             if loc.address:
                 lname = loc.item.name
-                data[hex(loc.address - loc_id_start).replace("0x","").upper()] = {'loc_name' : lname,
+                data[hex(loc.address).replace("0x","").upper()] = {'loc_name' : lname,
                                                                    'loc_player' : loc.item.player}
 
         
@@ -125,61 +123,10 @@ class FFVCDWorld(World):
                 
     def create_regions(self):
         create_regions(self.multiworld, self.player)
-
-    def generate_output(self, output_directory: str):
-        # file output/generation handled by post_fill -> ffv career day conductor         
-
-
-        rompath = os.path.join(output_directory, f"{self.multiworld.get_out_file_name_base(self.player)}.smc")
-
-        ################
-        # temporarily copy file over 
-        ################
-        import shutil
-        ffvcd_temp_rom = os.path.abspath(os.path.join(os.path.dirname(__file__), 'ffvcd_arch', 'process','output', 'FFVCD_12345.smc'))
-        print("Moving %s -> %s" % (ffvcd_temp_rom, rompath))
-        shutil.copy(ffvcd_temp_rom, rompath)        
-        ################
-
-
-
-        rom = LocalRom(rompath) # obsolete file=get_base_rom_path() for now, but later will need to use it somehow
-        patch_rom(self.multiworld, rom, self.player)
-        self.rom_name = rom.name
         
         
-        rom.write_to_file(rompath)
-        self.rom_name = rom.name
-
-        patch = FFVCDDeltaPatch(os.path.splitext(rompath)[0]+FFVCDDeltaPatch.patch_file_ending, player=self.player,
-                               player_name=self.multiworld.player_name[self.player], patched_path=rompath)
+    set_rules = set_rules
         
-        patch.write()
-    
-        if os.path.exists(rompath):
-            os.unlink(rompath)
-        
-        self.rom_name_available_event.set() # make sure threading continues and errors are collected
-
-        
-        
-    def modify_multidata(self, multidata: dict):
-        # wait for self.rom_name to be available.
-        self.rom_name_available_event.wait()
-        rom_name = getattr(self, "rom_name", None)
-        # we skip in case of error, so that the original error in the output thread is the one that gets raised
-        if rom_name:
-            new_name = base64.b64encode(bytes(self.rom_name)).decode()
-            multidata["connect_names"][new_name] = multidata["connect_names"][self.multiworld.player_name[self.player]]
-            
-            
-            
-            
-            
-            
-            
-            
-            
     # def fill_hook(self, progitempool, usefulitempool, filleritempool, fill_locations):
 
     #     boss_locations = [i for i in fill_locations if i.progress_type == LocationProgressType.PRIORITY]
@@ -206,3 +153,8 @@ class FFVCDWorld(World):
     #     for boss_loc in boss_locations:
     #         fill_locations.remove(boss_loc)
         
+
+
+    def generate_output(self, output_directory: str):
+        pass
+

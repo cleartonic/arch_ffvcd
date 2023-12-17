@@ -55,103 +55,56 @@ CRYSTAL_SHOP_TYPE = "07"
 VERSION = "FFV Career Day v1.2"
 
 class Conductor():
-    def __init__(self, random_engine, conductor_config={}, arch_data = {}, player = 1, seed = None):
+    def __init__(self, random_engine, arch_options, arch_data = {}, player = 1, seed = None):
+        
         self.RE = random_engine
-        logging.error("Config passed in: %s" % (str(conductor_config)))
-        # Set up conductor config
-        self.configs = conductor_config # later so we don't manually define every key like below 
         self.arch_data = arch_data
+        self.arch_options = arch_options
         self.player = player
         self.seed = seed
-        if len(conductor_config) == 0: # if no config was passed in, default False
-            self.fjf = False
-            self.fjf_strict = False
-            self.fjf_num_jobs = 4
-            self.jobpalettes = False
-            self.world_lock = 0
-            self.tiering_config = True
-            self.tiering_percentage = 90
-            self.tiering_threshold = 10
-            self.enforce_all_jobs = True
-            self.battle_speed = 3
-            self.red_color = 0
-            self.blue_color = 0
-            self.green_color = 0
-            self.exp_mult = 4
-#            self.progressive_bosses = True
-            self.progressive_bosses = False
-            self.place_all_rewards = True
-            self.progressive_rewards = False
-            self.item_randomization = False
-            self.item_randomization_percent = 100
-            self.boss_exp_percent = 100
-            self.hints_flag = True
-            self.setting_string = None
-            self.learning_abilities = False
-            self.default_abilities = False
-            self.job_1 = "Random"
-            self.job_2 = "Random"
-            self.job_3 = "Random"
-            self.job_4 = "Random"
-            self.lenna_name = 'Lenna'
-            self.galuf_name = 'Galuf'
-            self.cara_name = 'Krile'
-            self.faris_name = 'Faris'
-            self.music_randomization = True
-            self.free_shops = False
-            self.extra_patches = False
-            self.kuzar_credits_warp = False
-            self.remove_ned = True
-            self.key_items_in_mib = False
-            self.free_tablets = 0
-            self.remove_flashes = True
-            self.randomize_loot_setting = False
-            self.loot_percent = 0
-            self.portal_boss = "Random"
-            
-            
-        else:                           # else take the config passed from server.py and set variables
-            self.fjf = self.translateBool(conductor_config['fjf'])
-            self.fjf_strict = self.translateBool(conductor_config['fjf_strict'])
-            self.fjf_num_jobs = int(conductor_config['fjf_num_jobs'])
-            self.jobpalettes = self.translateBool(conductor_config['jobpalettes'])
-            self.world_lock = int(conductor_config['world_lock'])
-            self.tiering_config = self.translateBool(conductor_config['tiering_config'])
-            self.tiering_percentage = 100 - int(conductor_config['tiering_percentage'])
-            self.tiering_threshold= int(conductor_config['tiering_threshold'])
-            self.enforce_all_jobs = self.translateBool(conductor_config['enforce_all_jobs'])
-#            self.progressive_bosses = self.translateBool(conductor_config['progressive_bosses'])
-            self.progressive_bosses = False
-            self.progressive_rewards = self.translateBool(conductor_config['progressive_rewards'])
-            self.item_randomization = self.translateBool(conductor_config['item_randomization'])
-            self.item_randomization_percent = int(conductor_config['item_randomization_percent'])
-            self.boss_exp_percent = int(conductor_config['boss_exp_percent'])
-            self.default_abilities = self.translateBool(conductor_config['default_abilities'])
-            self.learning_abilities = self.translateBool(conductor_config['learning_abilities'])
-            self.setting_string = conductor_config['setting_string']
-            self.job_1 = conductor_config['job_1']
-            self.job_2 = conductor_config['job_2']
-            self.job_3 = conductor_config['job_3']
-            self.job_4 = conductor_config['job_4']
-            self.lenna_name = conductor_config['lenna_name']
-            self.galuf_name = conductor_config['galuf_name']
-            self.cara_name = conductor_config['cara_name']
-            self.faris_name = conductor_config['faris_name']
-            self.hints_flag = self.translateBool(conductor_config['hints_flag'])
-            self.music_randomization = self.translateBool(conductor_config['music_randomization'])
-            self.free_shops = self.translateBool(conductor_config['free_shops'])
-            self.remove_ned = self.translateBool(conductor_config['remove_ned'])
-            self.key_items_in_mib = self.translateBool(conductor_config['key_items_in_mib'])
-            self.extra_patches = conductor_config['extra_patches']
-            self.kuzar_credits_warp = conductor_config['kuzar_credits_warp']
-            self.free_tablets = int(conductor_config['free_tablets'])
-            self.remove_flashes = self.translateBool(conductor_config['remove_flashes'])
-
-            self.seed = conductor_config['seed']
-            
-            #only allow progressive bosses if world_lock == 1
-            if self.world_lock != 1:
-                self.progressive_bosses = False
+        self.fjf = arch_options['four_job']
+        self.fjf_strict = False
+        self.fjf_num_jobs = 4
+        self.jobpalettes = arch_options['job_palettes']
+        self.world_lock = 1
+        self.tiering_config = True
+        self.tiering_percentage = 90
+        self.tiering_threshold = 10
+        self.enforce_all_jobs = True
+        self.battle_speed = 3
+        self.red_color = 0
+        self.blue_color = 0
+        self.green_color = 0
+        self.exp_mult = 4
+        self.progressive_bosses = False
+        self.place_all_rewards = True
+        self.progressive_rewards = False
+        self.item_randomization = False
+        self.item_randomization_percent = 100
+        self.boss_exp_percent = 100
+        self.hints_flag = True
+        self.setting_string = None
+        self.learning_abilities = False
+        self.default_abilities = False
+        self.job_1 = "Random"
+        self.job_2 = "Random"
+        self.job_3 = "Random"
+        self.job_4 = "Random"
+        self.lenna_name = 'Lenna'
+        self.galuf_name = 'Galuf'
+        self.cara_name = 'Krile'
+        self.faris_name = 'Faris'
+        self.music_randomization = False
+        self.free_shops = False
+        self.extra_patches = arch_options['extra_patches']
+        self.kuzar_credits_warp = False
+        self.remove_ned = False
+        self.key_items_in_mib = False
+        self.free_tablets = 0
+        self.remove_flashes = arch_options['remove_flashes']
+        self.randomize_loot_setting = False
+        self.loot_percent = 0
+        self.portal_boss = "Random"
             
         # Some configs set up for the managers 
         collectible_config = {'place_all_rewards':self.translateBool(self.place_all_rewards),
@@ -2341,13 +2294,13 @@ class Conductor():
 #        non_placed_collectibles = [y for y in [x for x in self.CM.collectibles if x.placed_reward==None] if y.valid]
 #        
 
-    def spoiler_settings(self):
-        output_str = '\n-----SETTINGS-----\n'
-        for k, v in self.configs.items():
-            if k == 'portal_boss' and v == "Random":
-                v = "%s (%s)" % (v, self.portal_boss_str)
-            output_str = output_str + '{:30}'.format(str(k)) + '{:30}'.format(str(v)) + "\n"
-        return output_str + "\n"
+    # def spoiler_settings(self):
+    #     output_str = '\n-----SETTINGS-----\n'
+    #     for k, v in self.configs.items():
+    #         if k == 'portal_boss' and v == "Random":
+    #             v = "%s (%s)" % (v, self.portal_boss_str)
+    #         output_str = output_str + '{:30}'.format(str(k)) + '{:30}'.format(str(v)) + "\n"
+    #     return output_str + "\n"
     
     def fix_random_ned(self):
         asar_str = '; Fix 2nd NED slot\n'
@@ -2358,8 +2311,6 @@ class Conductor():
         
 
     def parse_configs(self):
-        config = self.configs
-
         r_color = int(self.red_color)
         g_color = int(self.green_color) * 32
         b_color = int(self.blue_color) * 1024
@@ -2459,7 +2410,7 @@ class Conductor():
 
         
     def patch_file(self):
-        patcher.process_new_seed(self.seed)
+        patcher.process_new_seed(self.seed, self.arch_options)
 
     def randomize(self, random_engine=None):
 
@@ -2608,7 +2559,7 @@ class Conductor():
 
         
         logging.error("Retreiving spoiler data")
-        spoiler = spoiler + self.spoiler_settings()
+        # spoiler = spoiler + self.spoiler_settings()
         spoiler = spoiler + self.starting_crystal_spoiler()
         spoiler = spoiler + self.get_collectible_counts()                
         spoiler = spoiler + self.RM.get_spoiler(self.world_lock, self.free_tablets)
@@ -2673,7 +2624,8 @@ if __name__ == "__main__":
     seed_success = False
     
     while attempts < 10:
-        conductor = Conductor(random, {}, arch_data, player = 1, seed = SEED_NUM) 
+        arch_options = {'job_palettes': False, 'four_job': False, 'extra_patches': True, 'remove_flashes': True}
+        conductor = Conductor(random, arch_options, arch_data, player = 1, seed = SEED_NUM) 
         pass_flag, (spoiler, patch) = conductor.randomize()
         if pass_flag:
             attempts = 100

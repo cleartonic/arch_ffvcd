@@ -61,7 +61,7 @@ FAKE_HEADER = bytearray.fromhex('''0001 0080 0000 0000 aabb 0400 0000 0000
 logging.basicConfig(filename="error.log", level=logging.ERROR, format="%(asctime)-15s %(message)s")
 
 
-def patch_and_return(filename):
+def patch_and_return(filename, options):
     
 
     logging.error("Begin patch & return process")
@@ -105,7 +105,7 @@ def patch_and_return(filename):
 
 
 
-    patch_careerday(filename)
+    patch_careerday(filename, options)
 
     patch_random(filename, RANDOMIZER_ASM)
     
@@ -229,9 +229,10 @@ def copy_ffv(seed):
     else:
         return None
     
-def patch_careerday(filename):
-    fjf = 0
-    fourjoblock = 0
+def patch_careerday(filename, options):
+
+    fjf = bool_to_int(translateBool(options['four_job']))
+    fourjoblock = bool_to_int(translateBool(options['four_job']))
     progressive_rewards = 0
     abbreviated = 1
     grantkeyitems = 0
@@ -243,7 +244,7 @@ def patch_careerday(filename):
     remove_ned = 0
     kuzar_credits_warp = 0
     # world_lock should be passed as an integer (either 0, 1 or 2). If it's not, make a function to do so
-    world_lock = 1
+    world_lock = 1 # set to 1 for all seeds for now 
     remove_flashes = 0
     
     command = "{} --define dash=1 --define learning=1 --define pitfalls=1 \
@@ -261,9 +262,9 @@ def patch_random(filename, patchname):
     response = subprocess.run(command, shell=True)
 
 
-def process_new_seed(seed = random.randint(0,999999)):
+def process_new_seed(seed = random.randint(0,999999), arch_options = {}):
     new_filename = copy_ffv(str(seed))
     filename = new_filename
-    patch_and_return(new_filename)
+    patch_and_return(new_filename, arch_options)
 
 
