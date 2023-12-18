@@ -1,11 +1,12 @@
 import os, sys
 sys.path.append(os.path.join(os.pardir,os.pardir))
 from BaseClasses import ItemClassification, Item
+arch_item_offset = 352000000
 class ItemData:
     def __init__(self, item_id, classification, groups):
         self.groups = groups
         self.classification = classification
-        self.id = None if item_id is None else item_id + 342000000
+        self.id = None if item_id is None else item_id + arch_item_offset
 
 
 

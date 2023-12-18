@@ -4,6 +4,8 @@ import asyncio
 from NetUtils import ClientStatus, color
 from worlds.AutoSNIClient import SNIClient
 from .locations import loc_id_start
+from .items import item_table, arch_item_offset
+from .rom import crystal_ram_data, magic_ram_data, ability_ram_data, item_ram_data, key_item_data
 from .ram_watch_util import address_to_ram, ram_to_address, full_flag_dict
 
 snes_logger = logging.getLogger("SNES")
@@ -27,7 +29,6 @@ FFVCD_CHESTS_ADDR = WRAM_START + 0x0009D4
 
 FFVCD_RECV_PROGRESS_ADDR = WRAM_START + 0x9F4
 FFVCD_FILE_NAME_ADDR = WRAM_START + 0x5D9
-DEATH_LINK_ACTIVE_ADDR = FFVCD_ROMNAME_START + 0x15     # FFVCD_TODO: Find a permanent home for this
 
 
 
@@ -122,6 +123,15 @@ class FFVCDSNIClient(SNIClient):
                 ram_dict[k] = "0%s" % v
                 
                 
+                    
+            
+
+        # import pickle
+        # with open('pickle.p', 'wb') as f:
+        #     pickle.dump(d4, f)
+
+                
+                
                 
         def check_status_bits(ram_bit, loc_bit, direction):
             if direction == "ON":
@@ -130,6 +140,19 @@ class FFVCDSNIClient(SNIClient):
                 return int(ram_bit, base=16) & int(loc_bit, base=16) == 0
                 
                 
+        def hex_or_return_int(a, b):
+            return min(int(a,base=16) | int(b, base=16), 255)
+        def hex_xor_return_int(a, b):
+            return min(int(a,base=16) ^ int(b, base=16), 255)
+        def hex_and_return_int(a, b):
+            return min(int(a,base=16) & int(b, base=16), 255)
+                
+                
+        def convert_int_to_two_bytes_as_list(i):
+            return [i % 256, i // 256]
+        def convert_two_bytes_to_int(a, b):
+            return a + b * 256
+
         new_checks = []
         for event_flag_addr, event_flag_data in full_flag_dict.items():
             try:
@@ -145,11 +168,7 @@ class FFVCDSNIClient(SNIClient):
             except Exception as e:
                 print(e)    
                 
-        
-        # for k, v in ctx.location_names.items():
-        #     print(k, v)
-            
-        # breakpoint()
+
         for new_check_id in new_checks:
             ctx.locations_checked.add(new_check_id)
             location = ctx.location_names[new_check_id]
@@ -157,16 +176,184 @@ class FFVCDSNIClient(SNIClient):
                 f'New Check: {location} ({len(ctx.locations_checked)}/{len(ctx.missing_locations) + len(ctx.checked_locations)})')
             await ctx.send_msgs([{"cmd": 'LocationChecks', "locations": [new_check_id]}])
 
+        recv_count = await snes_read(ctx, FFVCD_RECV_PROGRESS_ADDR, 2)
+        recv_index = convert_two_bytes_to_int(recv_count[0], recv_count[1])
 
-        # print(ctx.items_received)
+        print("recv_index %s -> items_received %s" % (recv_index, len(ctx.items_received)))
+        if recv_index < len(ctx.items_received):
+            item = ctx.items_received[recv_index]
+            recv_index += 1
+            logging.info('Received %s from %s (%s) (%d/%d in list)' % (
+                color(ctx.item_names[item.item], 'red', 'bold'),
+                color(ctx.player_names[item.player], 'yellow'),
+                ctx.location_names[item.location], recv_index, len(ctx.items_received)))
+
+            recv_index_list = convert_int_to_two_bytes_as_list(recv_index)
+            print("Writing bytes recv_index %s to %s -> %s" % (FFVCD_RECV_PROGRESS_ADDR, recv_index_list, bytes(recv_index_list)))
+            snes_buffered_write(ctx, FFVCD_RECV_PROGRESS_ADDR, bytes(recv_index_list))
+            
+            arch_item_id = item.item - arch_item_offset
+            print(arch_item_id)
+            
+            print("This game's slot %s -> item player %s" % (ctx.slot, item.player))
+            
+
+            ####################            
+            # RECEIVE CRYSTALS
+            ####################
+            
+            if arch_item_id in crystal_ram_data.keys():
+                crystal_data = crystal_ram_data[arch_item_id]
+                crystal_data_bit, crystal_data_ram_addr = crystal_data
+                
+                current_bit = await snes_read(ctx, WRAM_START + crystal_data_ram_addr, 0x01)
+                new_bit = hex_or_return_int(hex(current_bit[0]), crystal_data_bit)
+                snes_buffered_write(ctx, WRAM_START + crystal_data_ram_addr, bytes([new_bit]))
+                print("Write crystal")
+                    
+            ####################            
+            # RECEIVE MAGIC
+            ####################
+            
+            if arch_item_id in magic_ram_data.keys():
+                magic_data = magic_ram_data[arch_item_id]
+                magic_data_bit, magic_data_ram_addr = magic_data
+                
+                current_bit = await snes_read(ctx, WRAM_START + magic_data_ram_addr, 0x01)
+                new_bit = hex_or_return_int(hex(current_bit[0]), magic_data_bit)
+                snes_buffered_write(ctx, WRAM_START + magic_data_ram_addr, bytes([new_bit]))
+                print("Write magic")
+                    
+            ####################            
+            # RECEIVE ABILITY
+            ####################
+            
+            if arch_item_id in ability_ram_data.keys():
+                ability_data = ability_ram_data[arch_item_id]
+                ability_data_bit, ability_data_ram_addr = ability_data
+                
+                current_bit = await snes_read(ctx, WRAM_START + ability_data_ram_addr, 0x01)
+                new_bit = hex_or_return_int(hex(current_bit[0]), ability_data_bit)
+                snes_buffered_write(ctx, WRAM_START + ability_data_ram_addr, bytes([new_bit]))
+                print("Write ability 1")
+
+                current_bit = await snes_read(ctx, WRAM_START + ability_data_ram_addr + 0x14, 0x01)
+                new_bit = hex_or_return_int(hex(current_bit[0]), ability_data_bit)
+                snes_buffered_write(ctx, WRAM_START + ability_data_ram_addr + 0x14, bytes([new_bit]))
+                print("Write ability 2")
+
+                current_bit = await snes_read(ctx, WRAM_START + ability_data_ram_addr + 0x28, 0x01)
+                new_bit = hex_or_return_int(hex(current_bit[0]), ability_data_bit)
+                snes_buffered_write(ctx, WRAM_START + ability_data_ram_addr + 0x28, bytes([new_bit]))
+                print("Write ability 3")
+
+                current_bit = await snes_read(ctx, WRAM_START + ability_data_ram_addr + 0x3C, 0x01)
+                new_bit = hex_or_return_int(hex(current_bit[0]), ability_data_bit)
+                snes_buffered_write(ctx, WRAM_START + ability_data_ram_addr + 0x3C, bytes([new_bit]))
+                print("Write ability 4")
+                    
+            ##############
+            # RECEIVE ITEMS
+            ##############
+            
+            
+            # If items are found in own world, do not award via this method
+            # This prevents getting 2 rewards (one in game, one from server)
+            # All other types of rewards are fine for getting 2 of technically
+            
+            # if you want to skip own items for stuff like weapons/armor etc, use below
+            
+            if ctx.slot == item.player:
+                pass
+                # print("Self item, skip")
+                
+            else:
+                if arch_item_id in item_ram_data.keys():
+                    d4 = await snes_read(ctx, WRAM_START + 0x640, 0x100)
+            
+                    ram_current_item_map = {}
+                    
+                    for idx, i in enumerate(d4):
+                        ram_current_item_map[idx] = hex(i).replace("0x","").upper()
+                    
+                    for k, v in ram_current_item_map.items():
+                        if len(v) == 1:
+                            ram_current_item_map[k] = "0%s" % v
+                            
+                    new_item_byte = item_ram_data[arch_item_id]
+                    
+                    match_idx = None
+                    for k, v in ram_current_item_map.items():
+                        if v == new_item_byte:
+                            match_idx = k
+                            break
+                            
+                    if match_idx:
+                        # if a match was found, find its corresponding inventory count then add 1
+                        item_count_in_inventory = await snes_read(ctx, WRAM_START + 0x740 + match_idx, 0x01)
+                        item_count_in_inventory = min(item_count_in_inventory[0] + 1, 99)
+                        snes_buffered_write(ctx, WRAM_START + 0x740 + match_idx, bytes([item_count_in_inventory]))
+                    else:
+                        # if a match was not found, find the first 00 slot in inventory ids, then assign it and give it 1 count
+                        new_item_idx = None
+                        for k, v in ram_current_item_map.items():
+                            if v == '00':
+                                new_item_idx = k
+                                break
+                        
+                        if new_item_idx:
+                            # this should always be true, or else something real bad is happening in inventory >_>;....
+                            print("Adding new item %s at %s" % (new_item_byte, WRAM_START + 0x640 + new_item_idx))
+                            snes_buffered_write(ctx, WRAM_START + 0x640 + new_item_idx, bytes([int(new_item_byte,base=16)]))
+                            snes_buffered_write(ctx, WRAM_START + 0x740 + new_item_idx, bytes([1]))
+                        else:
+                            pass
+                            print("Could not create for %s " % new_item_byte)
+
+
+            ####################            
+            # RECEIVE KEY ITEMS
+            ####################
+            
+            if arch_item_id in key_item_data.keys():
+                key_item_data_entries = key_item_data[arch_item_id]
+                
+                if arch_item_id != 1005 and arch_item_id != 1006:    
+                    for key_item_data_entry in key_item_data_entries:
+                        key_item_bit, key_item_addr_offset, key_item_direction = key_item_data_entry
+
+                        current_bit = await snes_read(ctx, WRAM_START + 0xA00 + key_item_addr_offset, 0x01)
+                        if key_item_direction == "ON":
+                            new_bit = hex_or_return_int(hex(current_bit[0]), key_item_bit)
+                        elif key_item_direction == "OFF":
+                            new_bit = hex_xor_return_int(hex(current_bit[0]), key_item_bit)
+                        else:
+                            break
+                            
+                        snes_buffered_write(ctx, WRAM_START + 0xA00 + key_item_addr_offset, bytes([new_bit]))
+                        print("Write key item")
+
+                elif arch_item_id == 1005 or arch_item_id == 1006:   # handle hiryuu / submarine
+                    # first handle key item for menu text
+                    key_item_bit, key_item_addr_offset, key_item_direction = key_item_data_entries[0]
+                    current_bit = await snes_read(ctx, WRAM_START + 0xA00 + key_item_addr_offset, 0x01)
+                    new_bit = hex_or_return_int(hex(current_bit[0]), key_item_bit)
+                    snes_buffered_write(ctx, WRAM_START + 0xA00 + key_item_addr_offset, bytes([new_bit]))
+                    print("Write key item")
+                    
+                    # then handle coords writing
+                    for key_item_data_entry in key_item_data_entries[1:]:
+                        key_item_byte, key_item_addr_offset, key_item_direction = key_item_data_entry
+                        snes_buffered_write(ctx, WRAM_START + 0xA00 + key_item_addr_offset, bytes([int(key_item_byte,base=16)]))
+                        print("Write key item")
+                        
+            await snes_flush_writes(ctx)
+                    
+                    
         return 
     
     
     
-    
-        breakpoint()
-        
-        
         
         
         
