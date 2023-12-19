@@ -1,7 +1,5 @@
 from BaseClasses import Location, LocationProgressType
 from BaseClasses import ItemClassification, Item
-# from .rom_addresses import rom_addresses
-# from . import poke_data
 loc_id_start = 342000000
 
 
@@ -420,5 +418,6 @@ LocationData("Fork Tower - Minotauros (Boss)", address = "C0FBAC", area = "Fork 
 LocationData("Istory Falls - Leviathan (Boss)", address = "C0FBAE", area = "Istory Falls",type="Key"),
 LocationData("Solitary Island - Stalker (Boss)", address = "C0FBB0", area = "Solitary Island",type="Key"),
 LocationData("Walse Tower - GoGo (Boss)", address = "C0FBB2", area = "Walse Tower",type="Key"),
-LocationData("North Mountain Upper - Bahamut (Boss)", address = "C0FBB4", area = "North Mountain Upper", type="Key")
+LocationData("North Mountain Upper - Bahamut (Boss)", address = "C0FBB4", area = "North Mountain Upper", type="Key"),
+LocationData("ExDeath", address = "C0FFFF", area = "Void", type="Key"),
 ]

@@ -67,12 +67,15 @@ class FFVCDWorld(World):
         rom_file = get_base_rom_path()
         if not os.path.exists(rom_file):
             raise FileNotFoundError(rom_file)
+        else:
+            cls.rom_file = rom_file
+            cls.source_rom_abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, rom_file))
 
     def create_item(self, name: str, classification, item_data_id, player) -> Item:
         return FFVCDItem(name, classification, item_data_id, player)
 
-    def create_event(self, event: str) -> Item:
-        return FFVCDItem(event, ItemClassification.progression, None, self.player)
+    def create_event(self, event: str, event_id = None) -> Item:
+        return FFVCDItem(event, ItemClassification.progression, event_id, self.player)
 
 
     def create_items(self):
@@ -96,7 +99,7 @@ class FFVCDWorld(World):
 
         
         cond = conductor.Conductor(self.multiworld.random, options_conductor, arch_data = data, player = self.player, seed = self.multiworld.seed)
-        pass_flag, (spoiler, patch) = cond.randomize()
+        pass_flag, (spoiler, patch), self.filename_randomized = cond.randomize()
         
 
     def parse_options_for_conductor(self):
@@ -121,6 +124,8 @@ class FFVCDWorld(World):
         else:
             options_conductor['remove_flashes'] = False
             
+        options_conductor['source_rom_abs_path'] = self.source_rom_abs_path
+            
         return options_conductor
                 
     def create_regions(self):
@@ -136,20 +141,20 @@ class FFVCDWorld(World):
         # temporarily copy file over 
         ################
         import shutil
-        ffvcd_temp_rom = os.path.abspath(os.path.join(os.path.dirname(__file__), 'ffvcd_arch', 'process','output', 'FFVCD_12345.smc'))
-        print("Moving %s -> %s" % (ffvcd_temp_rom, rompath))
-        shutil.copy(ffvcd_temp_rom, rompath)        
+        print("Moving %s -> %s" % (self.filename_randomized, rompath))
+        shutil.copy(self.filename_randomized, rompath)
         ################
 
-
-
+        if os.path.exists(self.filename_randomized):
+            os.unlink(self.filename_randomized)
+        
+        
         rom = LocalRom(rompath) # obsolete file=get_base_rom_path() for now, but later will need to use it somehow
         patch_rom(self.multiworld, rom, self.player)
         self.rom_name = rom.name
         
         
         rom.write_to_file(rompath)
-        self.rom_name = rom.name
 
         patch = FFVCDDeltaPatch(os.path.splitext(rompath)[0]+FFVCDDeltaPatch.patch_file_ending, player=self.player,
                                player_name=self.multiworld.player_name[self.player], patched_path=rompath)
@@ -158,6 +163,9 @@ class FFVCDWorld(World):
     
         if os.path.exists(rompath):
             os.unlink(rompath)
+        if os.path.exists(rompath):
+            os.unlink(rompath)
+
         
         self.rom_name_available_event.set() # make sure threading continues and errors are collected
 

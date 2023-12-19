@@ -67,9 +67,12 @@ LDA #$02
 LDX #$0039
 JSL SetKeyItemBits
 
-LDA #$80
-LDX #$0086
-JSL UnsetKeyItemBits
+; recently disabled for arch - seems bad to collect ifrits fire and despawn ifrit
+; ifrit.asm should be despawning him as part of his event after fighting
+
+; LDA #$80
+; LDX #$0086
+; JSL UnsetKeyItemBits
 
 RTL
 

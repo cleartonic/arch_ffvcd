@@ -25,6 +25,10 @@ ROMHASH_SIZE = 0x15
 FFVCD_EVENT_FLAG_ADDR = WRAM_START + 0x000A14
 FFVCD_EVENT_FLAG_BRBLADE_CHKN_ADDR = WRAM_START + 0x001443
 FFVCD_CHESTS_ADDR = WRAM_START + 0x0009D4
+FFVCD_IN_MENU_FLAG_ADDR = WRAM_START + 0x00014B
+FFVCD_IN_MENU_FLAG2_ADDR = WRAM_START + 0x00020D
+FFVCD_IN_MENU_FLAG3_ADDR = WRAM_START + 0x000B45 # this is tied to screen visibility fade in/out
+FFVCD_IN_BATTLE_FLAG_ADDR = WRAM_START + 0x00014D
 
 
 FFVCD_RECV_PROGRESS_ADDR = WRAM_START + 0x9F4
@@ -40,20 +44,20 @@ class FFVCDSNIClient(SNIClient):
 
 
     async def validate_rom(self, ctx):
-        # print("Validating FFVCD rom")
+        # #print("Validating FFVCD rom")
         from SNIClient import snes_buffered_write, snes_flush_writes, snes_read
 
         rom_name = await snes_read(ctx, FFVCD_ROMHASH_START, ROMHASH_SIZE)
         
-        # print("rom_name: %s" % rom_name)
+        # #print("rom_name: %s" % rom_name)
         # if rom_name:
-            # print("rom_name[:2]: %s" % (str(rom_name)[:2]))
+            # #print("rom_name[:2]: %s" % (str(rom_name)[:2]))
 
         if rom_name is None or rom_name == bytes([0] * ROMHASH_SIZE) or rom_name[:2] != b"K7":
-            # print("Fail validate_rom")
+            # #print("Fail validate_rom")
             return False
         
-        # print("Pass validate_rom")
+        # #print("Pass validate_rom")
         ctx.game = self.game
         ctx.items_handling = 0b111  # remote items
 
@@ -63,10 +67,6 @@ class FFVCDSNIClient(SNIClient):
 
     async def game_watcher(self, ctx):
         from SNIClient import snes_buffered_write, snes_flush_writes, snes_read
-        import base64
-
-        
-        
         
         ##############
         # EVENTS
@@ -87,23 +87,6 @@ class FFVCDSNIClient(SNIClient):
         for k, v in ram_dict.items():
             if len(v) == 1:
                 ram_dict[k] = "0%s" % v
-
-        ##############
-        # Brave Blade/Chicken Knife EVENT
-        ##############
-        d2 = await snes_read(ctx, FFVCD_EVENT_FLAG_BRBLADE_CHKN_ADDR, 0x01)
-
-
-        start = '1443'
-        for idx, entry in enumerate(d2):
-            x1 = hex(int(str(start),base=16) + idx).replace("0x","").upper()
-            if len(x1) == 3:
-                x1 = "0%s" % x1
-            ram_dict[x1] =    hex(entry).replace("0x","").upper()
-        for k, v in ram_dict.items():
-            if len(v) == 1:
-                ram_dict[k] = "0%s" % v
-
 
 
         ##############
@@ -152,6 +135,49 @@ class FFVCDSNIClient(SNIClient):
             return [i % 256, i // 256]
         def convert_two_bytes_to_int(a, b):
             return a + b * 256
+        
+    
+        
+
+        ####################            
+        # CHECKS TO ALLOW RECEIVING
+        ####################
+        in_menu_flag = await snes_read(ctx, FFVCD_IN_MENU_FLAG_ADDR, 0x1)
+        in_menu_flag2 = await snes_read(ctx, FFVCD_IN_MENU_FLAG2_ADDR, 0x1)
+        in_menu_flag3 = await snes_read(ctx, FFVCD_IN_MENU_FLAG3_ADDR, 0x1)
+        if in_menu_flag is None:
+            return
+        elif in_menu_flag[0] == 0x00 or in_menu_flag2[0] != 0xF0 or in_menu_flag3[0] < 0xF0:
+            # if 0x00014B == 0x00, do not allow (this is nonzero when in a menu)
+            print("In a menu, waiting to receive...")
+            return
+        
+        in_battle_flag = await snes_read(ctx, FFVCD_IN_BATTLE_FLAG_ADDR, 0x1)
+        if in_battle_flag is None:
+            return
+        elif in_battle_flag[0] == 0x10:
+            # if 0x00014D == 0x10, do not allow (this is set to 0x10 when in battle)
+            print("In a battle, waiting to receive...")
+            return
+
+        # loaded_game_flag1 = await snes_read(ctx, WRAM_START, 0x1)
+        loaded_game_flag2 = await snes_read(ctx, WRAM_START + 0x30, 0x1)
+        loaded_game_flag3 = await snes_read(ctx, WRAM_START + 0x6F, 0x1)
+        if loaded_game_flag2 is None:
+            return
+        elif loaded_game_flag2[0] != 0x00 or loaded_game_flag3[0] != 0x00:
+            # if any of these three addresses near the top of memory aren't zero, disallow
+            print("0x7E0000/30/6F are non zero, game likely not loaded, waiting to receive...")
+            return
+
+        
+        
+        
+        
+        
+        
+        
+        
 
         new_checks = []
         for event_flag_addr, event_flag_data in full_flag_dict.items():
@@ -164,9 +190,10 @@ class FFVCDSNIClient(SNIClient):
                 status = check_status_bits(ram_bit, loc_bit, direction)
                 if loc_id not in ctx.locations_checked and status:
                     new_checks.append(loc_id)
-                # print("%s%s" % ("{:<60}".format(event_flag_data['name']), status))
+                # #print("%s%s" % ("{:<60}".format(event_flag_data['name']), status))
             except Exception as e:
-                print(e)    
+                pass
+                # print(e)    
                 
 
         for new_check_id in new_checks:
@@ -189,14 +216,27 @@ class FFVCDSNIClient(SNIClient):
                 ctx.location_names[item.location], recv_index, len(ctx.items_received)))
 
             recv_index_list = convert_int_to_two_bytes_as_list(recv_index)
-            print("Writing bytes recv_index %s to %s -> %s" % (FFVCD_RECV_PROGRESS_ADDR, recv_index_list, bytes(recv_index_list)))
+            #print("Writing bytes recv_index %s to %s -> %s" % (FFVCD_RECV_PROGRESS_ADDR, recv_index_list, bytes(recv_index_list)))
             snes_buffered_write(ctx, FFVCD_RECV_PROGRESS_ADDR, bytes(recv_index_list))
             
             arch_item_id = item.item - arch_item_offset
-            print(arch_item_id)
+            #print(arch_item_id)
             
-            print("This game's slot %s -> item player %s" % (ctx.slot, item.player))
+            #print("This game's slot %s -> item player %s" % (ctx.slot, item.player))
             
+
+            ####################            
+            # RECEIVE CRYSTALS
+            ####################
+            
+
+
+            if arch_item_id == 1200:
+                # Handle Victory
+                if not ctx.finished_game:
+                    await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
+                    ctx.finished_game = True
+
 
             ####################            
             # RECEIVE CRYSTALS
@@ -209,7 +249,7 @@ class FFVCDSNIClient(SNIClient):
                 current_bit = await snes_read(ctx, WRAM_START + crystal_data_ram_addr, 0x01)
                 new_bit = hex_or_return_int(hex(current_bit[0]), crystal_data_bit)
                 snes_buffered_write(ctx, WRAM_START + crystal_data_ram_addr, bytes([new_bit]))
-                print("Write crystal")
+                #print("Write crystal")
                     
             ####################            
             # RECEIVE MAGIC
@@ -222,7 +262,7 @@ class FFVCDSNIClient(SNIClient):
                 current_bit = await snes_read(ctx, WRAM_START + magic_data_ram_addr, 0x01)
                 new_bit = hex_or_return_int(hex(current_bit[0]), magic_data_bit)
                 snes_buffered_write(ctx, WRAM_START + magic_data_ram_addr, bytes([new_bit]))
-                print("Write magic")
+                #print("Write magic")
                     
             ####################            
             # RECEIVE ABILITY
@@ -235,40 +275,35 @@ class FFVCDSNIClient(SNIClient):
                 current_bit = await snes_read(ctx, WRAM_START + ability_data_ram_addr, 0x01)
                 new_bit = hex_or_return_int(hex(current_bit[0]), ability_data_bit)
                 snes_buffered_write(ctx, WRAM_START + ability_data_ram_addr, bytes([new_bit]))
-                print("Write ability 1")
+                #print("Write ability 1")
 
                 current_bit = await snes_read(ctx, WRAM_START + ability_data_ram_addr + 0x14, 0x01)
                 new_bit = hex_or_return_int(hex(current_bit[0]), ability_data_bit)
                 snes_buffered_write(ctx, WRAM_START + ability_data_ram_addr + 0x14, bytes([new_bit]))
-                print("Write ability 2")
+                #print("Write ability 2")
 
                 current_bit = await snes_read(ctx, WRAM_START + ability_data_ram_addr + 0x28, 0x01)
                 new_bit = hex_or_return_int(hex(current_bit[0]), ability_data_bit)
                 snes_buffered_write(ctx, WRAM_START + ability_data_ram_addr + 0x28, bytes([new_bit]))
-                print("Write ability 3")
+                #print("Write ability 3")
 
                 current_bit = await snes_read(ctx, WRAM_START + ability_data_ram_addr + 0x3C, 0x01)
                 new_bit = hex_or_return_int(hex(current_bit[0]), ability_data_bit)
                 snes_buffered_write(ctx, WRAM_START + ability_data_ram_addr + 0x3C, bytes([new_bit]))
-                print("Write ability 4")
+                #print("Write ability 4")
                     
             ##############
             # RECEIVE ITEMS
             ##############
             
             
-            # If items are found in own world, do not award via this method
-            # This prevents getting 2 rewards (one in game, one from server)
-            # All other types of rewards are fine for getting 2 of technically
-            
-            # if you want to skip own items for stuff like weapons/armor etc, use below
-            
-            if ctx.slot == item.player:
-                pass
-                # print("Self item, skip")
-                
-            else:
-                if arch_item_id in item_ram_data.keys():
+            if arch_item_id in item_ram_data.keys():
+                if ctx.slot == item.player:
+                    pass
+                    #print("Self item, skip")
+                    
+                else:
+    
                     d4 = await snes_read(ctx, WRAM_START + 0x640, 0x100)
             
                     ram_current_item_map = {}
@@ -303,12 +338,12 @@ class FFVCDSNIClient(SNIClient):
                         
                         if new_item_idx:
                             # this should always be true, or else something real bad is happening in inventory >_>;....
-                            print("Adding new item %s at %s" % (new_item_byte, WRAM_START + 0x640 + new_item_idx))
+                            #print("Adding new item %s at %s" % (new_item_byte, WRAM_START + 0x640 + new_item_idx))
                             snes_buffered_write(ctx, WRAM_START + 0x640 + new_item_idx, bytes([int(new_item_byte,base=16)]))
                             snes_buffered_write(ctx, WRAM_START + 0x740 + new_item_idx, bytes([1]))
                         else:
                             pass
-                            print("Could not create for %s " % new_item_byte)
+                            #print("Could not create for %s " % new_item_byte)
 
 
             ####################            
@@ -331,7 +366,7 @@ class FFVCDSNIClient(SNIClient):
                             break
                             
                         snes_buffered_write(ctx, WRAM_START + 0xA00 + key_item_addr_offset, bytes([new_bit]))
-                        print("Write key item")
+                        #print("Write key item")
 
                 elif arch_item_id == 1005 or arch_item_id == 1006:   # handle hiryuu / submarine
                     # first handle key item for menu text
@@ -339,200 +374,16 @@ class FFVCDSNIClient(SNIClient):
                     current_bit = await snes_read(ctx, WRAM_START + 0xA00 + key_item_addr_offset, 0x01)
                     new_bit = hex_or_return_int(hex(current_bit[0]), key_item_bit)
                     snes_buffered_write(ctx, WRAM_START + 0xA00 + key_item_addr_offset, bytes([new_bit]))
-                    print("Write key item")
+                    #print("Write key item")
                     
                     # then handle coords writing
                     for key_item_data_entry in key_item_data_entries[1:]:
                         key_item_byte, key_item_addr_offset, key_item_direction = key_item_data_entry
                         snes_buffered_write(ctx, WRAM_START + 0xA00 + key_item_addr_offset, bytes([int(key_item_byte,base=16)]))
-                        print("Write key item")
+                        #print("Write key item")
                         
             await snes_flush_writes(ctx)
                     
                     
         return 
     
-    
-    
-        
-        
-        
-        
-        
-        
-        
-        
-        save_file_name = await snes_read(ctx, FFVCD_FILE_NAME_ADDR, 0x5)
-        if save_file_name is None or save_file_name[0] == 0x00 or save_file_name == bytes([0x55] * 0x05):
-            # We haven't loaded a save file
-            return
-
-        new_checks = []
-        from worlds.FFVCD.Rom import location_rom_data, item_rom_data, boss_location_ids, level_unlock_map
-        location_ram_data = await snes_read(ctx, WRAM_START + 0x5FE, 0x81)
-        for loc_id, loc_data in location_rom_data.items():
-            if loc_id not in ctx.locations_checked:
-                data = location_ram_data[loc_data[0] - 0x5FE]
-                masked_data = data & (1 << loc_data[1])
-                bit_set = (masked_data != 0)
-                invert_bit = ((len(loc_data) >= 3) and loc_data[2])
-                if bit_set != invert_bit:
-                    # FFVCD_TODO: Handle non-included checks
-                    new_checks.append(loc_id)
-
-        verify_save_file_name = await snes_read(ctx, FFVCD_FILE_NAME_ADDR, 0x5)
-        if verify_save_file_name is None or verify_save_file_name[0] == 0x00 or verify_save_file_name == bytes([0x55] * 0x05) or verify_save_file_name != save_file_name:
-            # We have somehow exited the save file (or worse)
-            ctx.rom = None
-            return
-
-        rom = await snes_read(ctx, FFVCD_ROMHASH_START, ROMHASH_SIZE)
-        if rom != ctx.rom:
-            ctx.rom = None
-            # We have somehow loaded a different ROM
-            return
-
-        for new_check_id in new_checks:
-            ctx.locations_checked.add(new_check_id)
-            location = ctx.location_names[new_check_id]
-            snes_logger.info(
-                f'New Check: {location} ({len(ctx.locations_checked)}/{len(ctx.missing_locations) + len(ctx.checked_locations)})')
-            await ctx.send_msgs([{"cmd": 'LocationChecks', "locations": [new_check_id]}])
-
-        # FFVCD_TODO: Make this actually visually display new things received (ASM Hook required)
-        recv_count = await snes_read(ctx, FFVCD_RECV_PROGRESS_ADDR, 1)
-        recv_index = recv_count[0]
-
-        if recv_index < len(ctx.items_received):
-            item = ctx.items_received[recv_index]
-            recv_index += 1
-            logging.info('Received %s from %s (%s) (%d/%d in list)' % (
-                color(ctx.item_names[item.item], 'red', 'bold'),
-                color(ctx.player_names[item.player], 'yellow'),
-                ctx.location_names[item.location], recv_index, len(ctx.items_received)))
-
-            snes_buffered_write(ctx, FFVCD_RECV_PROGRESS_ADDR, bytes([recv_index]))
-            if item.item in item_rom_data:
-                item_count = await snes_read(ctx, WRAM_START + item_rom_data[item.item][0], 0x1)
-                new_item_count = item_count[0] + 1
-                for address in item_rom_data[item.item]:
-                    snes_buffered_write(ctx, WRAM_START + address, bytes([new_item_count]))
-
-                # Handle Coin Displays
-                current_level = await snes_read(ctx, WRAM_START + 0x5E3, 0x5)
-                overworld_locked = ((await snes_read(ctx, WRAM_START + 0x5FC, 0x1))[0] == 0x01)
-                if item.item == 0xDC3002 and not overworld_locked and (current_level[0] == 0x0A and current_level[2] == 0x00 and current_level[4] == 0x03):
-                    # Bazaar and Barter
-                    item_count = await snes_read(ctx, WRAM_START + 0xB02, 0x1)
-                    new_item_count = item_count[0] + 1
-                    snes_buffered_write(ctx, WRAM_START + 0xB02, bytes([new_item_count]))
-                elif item.item == 0xDC3002 and not overworld_locked and current_level[0] == 0x04:
-                    # Swanky
-                    item_count = await snes_read(ctx, WRAM_START + 0xA26, 0x1)
-                    new_item_count = item_count[0] + 1
-                    snes_buffered_write(ctx, WRAM_START + 0xA26, bytes([new_item_count]))
-                elif item.item == 0xDC3003 and not overworld_locked and (current_level[0] == 0x0A and current_level[2] == 0x08 and current_level[4] == 0x01):
-                    # Boomer
-                    item_count = await snes_read(ctx, WRAM_START + 0xB02, 0x1)
-                    new_item_count = item_count[0] + 1
-                    snes_buffered_write(ctx, WRAM_START + 0xB02, bytes([new_item_count]))
-            else:
-                # Handle Patch and Skis
-                if item.item == 0xDC3007:
-                    num_upgrades = 1
-                    inventory = await snes_read(ctx, WRAM_START + 0x605, 0xF)
-
-                    if (inventory[0] & 0x02):
-                        num_upgrades = 3
-                    elif (inventory[13] & 0x08) or (inventory[0] & 0x01):
-                        num_upgrades = 2
-
-                    if num_upgrades == 1:
-                        snes_buffered_write(ctx, WRAM_START + 0x605, bytes([inventory[0] | 0x01]))
-                        if inventory[4] == 0:
-                            snes_buffered_write(ctx, WRAM_START + 0x609, bytes([0x01]))
-                        elif inventory[6] == 0:
-                            snes_buffered_write(ctx, WRAM_START + 0x60B, bytes([0x01]))
-                        elif inventory[8] == 0:
-                            snes_buffered_write(ctx, WRAM_START + 0x60D, bytes([0x01]))
-                        elif inventory[10] == 0:
-                            snes_buffered_write(ctx, WRAM_START + 0x60F, bytes([0x01]))
-
-                        cove_mekanos_progress = await snes_read(ctx, WRAM_START + 0x691, 0x2)
-                        snes_buffered_write(ctx, WRAM_START + 0x691, bytes([cove_mekanos_progress[0] | 0x01]))
-                        snes_buffered_write(ctx, WRAM_START + 0x692, bytes([cove_mekanos_progress[1] | 0x01]))
-                    elif num_upgrades == 2:
-                        snes_buffered_write(ctx, WRAM_START + 0x605, bytes([inventory[0] | 0x02]))
-                        if inventory[4] == 0:
-                            snes_buffered_write(ctx, WRAM_START + 0x609, bytes([0x02]))
-                        elif inventory[6] == 0:
-                            snes_buffered_write(ctx, WRAM_START + 0x60B, bytes([0x02]))
-                        elif inventory[8] == 0:
-                            snes_buffered_write(ctx, WRAM_START + 0x60D, bytes([0x02]))
-                        elif inventory[10] == 0:
-                            snes_buffered_write(ctx, WRAM_START + 0x60F, bytes([0x02]))
-                    elif num_upgrades == 3:
-                        snes_buffered_write(ctx, WRAM_START + 0x606, bytes([inventory[1] | 0x20]))
-
-                        k3_ridge_progress = await snes_read(ctx, WRAM_START + 0x693, 0x2)
-                        snes_buffered_write(ctx, WRAM_START + 0x693, bytes([k3_ridge_progress[0] | 0x01]))
-                        snes_buffered_write(ctx, WRAM_START + 0x694, bytes([k3_ridge_progress[1] | 0x01]))
-                elif item.item == 0xDC3000:
-                    # Handle Victory
-                    if not ctx.finished_game:
-                        await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
-                        ctx.finished_game = True
-                else:
-                    print("Item Not Recognized: ", item.item)
-                pass
-
-            await snes_flush_writes(ctx)
-
-        # Handle Collected Locations
-        levels_to_tiles = await snes_read(ctx, ROM_START + 0x3FF800, 0x60)
-        tiles_to_levels = await snes_read(ctx, ROM_START + 0x3FF860, 0x60)
-        for loc_id in ctx.checked_locations:
-            if loc_id not in ctx.locations_checked and loc_id not in boss_location_ids:
-                loc_data = location_rom_data[loc_id]
-                data = await snes_read(ctx, WRAM_START + loc_data[0], 1)
-                invert_bit = ((len(loc_data) >= 3) and loc_data[2])
-                if not invert_bit:
-                    masked_data = data[0] | (1 << loc_data[1])
-                    snes_buffered_write(ctx, WRAM_START + loc_data[0], bytes([masked_data]))
-
-                    if (loc_data[1] == 1):
-                        # Make the next levels accessible
-                        level_id = loc_data[0] - 0x632
-                        tile_id = levels_to_tiles[level_id] if levels_to_tiles[level_id] != 0xFF else level_id
-                        tile_id = tile_id + 0x632
-                        if tile_id in level_unlock_map:
-                            for next_level_address in level_unlock_map[tile_id]:
-                                next_level_id = next_level_address - 0x632
-                                next_tile_id = tiles_to_levels[next_level_id] if tiles_to_levels[next_level_id] != 0xFF else next_level_id
-                                next_tile_id = next_tile_id + 0x632
-                                next_data = await snes_read(ctx, WRAM_START + next_tile_id, 1)
-                                snes_buffered_write(ctx, WRAM_START + next_tile_id, bytes([next_data[0] | 0x01]))
-
-                    await snes_flush_writes(ctx)
-                else:
-                    masked_data = data[0] & ~(1 << loc_data[1])
-                    snes_buffered_write(ctx, WRAM_START + loc_data[0], bytes([masked_data]))
-                    await snes_flush_writes(ctx)
-                ctx.locations_checked.add(loc_id)
-
-        # Calculate Boomer Cost Text
-        boomer_cost_text = await snes_read(ctx, WRAM_START + 0xAAFD, 2)
-        if boomer_cost_text[0] == 0x31 and boomer_cost_text[1] == 0x35:
-            boomer_cost = await snes_read(ctx, ROM_START + 0x349857, 1)
-            boomer_cost_tens = int(boomer_cost[0]) // 10
-            boomer_cost_ones = int(boomer_cost[0]) % 10
-            snes_buffered_write(ctx, WRAM_START + 0xAAFD, bytes([0x30 + boomer_cost_tens, 0x30 + boomer_cost_ones]))
-            await snes_flush_writes(ctx)
-
-        boomer_final_cost_text = await snes_read(ctx, WRAM_START + 0xAB9B, 2)
-        if boomer_final_cost_text[0] == 0x32 and boomer_final_cost_text[1] == 0x35:
-            boomer_cost = await snes_read(ctx, ROM_START + 0x349857, 1)
-            boomer_cost_tens = boomer_cost[0] // 10
-            boomer_cost_ones = boomer_cost[0] % 10
-            snes_buffered_write(ctx, WRAM_START + 0xAB9B, bytes([0x30 + boomer_cost_tens, 0x30 + boomer_cost_ones]))
-            await snes_flush_writes(ctx)

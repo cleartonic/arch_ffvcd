@@ -11,7 +11,22 @@ class ItemData:
 
 
 def create_items(world):
-    # add progression items first
+    
+    # add victory first
+    
+    
+    # manually update location and item table
+    exdeath = world.multiworld.get_location("ExDeath", world.player)    
+    
+    exdeath_item_id = 1200
+    new_item = world.create_item("Victory",  
+                                ItemClassification.progression, 
+                                exdeath_item_id + arch_item_offset, 
+                                world.player)
+    exdeath.place_locked_item(new_item)
+    
+    
+    # add progression items
     placed_items = []
     for key_item_name in [i for i in item_table if "Key Items" in item_table[i].groups]:
         item_data = item_table[key_item_name]
@@ -536,6 +551,9 @@ item_table = {
     "2nd Tablet" : ItemData(1018, ItemClassification.progression, ["Unique", "Key Items"]),
     "3rd Tablet" : ItemData(1019, ItemClassification.progression, ["Unique", "Key Items"]),
     "4th Tablet" : ItemData(1020, ItemClassification.progression, ["Unique", "Key Items"]),
+
+    "Victory" : ItemData(1200, ItemClassification.progression, ["Victory"]),
+
 }
 
 item_groups = {}

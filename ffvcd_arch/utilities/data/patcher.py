@@ -209,12 +209,12 @@ def bool_to_int(boolean):
         return 0
     
 
-def copy_ffv(seed):
+def copy_ffv(seed, arch_options):
 
     new_filename = "FFVCD_%s.smc" % seed
     if "win" in os.sys.platform:
         cd_path = os.path.abspath(os.path.join(THIS_FILEPATH,os.pardir,os.pardir,'process'))
-        command = '''(cd %s && copy "Final Fantasy V (J).smc" "output/%s")''' % (cd_path, new_filename)
+        command = '''(cd %s && copy "%s" "output/%s")''' % (cd_path, arch_options['source_rom_abs_path'], new_filename)
         logging.error(command)    
         response = subprocess.run(command, shell=True)
         new_filename = os.path.abspath(os.path.join(THIS_FILEPATH, os.pardir, os.pardir,'process' ,'output', new_filename))
@@ -263,8 +263,8 @@ def patch_random(filename, patchname):
 
 
 def process_new_seed(seed = random.randint(0,999999), arch_options = {}):
-    new_filename = copy_ffv(str(seed))
-    filename = new_filename
+    new_filename = copy_ffv(str(seed), arch_options)
     patch_and_return(new_filename, arch_options)
+    return new_filename
 
 

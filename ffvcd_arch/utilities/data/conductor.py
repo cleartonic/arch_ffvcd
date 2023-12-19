@@ -61,6 +61,7 @@ class Conductor():
         self.arch_data = arch_data
         self.arch_options = arch_options
         self.player = player
+        self.filename_randomized = None
         self.seed = seed
         self.fjf = arch_options['four_job']
         self.fjf_strict = False
@@ -2410,7 +2411,7 @@ class Conductor():
 
         
     def patch_file(self):
-        patcher.process_new_seed(self.seed, self.arch_options)
+        self.filename_randomized = patcher.process_new_seed(self.seed, self.arch_options)
 
     def randomize(self, random_engine=None):
 
@@ -2429,6 +2430,10 @@ class Conductor():
         df = self.DM.files['arch_id']
         
         for address, arch_item_data in self.arch_data.items():
+            if address == 'C0FFFF':
+                print("Skipping Exdeath at C0FFFF")
+                continue
+            
             arch_player = arch_item_data['loc_player']
             arch_item_name = arch_item_data['loc_name']
             
@@ -2604,7 +2609,7 @@ class Conductor():
         spoiler_path, patch_path = self.save_spoiler_and_patch(spoiler, patch)
         
         self.patch_file()
-        return pass_flag, (spoiler_path, patch_path)
+        return pass_flag, (spoiler_path, patch_path), self.filename_randomized
 
 
 
@@ -2626,7 +2631,7 @@ if __name__ == "__main__":
     while attempts < 10:
         arch_options = {'job_palettes': False, 'four_job': False, 'extra_patches': True, 'remove_flashes': True}
         conductor = Conductor(random, arch_options, arch_data, player = 1, seed = SEED_NUM) 
-        pass_flag, (spoiler, patch) = conductor.randomize()
+        pass_flag, (spoiler, patch), filename_randomized = conductor.randomize()
         if pass_flag:
             attempts = 100
             seed_success = True

@@ -1,8 +1,9 @@
 from copy import deepcopy
 from BaseClasses import MultiWorld, Region, Entrance, LocationProgressType, ItemClassification
 from .items import item_table, item_groups
-from .locations import location_data, FFVCDLocation, create_location, LocationData
+from .locations import location_data, FFVCDLocation, create_location, LocationData, loc_id_start
 from worlds.generic.Rules import add_rule
+from .items import arch_item_offset
 
 def create_region(multiworld: MultiWorld, player: int, region_name: str, parent_region : Region = None):
     # print("Creating region %s" % region_name)
@@ -137,9 +138,15 @@ def create_regions(multiworld, player: int):
     # multiworld.regions += regions
 
     void_region = multiworld.get_region("Void", player)
-    ld = LocationData("ExDeath", address = None, area = "Void")
-    exdeath = create_location(multiworld, player, ld, void_region)
+    exdeath = multiworld.get_location("ExDeath", player)
+    exdeath.parent_region = void_region
     void_region.locations.append(exdeath)
+
+
+
+
+    add_rule(exdeath, lambda state: state.has("1st Tablet", player) and state.has("2nd Tablet", player) \
+             and state.has("3rd Tablet", player) and state.has("4th Tablet", player))
 
 class FFVCDRegion(Region):
     def __init__(self, name, player, multiworld):
