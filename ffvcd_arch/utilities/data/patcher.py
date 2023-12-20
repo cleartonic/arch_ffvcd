@@ -211,7 +211,7 @@ def bool_to_int(boolean):
 
 def copy_ffv(seed, arch_options, output_directory):
 
-    new_filename = "FFVCD_%s.smc" % seed
+    new_filename = "FFVCD_%s_%s.smc" % (arch_options['player'], seed)
     source_path = arch_options['source_rom_abs_path']
     new_filename = os.path.abspath(os.path.join(output_directory, new_filename))
     if "win" in os.sys.platform:

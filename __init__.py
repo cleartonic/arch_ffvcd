@@ -128,6 +128,7 @@ class FFVCDWorld(World):
             options_conductor['remove_flashes'] = False
             
         options_conductor['source_rom_abs_path'] = self.source_rom_abs_path
+        options_conductor['player'] = self.player
             
         return options_conductor
                 
