@@ -137,7 +137,7 @@ class FFVCDWorld(World):
     def generate_output(self, output_directory: str):
         
         
-        
+        # move 
 
         self.cond.save_spoiler_and_patch(output_directory)
         self.filename_randomized = self.cond.patch_file(output_directory)
@@ -170,10 +170,8 @@ class FFVCDWorld(World):
         
         patch.write()
     
-        if os.path.exists(rompath):
-            os.unlink(rompath)
-        if os.path.exists(rompath):
-            os.unlink(rompath)
+        # if os.path.exists(rompath):
+        #     os.unlink(rompath)
 
         
         self.rom_name_available_event.set() # make sure threading continues and errors are collected

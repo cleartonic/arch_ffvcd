@@ -4,7 +4,6 @@
 *.~lock.*
 *.sfc
 *.smc
-process/*
 utilities/data/log_analysis_render/*
 projects/test_asm/*
 utilities/discord/config.yaml
