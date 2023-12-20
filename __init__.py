@@ -55,6 +55,8 @@ class FFVCDWorld(World):
 
     web = FFVCDWebWorld()
     set_rules = set_rules
+    
+    cond = None
 
     
     def __init__(self, world: MultiWorld, player: int):
@@ -68,8 +70,9 @@ class FFVCDWorld(World):
         if not os.path.exists(rom_file):
             raise FileNotFoundError(rom_file)
         else:
+            import Utils
             cls.rom_file = rom_file
-            cls.source_rom_abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, rom_file))
+            cls.source_rom_abs_path = os.path.abspath(Utils.user_path(rom_file))
 
     def create_item(self, name: str, classification, item_data_id, player) -> Item:
         return FFVCDItem(name, classification, item_data_id, player)
@@ -98,8 +101,8 @@ class FFVCDWorld(World):
         options_conductor = self.parse_options_for_conductor()
 
         
-        cond = conductor.Conductor(self.multiworld.random, options_conductor, arch_data = data, player = self.player, seed = self.multiworld.seed)
-        pass_flag, (spoiler, patch), self.filename_randomized = cond.randomize()
+        self.cond = conductor.Conductor(self.multiworld.random, options_conductor, arch_data = data, player = self.player, seed = self.multiworld.seed)
+        self.cond.randomize()
         
 
     def parse_options_for_conductor(self):
@@ -132,7 +135,12 @@ class FFVCDWorld(World):
         create_regions(self.multiworld, self.player)
 
     def generate_output(self, output_directory: str):
-        # file output/generation handled by post_fill -> ffv career day conductor         
+        
+        
+        
+
+        self.cond.save_spoiler_and_patch(output_directory)
+        self.filename_randomized = self.cond.patch_file(output_directory)
 
 
         rompath = os.path.join(output_directory, f"{self.multiworld.get_out_file_name_base(self.player)}.smc")
@@ -143,6 +151,7 @@ class FFVCDWorld(World):
         import shutil
         print("Moving %s -> %s" % (self.filename_randomized, rompath))
         shutil.copy(self.filename_randomized, rompath)
+        print("File moved")
         ################
 
         if os.path.exists(self.filename_randomized):
@@ -168,7 +177,7 @@ class FFVCDWorld(World):
 
         
         self.rom_name_available_event.set() # make sure threading continues and errors are collected
-
+        print("Finished generate_output function")
         
         
     def modify_multidata(self, multidata: dict):

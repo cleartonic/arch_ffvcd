@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import pandas as pd 
-import random
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 import math
@@ -19,16 +17,22 @@ class Collectible(ABC):
     """ 
     def __init__(self, reward_id, reward_name, reward_value, related_jobs,
                  max_count, tier=None, valid = None):
-        #pandas imports a blank field as a float nan. This is the easiest way to none it.
+        
+
         if type(max_count) is float:
             self.max_count = None
         else:
-            self.max_count = int(max_count)
+            try:
+                self.max_count = int(max_count)
+            except:
+                self.max_count = None
+            
+            
         self.reward_id = reward_id
         self.collectible_name = reward_name
         self.reward_value = reward_value
         self.related_jobs = [x.replace('"', '').replace(' ', '')
-                              .replace('“', '').replace('”', '')
+                              .replace("'", '')
                              for x in related_jobs]
         self.placed_reward = None
 
@@ -37,9 +41,12 @@ class Collectible(ABC):
             self.tier = int(tier)
         else:
             self.tier = None
-        if valid is None:
+            
+        if valid:
+            self.valid = valid
+        elif valid is None:
             self.valid = True
-        else:
+        elif not valid:
             self.valid = valid == "TRUE"
         self.place_weight = 1
 
@@ -312,22 +319,22 @@ class CollectibleManager():
         
         logging.error("Collectible Manager enter Init")
         logging.error("CM: Initializing Items")
-        items = [Item(x, data_manager.files['items'].loc[x]) for x in data_manager.files['items'].index.values]
+        items = [Item(k, v) for k, v in data_manager.files['items'].items()]
         logging.error("CM: Items Initialized")
         logging.error("CM: Initializing Magics")
-        magics = [Magic(x, data_manager.files['magics'].loc[x],self.collectible_config) for x in data_manager.files['magics'].index.values]
+        magics = [Magic(k, v ,self.collectible_config) for k, v in data_manager.files['magics'].items()]
         logging.error("CM: Magics Initialized")
         logging.error("CM: Initializing Crystals")
-        crystals = [Crystal(x, data_manager.files['crystals'].loc[x]) for x in data_manager.files['crystals'].index.values]
+        crystals = [Crystal(k, v) for k, v in data_manager.files['crystals'].items()]
         logging.error("CM: Crystals Initialized")
         logging.error("CM: Initializing Abilities")
-        abilities = [Ability(x, data_manager.files['abilities'].loc[x],self.collectible_config) for x in data_manager.files['abilities'].index.values]
+        abilities = [Ability(k, v, self.collectible_config) for k, v in data_manager.files['abilities'].items()]
         logging.error("CM: Abilities Initialized")
         logging.error("CM: Initializing Gil")
-        gil = [Gil(x, data_manager.files['gil'].loc[x]) for x in data_manager.files['gil'].index.values]
+        gil = [Gil(k, v) for k, v in data_manager.files['gil'].items()]
         logging.error("CM: Gil Initialized")
         logging.error("CM: Initializing Key Items")
-        key_items = [KeyItem(x, data_manager.files['key_items'].loc[x]) for x in data_manager.files['key_items'].index.values]
+        key_items = [KeyItem(k, v) for k, v in data_manager.files['key_items'].items()]
         logging.error("CM: Key Items Initialized")
         logging.error("CM: Initializing Internal Properties")
         self.collectibles = items + magics + crystals + abilities + gil + key_items

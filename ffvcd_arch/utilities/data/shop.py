@@ -6,7 +6,7 @@ NUM_SHOPS = 64
 class Shop(object):
     def __init__(self, index, collectible_manager, data_manager):
         self.idx = index
-        self.generate_from_df(data_manager.files['shops'])
+        self.generate_from_data(data_manager.files['shops'])
         
         # The below capacity penalizes the capacity of high value shops more than others 
         self.capacity = int(max((int(self.num_items) * int(self.tier) * .5) - round(int(self.tier) ** 1.5),1))
@@ -20,7 +20,13 @@ class Shop(object):
         self.valid
         self.num_items
         '''
-        self.valid = self.valid  == 'TRUE'
+        
+        if not self.valid:
+            self.valid = self.valid  == 'TRUE'
+        else:
+           self.valid == True 
+
+
         self.num_items = int(self.num_items)
         #shops can only sell items or magic, by default
         if self.shop_type == '00':
@@ -84,7 +90,7 @@ class Shop(object):
         readable_current = [x.shop_name if x is not None else "None" for x in self.contents]
         readable_current_tier = ["T"+str(x.tier) if x is not None else "  " for x in self.contents]
         shops_dict = {'00':'Magic','01':'Item','07':'Ability/Crystal'}
-        output = "Shop: " + self.readable_name + " (Tier " + self.tier + ")" + "\n"
+        output = "Shop: " + self.readable_name + " (Tier " + str(self.tier) + ")" + "\n"
         try:
             output = output + "Shop Type: " + shops_dict[self.shop_type] + "\n"
         except:
@@ -99,13 +105,14 @@ class Shop(object):
         output = output + '{:30}'.format("Shop Item 8: " + readable_original[7]) + '{:5}'.format(" -> ") + '{:30}'.format(readable_current_tier[7] + " " + readable_current[7]) + "\n"
         return output
 
-    def generate_from_df(self, df):
-        s = df[df['idx']==self.idx].iloc[0]
-        if s.empty:
-            print("No match on index found for Shop class "+self.idx)
+    def generate_from_data(self, data):
+        
+        if self.idx in data.keys():
+            s = data[self.idx]
+            for k, v in s.items():
+                setattr(self,k,v)
         else:
-            for index in s.index:
-                setattr(self,index,s.loc[index])
+            print("No match on index found for Shop class %s" % self.idx)
 
     def new_contents(self, contents):
         self.contents = contents

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
 import random
 import operator
+import configparser
 import math, os, sys
 THIS_FILEPATH = os.path.dirname(__file__)
 sys.path.append(THIS_FILEPATH)
@@ -16,7 +16,7 @@ from enemy import *
 from formation import *
 from text_parser import *
 from monster_in_a_box import *
-from item_randomization import *
+# from item_randomization import *
 from misc_features import *
 import patcher
 
@@ -116,8 +116,42 @@ class Conductor():
         logging.error("Config assigned: FJF: %s Palettes: %s World_lock: %s Tiering_config: %s Tiering_percentage: %s Tiering_threshold: %s" % (str(self.fjf),str(self.jobpalettes),str(self.world_lock),str(self.tiering_config),str(self.tiering_percentage),str(self.tiering_threshold)))
 
         # Set up randomizer config
-        self.config = configparser.ConfigParser()
-        self.config.read(os.path.join(THIS_FILEPATH, "local-config.ini"))
+        self.config = {"PATHS" : {"data_table_path" : "tables/",
+                             "text_table_path" : "tables/text_tables/",
+                             "text_table_to_use" : "text_table_chest.csv"},
+                  "CONDUCTOR" : {'STARTING_CRYSTAL_ADDRESS' : 'E79F00',
+                                 'DEFAULT_POWER_CHANGE' : 1.75,
+                                 'STAT_MULTIPLIER' : .25,
+                                 'NUM_KEY_ITEMS' : 21,
+                                 'STARTING_CRYSTAL_COUNT' : 8,
+                                 'MINIMUM_ALLOWABLE_CRYSTAL_COUNT' : 4,
+                                 'ITEM_RELEVANCE_WEIGHT_MODIFIER' : 3,
+                                 'CRYSTAL_RELEVANCE_WEIGHT_MODIFIER' : 10000,
+                                 'ABILITY_RELEVANCE_WEIGHT_MODIFIER' : 10,
+                                 'MAGIC_RELEVANCE_WEIGHT_MODIFIER' : 10,
+                                 'SHINRYUU_VANILLA' : True,
+                                 'SHINRYUU_ADDRESS' : 'D135FA',
+                                 'ITEM_SHOP_CHANCE' : .6,
+                                 'MAGIC_SHOP_CHANCE' : .25,
+                                 'CRYSTAL_SHOP_CHANCE' : .15,
+                                 'BOSS_RANK_ADJUST_LOW' : .8,
+                                 'BOSS_RANK_ADJUST_MED' : 1.0,
+                                 'BOSS_RANK_ADJUST_HIGH' : 1.2}, 
+                  
+                  
+                  'REQUIREDITEMS' : {'item_ids' : ['E0', 'E1', 'E2', 'E3',
+                                                   'E4', 'E5', 'E6', 'E8',
+                                                   'E9', 'EC', 'ED', 'F0',
+                                                   'F1']},
+                  
+                  'BANNEDATODIN' : {'boss_names' : ['Gogo', 'Stalker', 'Sandworm', 'Golem']}
+                  }
+        
+        
+        
+        
+        
+        
         self.conductor_config = self.config['CONDUCTOR']
         logging.error("Init data tables...")
         # Set up data tables
@@ -694,7 +728,7 @@ class Conductor():
             
 
     def randomize_shops(self):
-        required_items = {i:0 for i in self.config['REQUIREDITEMS']['item_ids'].split('\n')}
+        required_items = {i:0 for i in self.config['REQUIREDITEMS']['item_ids']}
 
         if self.fjf_strict:
             item_chance = float(self.conductor_config['ITEM_SHOP_CHANCE'])
@@ -1037,9 +1071,7 @@ class Conductor():
         
         
         # Create patch file for custom AI and clear out any previous 
-        #with open('../../projects/test_asm/boss_hp_ai.asm','w') as file:
-        #    file.write('hirom\n')
-        banned_at_odin = self.config['BANNEDATODIN']['boss_names'].split('\n')
+        banned_at_odin = self.config['BANNEDATODIN']['boss_names']
     
 
 
@@ -1109,7 +1141,7 @@ class Conductor():
                 # and turn off bit 01 which corresponds to the white flash 
 
                 x = random_boss.formationid_16
-                x = int(x,base=16)
+                x = int(str(x),base=16)
                 x = bin(x).replace("0b","")
                 x = x.zfill(8)
                 x = x[0:7]
@@ -1164,7 +1196,10 @@ class Conductor():
                 
                 
 #            random_boss.boss_rank = new_rank
-            rank_delta = round((int(new_rank) - int(prev_rank))/3)
+            try:
+                rank_delta = round((int(new_rank) - int(prev_rank))/3)
+            except:
+                pass
             random_boss.rank_delta = rank_delta
 
             # Document random_boss' previous HP
@@ -1485,18 +1520,21 @@ class Conductor():
             for enemy in random_boss.enemy_classes:
                 list_of_randomized_enemies.append(enemy) #maintain a list of only the enemies we've actually randomized
                 text_str = text_str + '; ENEMY: '+enemy.enemy_name+'\n'
-                df_temp = self.DM.files['boss_scaling'][(self.DM.files['boss_scaling']['idx']==int(enemy.idx)) & (self.DM.files['boss_scaling']['boss_rank']==int(new_rank))]
+                
+                
+                data_idx = [i for i in self.DM.files['boss_scaling'] if self.DM.files['boss_scaling'][i]['idx'] == int(enemy.idx) and self.DM.files['boss_scaling'][i]['boss_rank'] == int(new_rank)][0]
+                data_temp = self.DM.files['boss_scaling'][data_idx]
                 
                 # STATS
                 for col in ['num_gauge_time','num_phys_power','num_phys_mult','num_evade','num_phys_def','num_mag_power','num_mag_def','num_mag_evade','num_mp']:
-                    setattr(enemy,col,df_temp[col])
+                    setattr(enemy,col,data_temp[col])
                 # both updates stats from this for loop and applies mult based on tier
                 
                 
                 # AI - check for & write moveset
-                offset_loc = df_temp['ai_starting_address'].iloc[0]
-                list_of_skills = df_temp['ai_skills'].iloc[0].strip("][").split(',')
-                list_of_writes = df_temp['ai_write_loc'].iloc[0].strip("][").split(',')
+                offset_loc = data_temp['ai_starting_address']
+                list_of_skills = data_temp['ai_skills'].strip("][").split(',')
+                list_of_writes = data_temp['ai_write_loc'].strip("][").split(',')
                 
                     # Check skill list if adjustments needed
                 if not offset_loc != offset_loc and list_of_skills != ['']: #ignore if NaN
@@ -1512,15 +1550,15 @@ class Conductor():
                     for address, skill in skill_dict.items():
                         text_str = text_str + '; New skill: '+skill+"\n"
                         text_str = text_str + 'org $'+address+"\n"
-                        text_str = text_str + 'db $' + self.DM.files['enemy_skills'][skill]+"\n"
+                        skill_idx = [i for i in self.DM.files['enemy_skills'] if self.DM.files['enemy_skills'][i]['name']==skill][0]
+                        text_str = text_str + 'db $' + skill_idx +"\n"
                     
                     
                 # AI - check for & write HP triggers
-                list_of_hp_writes = df_temp['ai_hp_write_loc'].iloc[0].strip("][").split(',')
-                list_of_hp_mult = df_temp['ai_hp_mult'].iloc[0].strip("][").split(',')
+                list_of_hp_writes = data_temp['ai_hp_write_loc'].strip("][").split(',')
+                list_of_hp_mult = data_temp['ai_hp_mult'].strip("][").split(',')
                 
                 if not offset_loc != offset_loc and list_of_hp_writes != ['']: #ignore if NaN
-                    write_flag = True
                     list_of_hp_addresses = []
                     for i in list_of_hp_writes:
                         list_of_hp_addresses.append(hex(int(offset_loc,base=16)+int(i)).replace("0x",""))
@@ -1702,11 +1740,11 @@ class Conductor():
             }
            
         for i in self.EM.enemies:
-            if i.idx == '253':
+            if i.idx == 253:
                 OMEGA = i
-            elif i.idx == '361':
+            elif i.idx == 361:
                 SHINRYUU = i
-            elif i.idx == '11':
+            elif i.idx == 11:
                 MAGICPOT = i # we're not randomizing them, but we need them in self.relevant_enemies
 
         # Have to do it somewhere - add Magic Pot to relevant enemies
@@ -1852,7 +1890,7 @@ class Conductor():
             status_skills = ['15','37','39','3A','3D','40','44','82','83','89','8A','8B','8D','94','95','9A','B5','BB','BC','EB','2E']
             
             
-            skill_name_dict = dict([(value, key) for key, value in self.DM.files['enemy_skills'].items()]) 
+            skill_name_dict = [(value, key) for key, value in self.DM.files['enemy_skills'].items()]
 
             output_str = output_str + ';  ########################### \n'
             output_str = output_str + ';  # New AI for enemy: '+random_enemy.enemy_name+'\n'
@@ -1861,28 +1899,28 @@ class Conductor():
             aoe_skill_names = []
             single_skill_names = []
             status_skill_names = []
-            if random_enemy.idx == '253': # OMEGA
+            if random_enemy.idx == 253: # OMEGA
                 ai_aoe = ['D0B235','D0B238','D0B23D','D0B245','D0B248','D0B24E']
                 ai_single = ['D0B236','D0B237','D0B23A','D0B23B','D0B23C','D0B243','D0B244','D0B247','D0B249','D0B24C','D0B24D','D0B25B','D0B25C','D0B25F','D0B260']
                 ai_status = ['D0B25D','D0B261']
                 
-            if random_enemy.idx == '361': # SHINRYUU
+            if random_enemy.idx == 361: # SHINRYUU
                 ai_aoe = ['D0C532','D0C533','D0C534','D0C53F','D0C540','D0C55C','D0C567']
                 ai_single = ['D0C52F','D0C53B','D0C546','D0C547','D0C54A','D0C54B','D0C52E']
                 ai_status = ['D0C530','D0C53A','D0C53C','D0C53E','D0C548','D0C54C']
             for ai in ai_aoe:
                 random_skill_hex = self.RE.choice(aoe_skills)
-                random_skill_name = skill_name_dict[random_skill_hex]
+                random_skill_name = self.DM.files['enemy_skills'][random_skill_hex]['name']
                 aoe_skill_names.append(random_skill_name)
                 output_str = output_str + '; New AOE skill: '+random_skill_name+'\norg $'+ai+'\ndb $'+random_skill_hex+'\n'
             for ai in ai_single:
                 random_skill_hex = self.RE.choice(single_target_skills)
-                random_skill_name = skill_name_dict[random_skill_hex]
+                random_skill_name = self.DM.files['enemy_skills'][random_skill_hex]['name']
                 single_skill_names.append(random_skill_name)
                 output_str = output_str + '; New single target skill: '+random_skill_name+'\norg $'+ai+'\ndb $'+random_skill_hex+'\n'
             for ai in ai_status:
                 random_skill_hex = self.RE.choice(status_skills)
-                random_skill_name = skill_name_dict[random_skill_hex]
+                random_skill_name = self.DM.files['enemy_skills'][random_skill_hex]['name']
                 status_skill_names.append(random_skill_name)
                 output_str = output_str + '; New status skill: '+random_skill_name+'\norg $'+ai+'\ndb $'+random_skill_hex+'\n'
             self.superbosses_spoiler = self.superbosses_spoiler + "AOE skills: "+str(aoe_skill_names)+"\n"
@@ -1926,7 +1964,7 @@ class Conductor():
         # Finally, create the "CODE OF THE VOID"
         
         # For some reason, couldn't get this to load in from star import from text_parser
-        text_dict2 = pd.read_csv(os.path.join(THIS_FILEPATH,self.config['PATHS']['text_table_path'], self.config['PATHS']['text_table_to_use']), header=None, index_col=1).to_dict()[0]
+        text_dict2 = self.TP.text_dict2
         #text_dict2 = pd.read_csv(os.path.join(os.path.pardir,'data','tables','text_tables','text_table_chest.csv'),header=None,index_col=1).to_dict()[0]
         
         letters = self.RE.sample('ABCDEFGHIJKLMNOPQRSTUVWXYZ',6)
@@ -2099,7 +2137,7 @@ class Conductor():
         # DATA
         ###########
         
-        hint_data = [hint for hint in self.DM.files['hints']['start']]
+        hint_data = [self.DM.files['hints'][i]['start'] for i in self.DM.files['hints']]
         
         
         hint_data_str = []
@@ -2398,20 +2436,21 @@ class Conductor():
         return spoiler, patch        
         
         
-    def save_spoiler_and_patch(self, spoiler, patch):
+    def save_spoiler_and_patch(self, output_directory):
         logging.error("Finished randomization process, saving to file.")
-        spoiler_path = os.path.join(THIS_FILEPATH, os.path.pardir,os.path.pardir,'process','r-patch.asm')
-        with open(spoiler_path,'w') as f:
-            f.write(patch)
-        patch_path = os.path.join(THIS_FILEPATH,os.path.pardir,os.path.pardir,'process','r-spoiler.txt')
-        with open(patch_path,'w') as f:
-            f.write(spoiler)
+        self.patch_path = os.path.join(output_directory,'r-patch.asm')
+        with open(self.patch_path,'w') as f:
+            f.write(self.patch)
+        self.spoiler_path = os.path.join(output_directory,'r-spoiler.txt')
+        with open(self.spoiler_path,'w') as f:
+            f.write(self.spoiler)
             
-        return spoiler_path, patch_path
+
 
         
-    def patch_file(self):
-        self.filename_randomized = patcher.process_new_seed(self.seed, self.arch_options)
+    def patch_file(self, output_directory):
+        self.filename_randomized = patcher.process_new_seed(self.seed, self.arch_options, output_directory)
+        return self.filename_randomized
 
     def randomize(self, random_engine=None):
 
@@ -2427,7 +2466,7 @@ class Conductor():
 
 
         
-        df = self.DM.files['arch_id']
+        arch_data = self.DM.files['arch_id']
         
         for address, arch_item_data in self.arch_data.items():
             if address == 'C0FFFF':
@@ -2447,7 +2486,7 @@ class Conductor():
                 if arch_player != self.player:
                     collectible = self.CM.create_arch_item(arch_item_name)
                 else:
-                    entry = df.loc[arch_item_name]
+                    entry = arch_data[[i for i in arch_data if arch_data[i]['name'] == arch_item_name][0]]
                     collectible = self.CM.get_by_arch(entry['item_type'], entry['item_id'])                
                 reward.set_collectible(collectible)
                 
@@ -2605,11 +2644,10 @@ class Conductor():
 
         patch = patch + self.randomize_dragon()
         
+        self.spoiler = spoiler
+        self.patch = patch
         
-        spoiler_path, patch_path = self.save_spoiler_and_patch(spoiler, patch)
-        
-        self.patch_file()
-        return pass_flag, (spoiler_path, patch_path), self.filename_randomized
+        return 
 
 
 
@@ -2629,7 +2667,8 @@ if __name__ == "__main__":
     seed_success = False
     
     while attempts < 10:
-        arch_options = {'job_palettes': False, 'four_job': False, 'extra_patches': True, 'remove_flashes': True}
+        arch_options = {'job_palettes': False, 'four_job': False, 'extra_patches': True, 'remove_flashes': True, 
+                        'source_rom_abs_path' : "E:\pmac_junk_rev_1\emulators\FFV\ROM\source rom\Final Fantasy V (U).sfc"}
         conductor = Conductor(random, arch_options, arch_data, player = 1, seed = SEED_NUM) 
         pass_flag, (spoiler, patch), filename_randomized = conductor.randomize()
         if pass_flag:

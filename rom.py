@@ -2,7 +2,7 @@ import Utils
 from Utils import read_snes_rom, __version__
 from worlds.Files import APDeltaPatch
 
-USHASH = 'd69b2115e17d1cf2cb3590d3f75febb9'
+USHASH = '5245a6ed780d896f416cc8824aa36182'
 ROM_PLAYER_LIMIT = 65535
 
 import hashlib
@@ -82,8 +82,8 @@ def get_base_rom_bytes(file_name: str = "") -> bytes:
         basemd5 = hashlib.md5()
         basemd5.update(base_rom_bytes)
         if USHASH != basemd5.hexdigest():
-            raise Exception('Supplied Base Rom does not match known MD5 for J(1.0) release. '
-                            'Get the correct game and version, then dump it')
+            print("\nSupplied Base Rom does not match known MD5 for J(1.0) with RPGe patch applied.\n")
+            raise Exception('Supplied Base Rom does not match known MD5 for J(1.0) with RPGe patch applied.')
         get_base_rom_bytes.base_rom_bytes = base_rom_bytes
     return base_rom_bytes
 

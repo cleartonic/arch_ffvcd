@@ -5,17 +5,21 @@ Created on Sun Oct 13 12:05:20 2019
 @author: PMAC
 """
 
-import os, sys
+import os, sys, json, pkgutil
 THIS_FILEPATH = os.path.dirname(__file__)
 sys.path.append(THIS_FILEPATH)
 
 
 def parse_ai_data(filename):
+    
     path_open = os.path.abspath(os.path.join(THIS_FILEPATH, 'portal_boss_ai',filename))
-    with open(path_open) as f:
-        data = f.read()
-    
-    
+    try:
+        with open(path_open) as f:
+            data = f.read()
+    except:
+        data = pkgutil.get_data(__name__,path_open).decode('utf-8-sig')
+
+
     data = data.split("\n")
     
     output = ''

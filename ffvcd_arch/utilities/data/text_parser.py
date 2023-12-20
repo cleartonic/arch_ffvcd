@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
-import configparser
 import os, sys
+import json, pkgutil
 THIS_FILEPATH = os.path.dirname(__file__)
 sys.path.append(THIS_FILEPATH)
 
@@ -9,13 +8,12 @@ class TextParser():
     def __init__(self, config):
         self.config = config
 
+        def load_json_data(filepath: str):
+            return json.loads(pkgutil.get_data(__name__,filepath).decode('utf-8-sig'))
+        
+        self.text_dict = load_json_data(os.path.join(THIS_FILEPATH, 'tables','text_tables', 'json','text_table_chest.json'))
+        self.text_dict2 = dict((v,k) for k,v in self.text_dict.items())
 
-        self.text_table_path = self.config['PATHS']['text_table_path']
-        self.table_to_use = self.config['PATHS']['text_table_to_use']
-
-        self.text_dict = pd.read_csv(os.path.join(THIS_FILEPATH,self.text_table_path, self.table_to_use), header=None, index_col=0).to_dict()[1]
-        self.text_dict2 = pd.read_csv(os.path.join(THIS_FILEPATH, self.text_table_path, self.table_to_use), header=None, index_col=1).to_dict()[0]
-        self.key_item_table = pd.read_csv(os.path.join(THIS_FILEPATH, self.text_table_path, 'key_item_text.csv'),header=None,index_col=0).to_dict()[1]
 
     def run_decrypt(self, byte_list):
         new_bytes = []

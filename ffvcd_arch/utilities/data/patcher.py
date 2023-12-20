@@ -61,7 +61,7 @@ FAKE_HEADER = bytearray.fromhex('''0001 0080 0000 0000 aabb 0400 0000 0000
 logging.basicConfig(filename="error.log", level=logging.ERROR, format="%(asctime)-15s %(message)s")
 
 
-def patch_and_return(filename, options):
+def patch_and_return(filename, options, output_directory):
     
 
     logging.error("Begin patch & return process")
@@ -105,7 +105,7 @@ def patch_and_return(filename, options):
 
 
 
-    patch_careerday(filename, options)
+    patch_careerday(filename, options, output_directory)
 
     patch_random(filename, RANDOMIZER_ASM)
     
@@ -209,15 +209,17 @@ def bool_to_int(boolean):
         return 0
     
 
-def copy_ffv(seed, arch_options):
+def copy_ffv(seed, arch_options, output_directory):
 
     new_filename = "FFVCD_%s.smc" % seed
+    source_path = arch_options['source_rom_abs_path']
+    new_filename = os.path.abspath(os.path.join(output_directory, new_filename))
     if "win" in os.sys.platform:
-        cd_path = os.path.abspath(os.path.join(THIS_FILEPATH,os.pardir,os.pardir,'process'))
-        command = '''(cd %s && copy "%s" "output/%s")''' % (cd_path, arch_options['source_rom_abs_path'], new_filename)
+        cd_path = os.path.abspath(output_directory)
+        command = '''(cd %s && copy "%s" "%s")''' % (cd_path, source_path, new_filename)
         logging.error(command)    
-        response = subprocess.run(command, shell=True)
-        new_filename = os.path.abspath(os.path.join(THIS_FILEPATH, os.pardir, os.pardir,'process' ,'output', new_filename))
+        subprocess.run(command, shell=True)
+        
     
         
         if os.path.exists(new_filename):
@@ -229,7 +231,7 @@ def copy_ffv(seed, arch_options):
     else:
         return None
     
-def patch_careerday(filename, options):
+def patch_careerday(filename, options, output_directory):
 
     fjf = bool_to_int(translateBool(options['four_job']))
     fourjoblock = bool_to_int(translateBool(options['four_job']))
@@ -262,9 +264,9 @@ def patch_random(filename, patchname):
     response = subprocess.run(command, shell=True)
 
 
-def process_new_seed(seed = random.randint(0,999999), arch_options = {}):
-    new_filename = copy_ffv(str(seed), arch_options)
-    patch_and_return(new_filename, arch_options)
+def process_new_seed(seed = random.randint(0,999999), arch_options = {}, output_directory = ''):
+    new_filename = copy_ffv(str(seed), arch_options, output_directory)
+    patch_and_return(new_filename, arch_options, output_directory)
     return new_filename
 
 

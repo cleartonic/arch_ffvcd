@@ -1,12 +1,12 @@
 from data_manager import *
 from enemy import *
 
-NUM_FORMATIONS = 513
+NUM_FORMATIONS = 512
 
 class Formation(object):
     def __init__(self,index,data_manager,enemy_manager,original_flag = False):
         self.idx = index
-        self.generate_from_df(data_manager.files['formations'])
+        self.generate_from_data(data_manager.files['formations'])
         '''
         self.offset
         self.randomized_boss
@@ -82,14 +82,15 @@ class Formation(object):
             print("Exception %s" % e)
             return ""
 
-    def generate_from_df(self, df):
-        s = df[df['idx']==str(self.idx)].iloc[0]
-        if s.empty:
-            print("No match on index found for Formation class "+self.idx)
+    def generate_from_data(self, data):
+        if str(self.idx) in data.keys():
+            s = data[str(self.idx)]
+            for k, v in s.items():
+                setattr(self,k,v)
+            pass
         else:
-            for index in s.index:
-                setattr(self,index,s.loc[index])
-                
+            print("No match on index found for Formation %s" % self.idx)
+            
     def assign_enemies(self,enemy_manager, data_manager, original_flag):
         enemy_list = []
         for enemy in ['enemy_1','enemy_2','enemy_3','enemy_4','enemy_5','enemy_6','enemy_7','enemy_8']:
@@ -147,7 +148,7 @@ class Formation(object):
 
 class FormationManager(object):
     def __init__(self, data_manager, enemy_manager):
-        self.formations = [Formation(x, data_manager, enemy_manager) for x in range(1, NUM_FORMATIONS)]
+        self.formations = [Formation(x, data_manager, enemy_manager) for x in data_manager.files['formations'].keys()]
 
     def get_patch(self,remove_ned_flag):
         output = ";=========="
