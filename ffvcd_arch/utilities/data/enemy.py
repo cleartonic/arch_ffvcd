@@ -230,10 +230,9 @@ class Enemy(object):
     def apply_rank_mult(self):
         rank_mult = self.rank_mult
         for stat in ['num_phys_power','num_phys_def','num_mag_power','num_mag_def','num_gil','num_level']:
-            try:
-                setattr(self,stat,str(round(int(getattr(self,stat)) * rank_mult)))
-            except:
-                breakpoint()
+
+            setattr(self,stat,str(round(int(getattr(self,stat)) * rank_mult)))
+
         self.update_all()
 
     def update_all(self):

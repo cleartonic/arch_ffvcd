@@ -52,7 +52,7 @@ ITEM_TYPE = "40"
 ITEM_SHOP_TYPE = "01"
 MAGIC_SHOP_TYPE = "00"
 CRYSTAL_SHOP_TYPE = "07"
-VERSION = "FFV Career Day v1.2"
+VERSION = "FFV Career Day Archipelago v1.0"
 
 class Conductor():
     def __init__(self, random_engine, arch_options, arch_data = {}, player = 1, seed = None):
@@ -1657,7 +1657,9 @@ class Conductor():
         output = output + "\n;================\n"
         output = output + "org $" + self.conductor_config['STARTING_CRYSTAL_ADDRESS']
         output = output + "\ndb $" + self.starting_crystal.patch_id
-        output = output + ", $" + self.starting_crystal.starting_spell_id
+        output = output + ", $" + str(self.starting_crystal.starting_spell_id).replace("'","")
+        
+        
         if self.fjf:
             for crystal in self.chosen_crystals:
                 index = self.RE.randint(0, len(crystal.starting_spell_list)-1)
@@ -1674,7 +1676,11 @@ class Conductor():
         output = output + "\nStarting job:     " + self.starting_crystal.reward_name    
         output = output + "\nStarting weapon:  " + self.starting_crystal.starting_weapon
         output = output + "\nStarting spell:   " + self.starting_crystal.starting_spell
-        output = output + "\nStarting ability: " + self.starting_crystal.starting_ability
+        if not self.starting_crystal.starting_ability:
+            ability_start = '00'
+        else:
+            ability_start = self.starting_crystal.starting_ability
+        output = output + "\nStarting ability: " + ability_start
         output = output + "\n-----***************************-----\n"
         if self.fjf:
             output = output + "Four Job Mode:"
@@ -2441,6 +2447,12 @@ class Conductor():
         self.patch_path = os.path.join(output_directory,'r-patch.asm')
         with open(self.patch_path,'w') as f:
             f.write(self.patch)
+            
+        # this path is currently being used to patch
+        RANDOMIZER_ASM = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'r-patch.asm')
+        with open(RANDOMIZER_ASM,'w') as f:
+            f.write(self.patch)
+
         self.spoiler_path = os.path.join(output_directory,'r-spoiler.txt')
         with open(self.spoiler_path,'w') as f:
             f.write(self.spoiler)
@@ -2467,6 +2479,8 @@ class Conductor():
 
         
         arch_data = self.DM.files['arch_id']
+        
+        
         
         for address, arch_item_data in self.arch_data.items():
             if address == 'C0FFFF':

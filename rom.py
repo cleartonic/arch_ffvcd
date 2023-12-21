@@ -2,7 +2,7 @@ import Utils
 from Utils import read_snes_rom, __version__
 from worlds.Files import APDeltaPatch
 
-USHASH = '5245a6ed780d896f416cc8824aa36182'
+USHASH = 'd69b2115e17d1cf2cb3590d3f75febb9'
 ROM_PLAYER_LIMIT = 65535
 
 import hashlib

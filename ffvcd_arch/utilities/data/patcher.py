@@ -128,7 +128,6 @@ def headers_and_translate(filename, reheader, rpge, extra_patches, smc):
     try:
         if extra_patches:
             logging.error("Applying extra patches")
-
             logging.error("Checking for unheadered files")
             if not reheader:
                 logging.error("REMOVING header from rom for extra_patches")
@@ -232,7 +231,11 @@ def copy_ffv(seed, arch_options, output_directory):
         return None
     
 def patch_careerday(filename, options, output_directory):
-
+    #
+    #
+    # TO DO - need to patch in the temporary output_directory rather than the static directory for .apworld integration
+    #
+    #
     fjf = bool_to_int(translateBool(options['four_job']))
     fourjoblock = bool_to_int(translateBool(options['four_job']))
     progressive_rewards = 0
@@ -259,6 +262,13 @@ def patch_careerday(filename, options, output_directory):
     response = subprocess.run(command, shell=True)
 
 def patch_random(filename, patchname):
+    #
+    #
+    # TO DO - need to patch in the temporary output_directory rather than the static directory for .apworld integration
+    #
+    #
+    
+    
     command = "{} --fix-checksum=off {} {}".format(ASAR_PATH, patchname, filename)
     logging.error(command)
     response = subprocess.run(command, shell=True)

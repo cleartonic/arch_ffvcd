@@ -50,7 +50,10 @@ def create_regions(multiworld, player: int):
 
             
     setup_region_and_entrance(multiworld, player, "Ancient Library", "World 1 Access", access_rule = None)
+    setup_region_and_entrance(multiworld, player, "Ancient Library Lower", "World 1 Access", access_rule =\
+                              lambda state: state.has("Ifrit's Fire", player))
     setup_region_and_entrance(multiworld, player, "Bal Castle", "World 2 Access", access_rule = None)
+    setup_region_and_entrance(multiworld, player, "Bal Castle Lower", "World 3 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Barrier Tower", "World 2 Access", access_rule = \
                               lambda state: state.has("Submarine Key", player))
     setup_region_and_entrance(multiworld, player, "Big Bridge", "World 2 Access", access_rule = \
@@ -61,19 +64,21 @@ def create_regions(multiworld, player: int):
     setup_region_and_entrance(multiworld, player, "Desert of Shifting Sands", "World 1 Access", access_rule = \
                               lambda state: state.has("SandwormBait", player))
     setup_region_and_entrance(multiworld, player, "Exdeath's Castle", "World 2 Access", access_rule = \
-                              lambda state: state.has("Bracelet", player))
-    setup_region_and_entrance(multiworld, player, "Flying Lonka Ruins", "World 1 Access", access_rule = None)
+                              lambda state: state.has("Bracelet", player) and state.has("Anti Barrier", player))
+    setup_region_and_entrance(multiworld, player, "Flying Lonka Ruins", "World 1 Access", access_rule =\
+                              lambda state: state.has("Adamantite", player))
     setup_region_and_entrance(multiworld, player, "Fork Tower", "World 3 Access", access_rule = \
                               lambda state: state.has("Elder Branch", player))
     setup_region_and_entrance(multiworld, player, "Great Trench", "World 3 Access", access_rule = \
                               lambda state: state.has("Trench Page", player)\
                               and state.has("Submarine Key", player))
-    setup_region_and_entrance(multiworld, player, "Hiryuu Valley", "World 1 Access", access_rule = None)
+    setup_region_and_entrance(multiworld, player, "Hiryuu Valley", "World 2 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Istory Falls", "World 3 Access", access_rule = \
                               lambda state: state.has("Falls Page", player)\
                               and state.has("Submarine Key", player))
     setup_region_and_entrance(multiworld, player, "Jacole", "World 1 Access", access_rule = None)
-    setup_region_and_entrance(multiworld, player, "Karnak", "World 1 Access", access_rule = None)
+    setup_region_and_entrance(multiworld, player, "Karnak", "World 1 Access", access_rule = \
+                              lambda state: state.has("Steamship Key", player))
     setup_region_and_entrance(multiworld, player, "Karnak Meteor", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Kelb", "World 2 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Kuzar", "World 2 Access", access_rule = None)
@@ -81,7 +86,8 @@ def create_regions(multiworld, player: int):
     setup_region_and_entrance(multiworld, player, "Lonka Meteor", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Mirage Village", "World 3 Access", access_rule = \
                               lambda state: state.has("Mirage Radar", player))
-    setup_region_and_entrance(multiworld, player, "Moogle Village", "World 2 Access", access_rule = None)
+    setup_region_and_entrance(multiworld, player, "Moogle Village", "World 2 Access", access_rule =\
+                              lambda state: state.has("Moogle Suit", player))
     setup_region_and_entrance(multiworld, player, "Moogle Waterway", "World 2 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Mua", "World 2 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Mua Forest", "World 2 Access", access_rule = \
@@ -90,22 +96,26 @@ def create_regions(multiworld, player: int):
     setup_region_and_entrance(multiworld, player, "North Mountain Upper", "World 3 Access", access_rule = \
                               lambda state: state.has("Mirage Radar", player))
     setup_region_and_entrance(multiworld, player, "Phoenix Tower", "World 3 Access", access_rule = \
-                              lambda state: state.has("Mirage Radar", player))
+                              lambda state: state.has("Mirage Radar", player) and state.has("Victory", player))
     setup_region_and_entrance(multiworld, player, "Pirate's Cave", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Pyramid", "World 3 Access", access_rule = \
                               lambda state: state.has("Pyramid Page", player))
-    setup_region_and_entrance(multiworld, player, "Rift", "World 3 Access", access_rule = None)
+    setup_region_and_entrance(multiworld, player, "Rift", "World 3 Access", access_rule = \
+                              lambda state: state.has("1st Tablet", player) and 
+                              state.has("2nd Tablet", player) and
+                              state.has("3rd Tablet", player) and
+                              state.has("4th Tablet", player))
     setup_region_and_entrance(multiworld, player, "Rugor", "World 2 Access", access_rule = None)
-    setup_region_and_entrance(multiworld, player, "Ruined City", "World 1 Access", access_rule = \
-                              lambda state: state.has("Adamantite", player))
+    setup_region_and_entrance(multiworld, player, "Ruined City", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Ship Graveyard", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Solitary Island", "World 3 Access", access_rule = \
                               lambda state: state.has("Shrine Page", player))
-    setup_region_and_entrance(multiworld, player, "Steamship", "World 1 Access", access_rule = None)
+    setup_region_and_entrance(multiworld, player, "Steamship", "World 1 Access", access_rule = \
+                              lambda state: state.has("Steamship Key", player))
     setup_region_and_entrance(multiworld, player, "Surgate Castle", "World 2 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Torna Canal", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Tule", "World 1 Access", access_rule = None)
-    setup_region_and_entrance(multiworld, player, "Tule Pass", "World 1 Access", access_rule = None)
+    setup_region_and_entrance(multiworld, player, "Tule Pass", "World 3 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Tycoon Castle", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Tycoon Meteor", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Void", "World 3 Access", access_rule = \
