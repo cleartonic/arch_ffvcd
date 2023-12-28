@@ -399,7 +399,7 @@ LocationData("Karnak Meteor - Titan (Boss)", address = "C0FB8C", area = "Karnak 
 LocationData("Ancient Library - Ifrit (Boss)", address = "C0FBB6", area = "Ancient Library",type="Key"),
 LocationData("Walse Kingdom - Shiva (Boss)", address = "C0FBB8", area = "Walse Kingdom",type="Key"),
 LocationData("Catapult - Crayclaw (Boss)", address = "C0FBBA", area = "Catapult",type="Key"),
-LocationData("Exdeath's Castle - Gilgamesh 1 (Boss)", address = "C0FB8E", area = "Exdeath's Castle",type="Key"),
+LocationData("Exdeath's Castle - Gilgamesh 1 (Boss)", address = "C0FB8E", area = "Exdeath's Castle Lower",type="Key"),
 LocationData("Big Bridge - Gilgamesh 2 (Boss)", address = "C0FB90", area = "Big Bridge",type="Key"),
 LocationData("Moogle Waterway - Tyrasaurus (Boss)", address = "C0FB92", area = "Moogle Waterway",type="Key"),
 LocationData("Bal Castle - Abductor (Boss)", address = "C0FB94", area = "Bal Castle",type="Key"),

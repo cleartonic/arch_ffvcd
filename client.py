@@ -178,6 +178,9 @@ class FFVCDSNIClient(SNIClient):
         
         
         
+        
+        
+        
 
         new_checks = []
         for event_flag_addr, event_flag_data in full_flag_dict.items():
@@ -187,13 +190,24 @@ class FFVCDSNIClient(SNIClient):
                 loc_bit = event_flag_data['bit']
                 direction = event_flag_data['direction']
                 loc_id = int(event_flag_addr,base=16) + loc_id_start
-                status = check_status_bits(ram_bit, loc_bit, direction)
+                
+                if event_flag_addr == "C0FFFF":
+                    status1 = check_status_bits(ram_bit, '01', direction)
+                    status2 = check_status_bits(ram_bit, '02', direction)
+                    status3 = check_status_bits(ram_bit, '04', direction)
+                    if status1 and status2 and status3:
+                        status = True
+                    else:
+                        status = False
+                else:
+                    status = check_status_bits(ram_bit, loc_bit, direction)
                 if loc_id not in ctx.locations_checked and status:
                     new_checks.append(loc_id)
                 # #print("%s%s" % ("{:<60}".format(event_flag_data['name']), status))
             except Exception as e:
                 pass
                 # print(e)    
+                
                 
 
         for new_check_id in new_checks:

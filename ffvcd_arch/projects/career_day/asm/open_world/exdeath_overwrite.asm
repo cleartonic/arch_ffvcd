@@ -73,12 +73,10 @@ org $c9fe66
 db $B5, $2D                     ;Play Sound Effect Demi, Qrter
 db $CD, $86, $07                ;Run event index 0786
 db $C8, $11, $08                ;Display Message/Text/Dialogue 11 08
-db $71                          ;Short pause
-db $0C                          ;<Unknown>
+db $A2, $C8            ; set address 000A2D bit ON 01
 db $06                          ;Player Bounce in Place
-db $01                          ;Player Move Up
-db $0B                          ;<Unknown>
 db $BD, $BA, $1C                ;Start Event Battle BA
+db $A2, $C9            ; set address 000A2D bit ON 02
 db $D0, $F0, $00                ;(Music) F0 00
 db $B4, $11                     ;Play Background Music (Nothing)
 db $B7, $0C 					; add cara over galuf for non glitchy ending...?

@@ -634,8 +634,8 @@ event_flag_dict = {'C0FAB2': {'name': 'Wind Crystal (Knight)',
   'direction': 'ON',
   'address': 'C0FBB4'},
  'C0FFFF': {'name': 'Exdeath (Victory)',
-  'byte': '0A53',
-  'bit': '40',
+  'byte': '0A2D',
+  'bit': '05',
   'direction': 'ON',
   'address': 'C0FFFF'}}
 
