@@ -13,7 +13,7 @@ sys.path.append(THIS_FILEPATH)
 ASAR_PATH = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'asar', 'asar')
 MAIN_PATCH = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'projects', 'career_day', 'asm', 'all_patches.asm')
 TRANSLATE_PATCH = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'patches', 'rpge.ips')
-RANDOMIZER_ASM = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'r-patch.asm')
+# RANDOMIZER_ASM = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'r-patch.asm')
 
 EXTRA_PATCH4 = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'patches', 'ff5_lr_menu-1.0.ips')
 EXTRA_PATCH5 = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'patches', 'ff5_optimize.ips')
@@ -61,7 +61,7 @@ FAKE_HEADER = bytearray.fromhex('''0001 0080 0000 0000 aabb 0400 0000 0000
 logging.basicConfig(filename="error.log", level=logging.ERROR, format="%(asctime)-15s %(message)s")
 
 
-def patch_and_return(filename, options, output_directory):
+def patch_and_return(filename, spoiler_file, options, output_directory, r_patch_file):
     
 
     logging.error("Begin patch & return process")
@@ -104,10 +104,9 @@ def patch_and_return(filename, options, output_directory):
         filename = filename.replace(".smc",".sfc")
 
 
-
     patch_careerday(filename, options, output_directory)
 
-    patch_random(filename, RANDOMIZER_ASM)
+    patch_random(filename, r_patch_file)
     
     
     
@@ -213,22 +212,19 @@ def copy_ffv(seed, arch_options, output_directory):
     new_filename = "FFVCD_%s_%s.smc" % (arch_options['player'], seed)
     source_path = arch_options['source_rom_abs_path']
     new_filename = os.path.abspath(os.path.join(output_directory, new_filename))
-    if "win" in os.sys.platform:
-        cd_path = os.path.abspath(output_directory)
-        command = '''(cd %s && copy "%s" "%s")''' % (cd_path, source_path, new_filename)
-        logging.error(command)    
-        subprocess.run(command, shell=True)
-        
+    cd_path = os.path.abspath(output_directory)
+    command = '''(cd %s && copy "%s" "%s")''' % (cd_path, source_path, new_filename)
+    logging.error(command)    
+    subprocess.run(command, shell=True)
     
-        
-        if os.path.exists(new_filename):
-            return new_filename
-        else:
-            return None
-        
-        
+
+    
+    if os.path.exists(new_filename):
+        return new_filename
     else:
         return None
+    
+        
     
 def patch_careerday(filename, options, output_directory):
     #
@@ -237,7 +233,7 @@ def patch_careerday(filename, options, output_directory):
     #
     #
     fjf = bool_to_int(translateBool(options['four_job']))
-    fourjoblock = bool_to_int(translateBool(options['four_job']))
+    fourjoblock = bool_to_int(translateBool(options['four_job_lock_menu']))
     progressive_rewards = 0
     abbreviated = 1
     grantkeyitems = 0
@@ -248,8 +244,13 @@ def patch_careerday(filename, options, output_directory):
     end_on_exdeath1 = 0
     remove_ned = 0
     kuzar_credits_warp = 0
-    # world_lock should be passed as an integer (either 0, 1 or 2). If it's not, make a function to do so
-    world_lock = 1 # set to 1 for all seeds for now 
+    
+    # options
+    world_lock = int(options['world_lock'])
+    if world_lock == 3:
+        world_lock = 0
+    
+
     remove_flashes = 0
     
     command = "{} --define dash=1 --define learning=1 --define pitfalls=1 \
@@ -257,26 +258,20 @@ def patch_careerday(filename, options, output_directory):
     --define fourjobmode={} --define fourjoblock={} --define world_lock={} --define starting_cara={} --define end_on_exdeath1={}  --define remove_ned={} --define everysteprandomencounter={} --define explv50={} --define remove_flashes={} --define kuzar_credits_warp={} \
     --fix-checksum=off --define vanillarewards=0 --no-title-check {} {}".format(ASAR_PATH,progressive_rewards, abbreviated, grantkeyitems, free_tablets, fjf, fourjoblock, world_lock, starting_cara, end_on_exdeath1, remove_ned, everysteprandomencounter, explv50, remove_flashes, kuzar_credits_warp, MAIN_PATCH, os.path.abspath(filename))
 
+
     logging.error(command)
     
     response = subprocess.run(command, shell=True)
 
 def patch_random(filename, patchname):
-    #
-    #
-    # TO DO - need to patch in the temporary output_directory rather than the static directory for .apworld integration
-    #
-    #
-    
-    
     command = "{} --fix-checksum=off {} {}".format(ASAR_PATH, patchname, filename)
     logging.error(command)
     response = subprocess.run(command, shell=True)
 
 
-def process_new_seed(seed = random.randint(0,999999), arch_options = {}, output_directory = ''):
+def process_new_seed(r_patch_file, spoiler_file, seed = random.randint(0,999999), arch_options = {}, output_directory = ''):
     new_filename = copy_ffv(str(seed), arch_options, output_directory)
-    patch_and_return(new_filename, arch_options, output_directory)
+    patch_and_return(new_filename, spoiler_file, arch_options, output_directory, r_patch_file)
     return new_filename
 
 

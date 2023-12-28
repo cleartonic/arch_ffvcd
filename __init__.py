@@ -11,7 +11,7 @@ from BaseClasses import Item, MultiWorld, Tutorial, ItemClassification, Location
 from Fill import fill_restrictive, FillError, sweep_from_pool
 from worlds.AutoWorld import World, WebWorld
 from worlds.generic.Rules import add_item_rule
-from .items import item_table, item_groups, create_items, FFVCDItem
+from .items import item_table, item_groups, create_items, FFVCDItem, arch_item_offset, EXDEATH_ITEM_ID, WORLD2_ACCESS_ITEM_ID, WORLD3_ACCESS_ITEM_ID
 from .locations import location_data, loc_id_start
 from .options import ffvcd_options
 from .regions import create_regions
@@ -19,7 +19,7 @@ from .rules import set_rules
 from worlds.ffvcd.ffvcd_arch.utilities.data import conductor
 from .client import FFVCDSNIClient
 from .rom import LocalRom, get_base_rom_path, patch_rom, FFVCDDeltaPatch
-
+from collections import Counter
 
 # lots of credit to others in the repository, such as pokemonrb, dkc3 and tloz
 
@@ -74,6 +74,34 @@ class FFVCDWorld(World):
             cls.rom_file = rom_file
             cls.source_rom_abs_path = os.path.abspath(Utils.user_path(rom_file))
 
+
+    def generate_early(self):
+        self.starting_items = Counter()
+        world_lock = [i for i in self.multiworld.world_lock[self.player].value][0]
+        if world_lock == '2':
+            new_item = self.create_item("World 2 Access (Item)",  
+                        ItemClassification.progression, 
+                        WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
+                        self.player)
+            self.starting_items[new_item] = 1
+            self.multiworld.push_precollected(new_item)
+        if world_lock == '3':
+            new_item = self.create_item("World 2 Access (Item)",  
+                        ItemClassification.progression, 
+                        WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
+                        self.player)
+            self.starting_items[new_item] = 1
+            self.multiworld.push_precollected(new_item)
+            new_item = self.create_item("World 3 Access (Item)",  
+                        ItemClassification.progression, 
+                        WORLD3_ACCESS_ITEM_ID + arch_item_offset, 
+                        self.player)
+            self.starting_items[new_item] = 1
+            self.multiworld.push_precollected(new_item)
+
+            
+
+
     def create_item(self, name: str, classification, item_data_id, player) -> Item:
         return FFVCDItem(name, classification, item_data_id, player)
 
@@ -95,7 +123,8 @@ class FFVCDWorld(World):
             if loc.address:
                 lname = loc.item.name
                 data[hex(loc.address - loc_id_start).replace("0x","").upper()] = {'loc_name' : lname,
-                                                                   'loc_player' : loc.item.player}
+                                                                   'loc_player' : loc.item.player,
+                                                                   'loc_progression' : loc.item.advancement}
 
         
         options_conductor = self.parse_options_for_conductor()
@@ -116,6 +145,11 @@ class FFVCDWorld(World):
             options_conductor['four_job'] = True
         else:
             options_conductor['four_job'] = False
+        if self.multiworld.four_job[self.player]:
+            
+            options_conductor['four_job_lock_menu'] = True
+        else:
+            options_conductor['four_job_lock_menu'] = False
             
         if self.multiworld.extra_patches[self.player]:
             options_conductor['extra_patches'] = True
@@ -126,8 +160,10 @@ class FFVCDWorld(World):
             options_conductor['remove_flashes'] = True
         else:
             options_conductor['remove_flashes'] = False
+
             
         options_conductor['source_rom_abs_path'] = self.source_rom_abs_path
+        options_conductor['world_lock'] = [i for i in self.multiworld.world_lock[self.player].value][0]
         options_conductor['player'] = self.player
             
         return options_conductor
@@ -140,8 +176,8 @@ class FFVCDWorld(World):
         
         # move 
 
-        self.cond.save_spoiler_and_patch(output_directory)
-        self.filename_randomized = self.cond.patch_file(output_directory)
+        r_patch_file, spoiler_file, temp_patch_path, temp_spoiler_path = self.cond.save_spoiler_and_patch(output_directory)
+        self.filename_randomized = self.cond.patch_file(output_directory, r_patch_file, spoiler_file)
 
 
         rompath = os.path.join(output_directory, f"{self.multiworld.get_out_file_name_base(self.player)}.smc")
@@ -157,6 +193,11 @@ class FFVCDWorld(World):
 
         if os.path.exists(self.filename_randomized):
             os.unlink(self.filename_randomized)
+        if os.path.exists(r_patch_file):
+            os.unlink(r_patch_file)
+        if os.path.exists(spoiler_file):
+            os.unlink(spoiler_file)
+        
         
         
         rom = LocalRom(rompath) # obsolete file=get_base_rom_path() for now, but later will need to use it somehow
@@ -166,10 +207,10 @@ class FFVCDWorld(World):
         
         rom.write_to_file(rompath)
 
-        patch = FFVCDDeltaPatch(os.path.splitext(rompath)[0]+FFVCDDeltaPatch.patch_file_ending, player=self.player,
-                               player_name=self.multiworld.player_name[self.player], patched_path=rompath)
+        # patch = FFVCDDeltaPatch(os.path.splitext(rompath)[0]+FFVCDDeltaPatch.patch_file_ending, player=self.player,
+        #                         player_name=self.multiworld.player_name[self.player], patched_path=rompath)
         
-        patch.write()
+        # patch.write()
     
         # if os.path.exists(rompath):
         #     os.unlink(rompath)

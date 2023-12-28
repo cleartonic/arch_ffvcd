@@ -1,4 +1,4 @@
-from Options import Toggle, DefaultOnToggle
+from Options import Toggle, DefaultOnToggle, OptionSet
 
 
 class JobPalettes(Toggle):
@@ -24,35 +24,24 @@ class RemoveFlashes(DefaultOnToggle):
     """
     display_name = "Apply flash removal"
 
-# class LennaName(FreeText):
-#     """
-#     Set Lenna's name
-#     """
-#     display_name = "Lenna's name"
-#     default = "Lenna"
-# class GalufName(FreeText):
-#     """
-#     Set Galuf's name
-#     """
-#     display_name = "Galuf's name"
-#     default = "Galuf"
-# class FarisName(FreeText):
-#     """
-#     Set Faris' name
-#     """
-#     display_name = "Faris' name"
-#     default = "Faris"
-# class KrileName(FreeText):
-#     """
-#     Set Krile's name
-#     """
-#     display_name = "Krile's name"
-#     default = "Krile"
+class WorldLock(OptionSet):
+    """Determines how many worlds are available from the start.
+    1: The first world is available. Adamantite unlocks World 2. Defeating Exdeath in World 2 unlocks World 3 via Anti Barrier and Bracelet.
+    2: Worlds 1 and 2 are available. Defeating Exdeath in World 2 unlocks World 3 via Anti Barrier and Bracelet.
+    3: All worlds are available immediately.    
+    """
+    display_name = "World Lock"
+    valid_keys = {
+        "1",
+        "2",
+        "3",
+    }
 
 
 ffvcd_options = {
     "job_palettes": JobPalettes,
     "four_job": FourJob,
     "extra_patches" : ExtraPatches,
-    "remove_flashes" : RemoveFlashes
+    "remove_flashes" : RemoveFlashes,
+    "world_lock" : WorldLock
     }

@@ -41,11 +41,13 @@ def create_regions(multiworld, player: int):
 
     setup_region_and_entrance(multiworld, player, "World 1 Access", "Crystal Warp", access_rule = None)
     setup_region_and_entrance(multiworld, player, "World 2 Access", "Crystal Warp", access_rule = \
-                              lambda state: state.has("Adamantite", player))
+                              lambda state: (state.has("Adamantite", player)) 
+                              or (state.has("World 2 Access (Item)", player)))
     setup_region_and_entrance(multiworld, player, "World 3 Access", "Crystal Warp", access_rule = \
-                              lambda state: state.has("Adamantite", player)\
+                              lambda state: ((state.has("Adamantite", player)\
                               and state.has("Bracelet", player)\
-                              and state.has("Anti Barrier", player))
+                              and state.has("Anti Barrier", player)))\
+                              or (state.has("World 3 Access (Item)", player)))
 
 
             
@@ -63,10 +65,10 @@ def create_regions(multiworld, player: int):
     setup_region_and_entrance(multiworld, player, "Crescent Island", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Desert of Shifting Sands", "World 1 Access", access_rule = \
                               lambda state: state.has("SandwormBait", player))
-    setup_region_and_entrance(multiworld, player, "Exdeath's Castle Lower", "World 2 Access", access_rule = \
-                              lambda state: state.has("Anti Barrier", player))
     setup_region_and_entrance(multiworld, player, "Exdeath's Castle", "World 2 Access", access_rule = \
                               lambda state: state.has("Bracelet", player) and state.has("Anti Barrier", player))
+    setup_region_and_entrance(multiworld, player, "Exdeath's Castle Lower", "World 2 Access", access_rule = \
+                              lambda state: state.has("Anti Barrier", player))
     setup_region_and_entrance(multiworld, player, "Flying Lonka Ruins", "World 1 Access", access_rule =\
                               lambda state: state.has("Adamantite", player))
     setup_region_and_entrance(multiworld, player, "Fork Tower", "World 3 Access", access_rule = \

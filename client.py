@@ -178,9 +178,6 @@ class FFVCDSNIClient(SNIClient):
         
         
         
-        
-        
-        
 
         new_checks = []
         for event_flag_addr, event_flag_data in full_flag_dict.items():
@@ -207,7 +204,6 @@ class FFVCDSNIClient(SNIClient):
             except Exception as e:
                 pass
                 # print(e)    
-                
                 
 
         for new_check_id in new_checks:

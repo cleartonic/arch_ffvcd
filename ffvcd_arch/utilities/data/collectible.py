@@ -281,7 +281,7 @@ class KeyItem(Collectible):
 class ArchItem(Collectible):
     name = "Arch Item"
     reward_type = '70'
-    def __init__(self, arch_item_name):
+    def __init__(self, arch_item_name, arch_player, arch_item_progression):
         super().__init__("DF", 
                          arch_item_name, 
                          0,
@@ -291,6 +291,9 @@ class ArchItem(Collectible):
                          valid=True)
         self.writeable_name = "Arch Item"
         self.text_location = "Arch Item"
+        self.arch_item_name = arch_item_name
+        self.arch_player = arch_player
+        self.arch_item_progression = arch_item_progression
         self.required_by_placement = []
 
     #key_items is an array, even if it's only one item
@@ -384,8 +387,8 @@ class CollectibleManager():
             self.remove_from_placement_history(i)
             i.required_by_placement = []
 
-    def create_arch_item(self, arch_item_name):
-        return ArchItem(arch_item_name)
+    def create_arch_item(self, arch_item_name, arch_player, arch_item_progression):
+        return ArchItem(arch_item_name, arch_player, arch_item_progression)
 
 
     def get_all_of_type_respect_counts(self, t):

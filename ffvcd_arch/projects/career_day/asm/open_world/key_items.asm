@@ -42,10 +42,6 @@ LDA #$01
 LDX #$0068
 JSL SetKeyItemBits
 
-LDA #$20
-LDX #$0067
-JSL SetKeyItemBits
-
 LDA #$40
 LDX #$0067
 JSL UnsetKeyItemBits

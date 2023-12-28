@@ -230,7 +230,7 @@ LocationData("Flying Lonka Ruins - Flying Lonka Ruins Chest (Ancient Sword)", ad
 LocationData("Flying Lonka Ruins - Flying Lonka Ruins Chest (Full Moon)", address = "D1339A", area = "Flying Lonka Ruins"),
 LocationData("Flying Lonka Ruins - Flying Lonka Ruins Chest (Power Wrist)", address = "D1339E", area = "Flying Lonka Ruins"),
 LocationData("Flying Lonka Ruins - Flying Lonka Ruins Chest (Ether)", address = "D133A2", area = "Flying Lonka Ruins"),
-LocationData("Exdeath's Castle - Flying Lonka Ruins Chest (Cabin)", address = "D133A6", area = "Exdeath's Castle"),
+LocationData("Exdeath's Castle - Exdeath's Castle Chest (Cabin)", address = "D133A6", area = "Exdeath's Castle"),
 LocationData("Exdeath's Castle - Exdeath's Castle Chest (Ether 1)", address = "D133AA", area = "Exdeath's Castle"),
 LocationData("Exdeath's Castle - Exdeath's Castle Chest (Diamond Shield)", address = "D133AE", area = "Exdeath's Castle"),
 LocationData("Exdeath's Castle - Exdeath's Castle Chest (Ice Shield)", address = "D133B2", area = "Exdeath's Castle"),

@@ -1665,6 +1665,8 @@ class Conductor():
                 index = self.RE.randint(0, len(crystal.starting_spell_list)-1)
                 crystal.starting_spell = crystal.starting_spell_list[index]
                 crystal.starting_spell_id = crystal.starting_spell_ids[index]
+                if "'" in crystal.starting_spell_id:
+                    crystal.starting_spell_id = crystal.starting_spell_id.replace("'","")
 
                 output = output + ", $" + crystal.patch_id
                 output = output + ", $" + crystal.starting_spell_id
@@ -1989,28 +1991,30 @@ class Conductor():
         # hint_text will be a list of text strings with hints
         hint_text = []
             
+        
+
+
         keys = self.RM.get_rewards_by_style('key')
         if self.key_items_in_mib:
             keys = keys + self.RM.get_rewards_by_style('mib_key')
     
         keys = [i for i in keys if i.description != 'WingRaptor' and i.description != "Beginner's House Chest MIB 1"]
-
-                
-            
         keys_main = []
-        keys_barren = []
-        
-        
+        areas_barren = []
         for i in keys:
             if i.collectible.name == 'Key Item':
                 keys_main.append(i)
+            elif i.collectible.name == "Arch Item":
+                if i.collectible.arch_item_progression:
+                    keys_main.append(i)
             else:
-                keys_barren.append(i)
+                areas_barren.append(i.area)
 
+        areas_barren = list(set(areas_barren))
         self.RE.shuffle(keys_main)
-        self.RE.shuffle(keys_barren)
+        self.RE.shuffle(areas_barren)
         
-        keys_hint1 = keys_main[:3]
+        keys_hint1 = keys_main[:10]
         
         ###########
         # DIRECT
@@ -2018,141 +2022,42 @@ class Conductor():
         # Pick 3 hints to say "X" item is at "Y" location
         
         for key in keys_hint1:
-            hint_str = "They say that %s|holds the %s." % (key.area, key.collectible.collectible_name)
-            hint_text.append(hint_str)
-            
-            
-        ###########
-        # PATH
-        ###########
-    
-        tablets = [x for x in keys if 'Tablet' in x.collectible.collectible_name]
-        # init required_rewards with tablets
-        required_rewards = tablets[:]
-        
-        tablet_reqs = []
-        for tablet in tablets:
-            if self.world_lock == 0 or self.world_lock == '0':
-                tablet_reqs = getattr(tablet, 'required_key_items')
+            if key.collectible.name == "Arch Item":
+                hint_str = "They say that %s|holds player %s's %s." % (key.area, key.collectible.arch_player, key.collectible.collectible_name)
             else:
-                tablet_reqs = getattr(tablet,'required_key_items_lock'+str(self.world_lock))
-            if tablet_reqs != None:            
-                # now iterate through tablet_reqs and find rewards that correspond. Pop them when done 
-                loop_flag = True
-                iter_num = 0
-                while loop_flag and iter_num < 50:
-                    iter_num += 1
-                    if tablet_reqs == []:
-                        loop_flag = False
-                        break
-                    if type(tablet_reqs) == str:
-                        tablet_reqs = [tablet_reqs]
-                    # logging.error(tablet_reqs)
-                    # find the reward associated with the latest tablet_req
-                    new_rewards = [x for x in keys if x.collectible.collectible_name == tablet_reqs[0]]                       
-                    if new_rewards:
-                        new_reward = new_rewards[0]
-                        if new_reward not in required_rewards:
-                            required_rewards.append(new_reward)
-                        # check if this new reward has any reqs of its own, if it does, add to tablet_reqs
-                        if self.world_lock == 0 or self.world_lock == '0':
-                            new_reward_reqs = getattr(tablet, 'required_key_items')
-                        else:
-                            new_reward_reqs = getattr(new_reward,'required_key_items_lock'+str(self.world_lock))
-                        if new_reward_reqs:
-                            for i in new_reward_reqs:
-                                if i not in tablet_reqs:
-        #                            logging.error("Adding %s to tablet_reqs" % i)
-                                    tablet_reqs.append(i)
-                        tablet_reqs = tablet_reqs[1:]
-        #                time.sleep(2)
-            else:
-                continue # if there's no requirements, move on to next 
-                        
-#        for i in required_rewards:
-#            logging.error(i.collectible.collectible_name + " - " + i.description  + " - " +  str(i.required_key_items_lock1))
-        
-        # now choose 5 of them, and add to hints
-        self.RE.shuffle(required_rewards)
-        for key in required_rewards[:5]:
-            hint_str = "They say that %s|is on the path to the Void." % (key.area)
+                hint_str = "They say that %s|holds this player's %s." % (key.area, key.collectible.collectible_name)
             hint_text.append(hint_str)
-    
-    
-    
-        
-        
+
         ###########
         # BARREN
         ###########
-    
-        # Build area list from spreadsheet
-        tags = {}
-        for key in keys:
-            try:
-                for tag in key.hint_tags:
-                    tags[tag] = ''
-            except:
-                print("Error on barren spoiler for key %s" % (key.__dict__))
-                pass
-    
-        # Get all tags that are present anywhere in the main game            
-        tags_main = []
-        for key in keys_main:
-            for tag in key.hint_tags:
-                tags_main.append(tag)
-        tags_main = list(set(tags_main))
-        
-        # now take all tags, and find out which ones aren't in the tags_main 
-        barren_tags = []
-        for tag in tags:
-            if tag not in tags_main and tag != 'forest':
-                barren_tags.append(tag)
-                
-        # Then add random ones, depending on how many present
-        if len(barren_tags) < 5:
-            barren_num = len(barren_tags)
-        else:
-            barren_num = 5
-            
-        self.RE.shuffle(barren_tags)
-        barren_tags = self.RE.sample(barren_tags,barren_num)
-        for i in barren_tags:
-            hint_str = "They say that %s areas|hold no keys of value." % i
+
+        for area in areas_barren[:5]:
+            hint_str = "They say that %s|holds no progression items." % (area)
             hint_text.append(hint_str)
-            
-        ###########
-        # WORLD
-        ###########
-        
-        # pick 5 random keys_main, which will be a different set of keys from the first 5 hints
-        # make up difference of barren hints 
-        
-        world_num = 15 - len(hint_text)
-        
-        world_keys = keys_main[-world_num:]
-        
-        for key in world_keys:
-            hint_str = "They say that the %s|is present in World %s." % (key.collectible.collectible_name, key.world)
-            hint_text.append(hint_str)
-        
-        self.RE.shuffle(hint_text) 
-        
-        
+
         ###########
         # DATA
         ###########
         
         hint_data = [self.DM.files['hints'][i]['start'] for i in self.DM.files['hints']]
         
-        
         hint_data_str = []
         tp = TextParser(self.config)
         for hint in hint_text:
-            hint_data_str.append(tp.run_encrypt_text_string_hints(hint) + ", $00")
+            try:
+                hint_data_str.append(tp.run_encrypt_text_string_hints(hint) + ", $00")
+            except:
+                breakpoint()
+                pass
             
+        # didnt generate enough hints for barren areas, filler hints
+        if len(hint_data) > len(hint_data_str):
+            delta = len(hint_data) - len(hint_data_str)
+            for _ in delta:
+                hint_data_str.append(tp.run_encrypt_text_string_hints("They say that ExDeath|was not such a bad guy.") + ", $00")
             
-        
+
         hint_data = dict(zip(hint_data, hint_data_str))
         
         output_str_asar = '\n; Hints\n'
@@ -2444,24 +2349,29 @@ class Conductor():
         
     def save_spoiler_and_patch(self, output_directory):
         logging.error("Finished randomization process, saving to file.")
-        self.patch_path = os.path.join(output_directory,'r-patch.asm')
+        self.patch_path = os.path.join(output_directory,'ffvcd-patch-%s-%s.asm' % (self.player, self.seed))
         with open(self.patch_path,'w') as f:
             f.write(self.patch)
             
         # this path is currently being used to patch
-        RANDOMIZER_ASM = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'r-patch.asm')
+        RANDOMIZER_ASM = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'ffvcd-patch-%s-%s.asm' % (self.player, self.seed))
         with open(RANDOMIZER_ASM,'w') as f:
             f.write(self.patch)
 
-        self.spoiler_path = os.path.join(output_directory,'r-spoiler.txt')
+        self.spoiler_path = os.path.join(output_directory,'ffvcd-spoiler-%s-%s.txt' % (self.player, self.seed))
         with open(self.spoiler_path,'w') as f:
             f.write(self.spoiler)
-            
 
+        SPOILER_FILE = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'ffvcd-spoiler-%s-%s.txt' % (self.player, self.seed))
+        with open(SPOILER_FILE,'w') as f:
+            f.write(self.spoiler)
+
+            
+        return RANDOMIZER_ASM, SPOILER_FILE, self.patch_path, self.spoiler_path
 
         
-    def patch_file(self, output_directory):
-        self.filename_randomized = patcher.process_new_seed(self.seed, self.arch_options, output_directory)
+    def patch_file(self, output_directory, r_patch_file, spoiler_file):
+        self.filename_randomized = patcher.process_new_seed(r_patch_file, spoiler_file, self.seed, self.arch_options, output_directory)
         return self.filename_randomized
 
     def randomize(self, random_engine=None):
@@ -2489,16 +2399,19 @@ class Conductor():
             
             arch_player = arch_item_data['loc_player']
             arch_item_name = arch_item_data['loc_name']
+            arch_item_progression = arch_item_data['loc_progression']
             
             try:
                 
                 # find matching reward based on address
                 reward = self.RM.get_reward_by_address(address)
                 
+                
+                
                 # find matching collectible based on arch_id.csv
                 
                 if arch_player != self.player:
-                    collectible = self.CM.create_arch_item(arch_item_name)
+                    collectible = self.CM.create_arch_item(arch_item_name, arch_player, arch_item_progression)
                 else:
                     entry = arch_data[[i for i in arch_data if arch_data[i]['name'] == arch_item_name][0]]
                     collectible = self.CM.get_by_arch(entry['item_type'], entry['item_id'])                
@@ -2512,7 +2425,6 @@ class Conductor():
         
                 
         
-        # breakpoint() 
         
         
         
@@ -2684,13 +2596,14 @@ if __name__ == "__main__":
         arch_options = {'job_palettes': False, 'four_job': False, 'extra_patches': True, 'remove_flashes': True, 
                         'source_rom_abs_path' : "E:\pmac_junk_rev_1\emulators\FFV\ROM\source rom\Final Fantasy V (U).sfc"}
         conductor = Conductor(random, arch_options, arch_data, player = 1, seed = SEED_NUM) 
-        pass_flag, (spoiler, patch), filename_randomized = conductor.randomize()
-        if pass_flag:
-            attempts = 100
-            seed_success = True
-        else:
-            attempts += 1
+        conductor.randomize()
+        # if pass_flag:
+        attempts = 100
+        seed_success = True
+    # else:
+        #     attempts += 1
         
+    
     if not seed_success:
         logging.error("\n ***** FAILED GENERATION, NO SEED CREATED ***** \n\n")
 
