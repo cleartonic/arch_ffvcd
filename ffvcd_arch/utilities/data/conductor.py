@@ -2048,14 +2048,22 @@ class Conductor():
             try:
                 hint_data_str.append(tp.run_encrypt_text_string_hints(hint) + ", $00")
             except:
-                breakpoint()
                 pass
             
         # didnt generate enough hints for barren areas, filler hints
         if len(hint_data) > len(hint_data_str):
             delta = len(hint_data) - len(hint_data_str)
-            for _ in delta:
-                hint_data_str.append(tp.run_encrypt_text_string_hints("They say that ExDeath|was not such a bad guy.") + ", $00")
+            for _ in range(0, delta):
+                empty_hint = self.RE.choice(["They say that ExDeath|was not such a bad guy.",
+                                             "They say that Enuo|supported local businesses.",
+                                             "They say that Triton|likes bubble tea.",
+                                             "They say that Phobos|is a fan of eggs.",
+                                             "They say that Nereid|doesn't like to swim.",
+                                             "They say that ArcheoAvis|wants a hug.",
+                                             "They say that Titan|likes takoyaki.",
+                                             "They say that Queen|Karnak enjoys singing.",])
+                hint_text.append(empty_hint)
+                hint_data_str.append(tp.run_encrypt_text_string_hints(empty_hint) + ", $00")
             
 
         hint_data = dict(zip(hint_data, hint_data_str))
