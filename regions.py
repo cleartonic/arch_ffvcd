@@ -100,7 +100,7 @@ def create_regions(multiworld, player: int):
     setup_region_and_entrance(multiworld, player, "North Mountain Upper", "World 3 Access", access_rule = \
                               lambda state: state.has("Mirage Radar", player))
     setup_region_and_entrance(multiworld, player, "Phoenix Tower", "World 3 Access", access_rule = \
-                              lambda state: state.has("Mirage Radar", player) and state.has("Victory", player))
+                              lambda state: state.has("Mirage Radar", player))
     setup_region_and_entrance(multiworld, player, "Pirate's Cave", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Pyramid", "World 3 Access", access_rule = \
                               lambda state: state.has("Pyramid Page", player))

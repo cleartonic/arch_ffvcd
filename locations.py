@@ -39,15 +39,20 @@ class FFVCDLocation(Location):
         
         # only allow kuzar to place this seed's items
         if location_data.area == "Kuzar":
-            self.item_rule = lambda item: item.player == self.player and item.classification != ItemClassification.progression
+            self.item_rule = lambda item: item.player == self.player and not (item.classification & ItemClassification.progression)
         
         # disallow mua from being progression, both town (brave/chicken) and dungeon (non burning vs burning)
         if location_data.area == "Mua":
-            self.item_rule = lambda item: item.player == self.player and item.classification != ItemClassification.progression
+            self.item_rule = lambda item: item.player == self.player and not (item.classification & ItemClassification.progression)
+
+        # only allow kuzar to place this seed's items
+        if location_data.area == "Karnak":
+            self.item_rule = lambda item: item.player == self.player and not (item.classification & ItemClassification.progression)
+
             
         # disallow lone wolf/under bal castle related checks for some weird progression problems
         if location_data.address in ['C0FB38', 'C0FB3A']:
-            self.item_rule = lambda item: item.player == self.player and item.classification != ItemClassification.progression
+            self.item_rule = lambda item: item.player == self.player and not (item.classification & ItemClassification.progression)
 
         
 
@@ -74,7 +79,7 @@ LocationData("Flying Lonka Ruins - Earth Crystal (Dragoon)", address = "C0FACA",
 LocationData("Flying Lonka Ruins - Earth Crystal (Chemist)", address = "C0FACC", area = "Flying Lonka Ruins"),
 LocationData("Flying Lonka Ruins - Earth Crystal (Dancer)", address = "C0FACE", area = "Flying Lonka Ruins"),
 LocationData("Istory Falls - Leviathan Esper (Levia)", address = "C0FAD0", area = "Istory Falls"),
-LocationData("Karnak - Titan (Titan)", address = "C0FAD2", area = "Karnak"),
+LocationData("Karnak - Titan (Titan)", address = "C0FAD2", area = "Karnak Meteor"),
 LocationData("Exdeath's Castle - Carbuncle (Crbnkl)", address = "C0FAD4", area = "Exdeath's Castle"),
 LocationData("Pirate's Cave - Syldra (Syldra)", address = "C0FAD6", area = "Pirate's Cave"),
 LocationData("Bal Castle - Odin (Odin)", address = "C0FAD8", area = "Bal Castle"),
@@ -97,18 +102,18 @@ LocationData("Tycoon Castle - Chancellor at Tycoon (Healing Staff)", address = "
 LocationData("North Mountain - Magisa & Forza (Mythril Helm)", address = "C0FAFA", area = "North Mountain"),
 LocationData("Kelb - CornaJar at Kelb (CornaJar)", address = "C0FAFC", area = "Kelb"),
 LocationData("Rugor - Ribbon from girl in Rugor (Ribbon)", address = "C0FAFE", area = "Rugor"),
-LocationData("Kuzar - 12 Kuzar Events (Assassin)", address = "C0FB02", area = "Kuzar"),
-LocationData("Kuzar - 12 Kuzar Events (Apollo's Harp)", address = "C0FB04", area = "Kuzar"),
-LocationData("Kuzar - 12 Kuzar Events (Excalibur)", address = "C0FB06", area = "Kuzar"),
-LocationData("Kuzar - 12 Kuzar Events (Flame Whip)", address = "C0FB08", area = "Kuzar"),
-LocationData("Kuzar - 12 Kuzar Events (Earth Bell)", address = "C0FB0A", area = "Kuzar"),
-LocationData("Kuzar - 12 Kuzar Events (Holy Lance)", address = "C0FB0C", area = "Kuzar"),
-LocationData("Kuzar - 12 Kuzar Events (Masamune)", address = "C0FB0E", area = "Kuzar"),
-LocationData("Kuzar - 12 Kuzar Events (Wizard Rod)", address = "C0FB10", area = "Kuzar"),
-LocationData("Kuzar - 12 Kuzar Events (Rune Axe)", address = "C0FB12", area = "Kuzar"),
-LocationData("Kuzar - 12 Kuzar Events (Sage's Staff)", address = "C0FB14", area = "Kuzar"),
-LocationData("Kuzar - 12 Kuzar Events (Hardened Dagger)", address = "C0FB16", area = "Kuzar"),
-LocationData("Kuzar - 12 Kuzar Events (Yoichi Bow)", address = "C0FB18", area = "Kuzar"),
+LocationData("Kuzar - 12 Kuzar Events (Excalibur)", address = "C0FB02", area = "Kuzar"),
+LocationData("Kuzar - 12 Kuzar Events (Assassin)", address = "C0FB04", area = "Kuzar"),
+LocationData("Kuzar - 12 Kuzar Events (Hardened Dagger)", address = "C0FB06", area = "Kuzar"),
+LocationData("Kuzar - 12 Kuzar Events (Holy Lance)", address = "C0FB08", area = "Kuzar"),
+LocationData("Kuzar - 12 Kuzar Events (Rune Axe)", address = "C0FB0A", area = "Kuzar"),
+LocationData("Kuzar - 12 Kuzar Events (Masamune)", address = "C0FB0C", area = "Kuzar"),
+LocationData("Kuzar - 12 Kuzar Events (Yoichi Bow)", address = "C0FB0E", area = "Kuzar"),
+LocationData("Kuzar - 12 Kuzar Events (Flame Whip)", address = "C0FB10", area = "Kuzar"),
+LocationData("Kuzar - 12 Kuzar Events (Sage's Staff)", address = "C0FB12", area = "Kuzar"),
+LocationData("Kuzar - 12 Kuzar Events (Wizard Rod)", address = "C0FB14", area = "Kuzar"),
+LocationData("Kuzar - 12 Kuzar Events (Apollo's Harp)", address = "C0FB16", area = "Kuzar"),
+LocationData("Kuzar - 12 Kuzar Events (Earth Bell)", address = "C0FB18", area = "Kuzar"),
 LocationData("Walse - Shiva (Shiva)", address = "C0FB1A", area = "Walse"),
 LocationData("Ancient Library - Ifrit (Ifrit)", address = "C0FB1C", area = "Ancient Library"),
 LocationData("Walse - Water Crystal (Samurai)", address = "C0FB1E", area = "Walse"),
@@ -201,7 +206,7 @@ LocationData("Karnak - Karnak Castle Chest (2000 (3))", address = "D13322", area
 LocationData("Karnak - Karnak Castle Chest (Elixir (5))", address = "D13326", area = "Karnak"),
 LocationData("Karnak - Karnak Castle Chest (Elf Cape)", address = "D1332A", area = "Karnak"),
 LocationData("Karnak - Karnak Castle Chest (Guardian)", address = "D1332E", area = "Karnak"),
-LocationData("Steamship - Karnak Town Barrel (Fire Rod)", address = "D13332", area = "Steamship"),
+LocationData("Karnak - Karnak Town Barrel (Fire Rod)", address = "D13332", area = "Karnak"),
 LocationData("Steamship - Steamship Chest (Cabin)", address = "D13336", area = "Steamship"),
 LocationData("Steamship - Steamship Chest (Phoenix Down)", address = "D1333A", area = "Steamship"),
 LocationData("Steamship - Steamship Chest (Elixir 1)", address = "D1333E", area = "Steamship"),
@@ -333,7 +338,7 @@ LocationData("Great Trench - Great Trench Chest (Flame Ring)", address = "D13532
 LocationData("Great Trench - Great Trench Chest (DragonFang)", address = "D13536", area = "Great Trench"),
 LocationData("Great Trench - Great Trench Chest (Ether)", address = "D1353A", area = "Great Trench"),
 LocationData("Great Trench - Great Trench Chest (Phoenix Down)", address = "D1353E", area = "Great Trench"),
-LocationData("Istory Falls - Great Trench Chest (Kaiser Knuckles)", address = "D13542", area = "Istory Falls"),
+LocationData("Great Trench - Great Trench Chest (Kaiser Knuckles)", address = "D13542", area = "Great Trench"),
 LocationData("Istory Falls - Istory Falls Chest (Ether)", address = "D13546", area = "Istory Falls"),
 LocationData("Istory Falls - Istory Falls Chest (TurtleShell)", address = "D1354A", area = "Istory Falls"),
 LocationData("Istory Falls - Istory Falls Chest (Air Knife)", address = "D1354E", area = "Istory Falls"),

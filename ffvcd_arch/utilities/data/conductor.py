@@ -1969,21 +1969,21 @@ class Conductor():
             
             
             
-        # Finally, create the "CODE OF THE VOID"
+        # # Finally, create the "CODE OF THE VOID"
         
-        # For some reason, couldn't get this to load in from star import from text_parser
-        text_dict2 = self.TP.text_dict2
-        #text_dict2 = pd.read_csv(os.path.join(os.path.pardir,'data','tables','text_tables','text_table_chest.csv'),header=None,index_col=1).to_dict()[0]
+        # # For some reason, couldn't get this to load in from star import from text_parser
+        # text_dict2 = self.TP.text_dict2
+        # #text_dict2 = pd.read_csv(os.path.join(os.path.pardir,'data','tables','text_tables','text_table_chest.csv'),header=None,index_col=1).to_dict()[0]
         
-        letters = self.RE.sample('ABCDEFGHIJKLMNOPQRSTUVWXYZ',6)
-        code_str = 'db '
-        for letter in letters:
-            code_str = code_str + "$" +str(text_dict2[letter]) + ", "
-        code_str = code_str[:-2]
-        output_str = output_str + '\n; CODE OF THE VOID: \norg $E77476\n'+code_str+'\norg $F80900\n'+code_str+'\n\n'
+        # letters = self.RE.sample('ABCDEFGHIJKLMNOPQRSTUVWXYZ',6)
+        # code_str = 'db '
+        # for letter in letters:
+        #     code_str = code_str + "$" +str(text_dict2[letter]) + ", "
+        # code_str = code_str[:-2]
+        # output_str = output_str + '\n; CODE OF THE VOID: \norg $E77476\n'+code_str+'\norg $F80900\n'+code_str+'\n\n'
 
         
-        self.superbosses_spoiler = self.superbosses_spoiler + "-----CODE OF THE VOID-----\n"+''.join(letters)+"\n\n"
+        # self.superbosses_spoiler = self.superbosses_spoiler + "-----CODE OF THE VOID-----\n"+''.join(letters)+"\n\n"
             
         return output_str
     
@@ -2014,7 +2014,7 @@ class Conductor():
         self.RE.shuffle(keys_main)
         self.RE.shuffle(areas_barren)
         
-        keys_hint1 = keys_main[:10]
+        keys_hint1 = keys_main[:15]
         
         ###########
         # DIRECT
@@ -2028,13 +2028,13 @@ class Conductor():
                 hint_str = "They say that %s|holds this player's %s." % (key.area, key.collectible.collectible_name)
             hint_text.append(hint_str)
 
-        ###########
-        # BARREN
-        ###########
+        # ###########
+        # # BARREN
+        # ###########
 
-        for area in areas_barren[:5]:
-            hint_str = "They say that %s|holds no progression items." % (area)
-            hint_text.append(hint_str)
+        # for area in areas_barren[:5]:
+        #     hint_str = "They say that %s|holds no progression items." % (area)
+        #     hint_text.append(hint_str)
 
         ###########
         # DATA

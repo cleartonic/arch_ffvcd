@@ -55,7 +55,7 @@ db $93, $0A                     ;Sprite 193 do event: Hide
 db $BD, $29, $FF                ;Start Event Battle 29
 db $CB, $F6, $02                ;Clear Flag 2/3/4/5/F6 02
 db $CB, $00, $03                ;Clear Flag 2/3/4/5/00 03
-db $A2, $69                     ;Set Event Flag 069
+
 db $FF                          ;End Event
 
 
@@ -102,6 +102,7 @@ db $CB, $F7, $02                ;Turn off bit 80 at address  0x7e0ab2
 db $CB, $F8, $02                ;Turn off bit 01 at address  0x7e0ab3
 db $CB, $F9, $02                ;Turn off bit 02 at address  0x7e0ab3
 db $CC, $1F                  ;Custom destination flag 1F
+db $A2, $69                     ;Set Event Flag 069
 db $FF                          ;End Event
 
 padbyte $00
