@@ -4,3 +4,4 @@
 *.~lock.*
 *.sfc
 *.smc
+__pycache__/*
