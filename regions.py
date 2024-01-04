@@ -132,6 +132,8 @@ def create_regions(multiworld, player: int):
     setup_region_and_entrance(multiworld, player, "Walse Meteor", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Walse Tower", "World 1 Access", access_rule = 
                               lambda state: state.has("Walse Tower Key", player))
+    setup_region_and_entrance(multiworld, player, "Walse Tower Sunken", "World 3 Access", access_rule = 
+                              lambda state: state.has("Submarine Key", player))
     setup_region_and_entrance(multiworld, player, "Wind Shrine", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Zeza Fleet", "World 2 Access", access_rule = \
                               lambda state: state.has("Hiryuu Call", player))

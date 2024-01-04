@@ -353,9 +353,11 @@ CMP #$4F54
 BNE XYCoordinateHookContinueCase8
 
 ; then do a event flag check 
-lda $0A1A
-and #$0001
-BNE XYCoordinateHookContinueNormalCase
+
+; for archipelago, skip this logic check - always allow access back to steamship
+; lda $0A1A
+; and #$0001
+; BNE XYCoordinateHookContinueNormalCase
 
 
 ; ; IF these match, set up coordinates specifically

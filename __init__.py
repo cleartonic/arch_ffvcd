@@ -82,31 +82,31 @@ class FFVCDWorld(World):
             new_item = self.create_item("World 2 Access (Item)",  
                         ItemClassification.progression, 
                         WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
-                        self.player)
+                        self.player, ['World Access'])
             self.starting_items[new_item] = 1
             self.multiworld.push_precollected(new_item)
         if world_lock == '3':
             new_item = self.create_item("World 2 Access (Item)",  
                         ItemClassification.progression, 
                         WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
-                        self.player)
+                        self.player, ['World Access'])
             self.starting_items[new_item] = 1
             self.multiworld.push_precollected(new_item)
             new_item = self.create_item("World 3 Access (Item)",  
                         ItemClassification.progression, 
                         WORLD3_ACCESS_ITEM_ID + arch_item_offset, 
-                        self.player)
+                        self.player, ['World Access'])
             self.starting_items[new_item] = 1
             self.multiworld.push_precollected(new_item)
 
             
 
 
-    def create_item(self, name: str, classification, item_data_id, player) -> Item:
-        return FFVCDItem(name, classification, item_data_id, player)
+    def create_item(self, name: str, classification, item_data_id, player, groups) -> Item:
+        return FFVCDItem(name, classification, item_data_id, player, groups)
 
-    def create_event(self, event: str, event_id = None) -> Item:
-        return FFVCDItem(event, ItemClassification.progression, event_id, self.player)
+    # def create_event(self, event: str, event_id = None) -> Item:
+    #     return FFVCDItem(event, ItemClassification.progression, event_id, self.player)
 
 
     def create_items(self):

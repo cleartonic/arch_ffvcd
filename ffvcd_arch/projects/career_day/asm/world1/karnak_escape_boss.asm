@@ -3,10 +3,10 @@ hirom
 ; rewrite location of event
 
 org $C83476
-db $00, $80, $C8
+db $80, $80, $C8
 
 ; in new freed area, write event
-org $C88000
+org $C88080
 db $BD, $08, $FF                ;Start Event Battle 08
 db $A2, $31                     ;Turn on bit 02 at address 0x7e0a1a
 db $C5, $80

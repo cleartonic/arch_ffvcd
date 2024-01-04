@@ -33,7 +33,7 @@ class FFVCDLocation(Location):
             pass
         else:
             # self.progress_type = LocationProgressType.DEFAULT
-            self.item_rule = lambda item: item.classification != ItemClassification.progression
+            self.item_rule = lambda item: item.classification != ItemClassification.progression and item.classification != ItemClassification.skip_balancing
             pass
         
         
@@ -45,9 +45,20 @@ class FFVCDLocation(Location):
         if location_data.area == "Mua":
             self.item_rule = lambda item: item.player == self.player and not (item.classification & ItemClassification.progression)
 
-        # only allow kuzar to place this seed's items
+        # only allow karnak to place this seed's items
         if location_data.area == "Karnak":
             self.item_rule = lambda item: item.player == self.player and not (item.classification & ItemClassification.progression)
+
+
+        # the fire crystal post-karnak cutscene should only give non-item rewards
+        # this event is retriggerable, so giving multiple items would be 'cheap'
+        # but forcing anything else on to these rewards is fine, because they
+        # will simply overwrite/update (magic, abilities, crystals)
+        # they can be other players' items too
+        # they just can't be this world's own ITEMS 
+        if "fire crystal" in location_data.name.lower():
+            self.item_rule = lambda item: item.player == self.player and not (item.classification & ItemClassification.progression) and not ('Item' in item.groups)
+
 
             
         # disallow lone wolf/under bal castle related checks for some weird progression problems
@@ -82,7 +93,7 @@ LocationData("Istory Falls - Leviathan Esper (Levia)", address = "C0FAD0", area 
 LocationData("Karnak - Titan (Titan)", address = "C0FAD2", area = "Karnak Meteor"),
 LocationData("Exdeath's Castle - Carbuncle (Crbnkl)", address = "C0FAD4", area = "Exdeath's Castle"),
 LocationData("Pirate's Cave - Syldra (Syldra)", address = "C0FAD6", area = "Pirate's Cave"),
-LocationData("Bal Castle - Odin (Odin)", address = "C0FAD8", area = "Bal Castle"),
+LocationData("Bal Castle - Odin (Odin)", address = "C0FAD8", area = "Bal Castle Lower"),
 LocationData("Phoenix Tower - Phoenix (Phenix)", address = "C0FADA", area = "Phoenix Tower"),
 LocationData("Hiryuu Valley - Bahamut (Bahmut)", address = "C0FADC", area = "Hiryuu Valley"),
 LocationData("Crescent Island - Life Song (Vitality)", address = "C0FADE", area = "Crescent Island"),
@@ -125,7 +136,7 @@ LocationData("Mua - Brave Blade (Brave Blade)", address = "C0FB28", area = "Mua"
 LocationData("Mua - Chicken Knife (Chicken Knife)", address = "C0FB2A", area = "Mua"),
 LocationData("Tycoon Castle - Tycoon Castle Cabin (Cabin (1))", address = "C0FB2C", area = "Tycoon Castle"),
 LocationData("Tycoon Castle - Tycoon Castle Cabin (Cabin (2))", address = "C0FB2E", area = "Tycoon Castle"),
-LocationData("Walse - Walse Tower Chest (GoGo)", address = "C0FB30", area = "Walse"),
+LocationData("Walse - Walse Tower Chest (GoGo)", address = "C0FB30", area = "Walse Tower Sunken"),
 LocationData("Pyramid - Pyramid Top (Pyramid Tablet)", address = "C0FB32", area = "Pyramid"),
 LocationData("Istory Falls - Toad Event (Toad)", address = "C0FB34", area = "Istory Falls"),
 LocationData("Mua - Aegis Shield Chest (Aegis Shield)", address = "C0FB36", area = "Mua"),
@@ -186,10 +197,10 @@ LocationData("Walse - Walse Castle Pot (1000 (2))", address = "D132D2", area = "
 LocationData("Walse - Walse Castle Box (490)", address = "D132D6", area = "Walse"),
 LocationData("Walse - Walse Castle Barrel (Tent)", address = "D132DA", area = "Walse"),
 LocationData("Walse - Walse Castle Barrel (Phoenix Down)", address = "D132DE", area = "Walse"),
-LocationData("Walse - Walse Tower Chest (Silk robe)", address = "D132E2", area = "Walse"),
-LocationData("Walse - Walse Tower Chest (Maiden's Kiss)", address = "D132E6", area = "Walse"),
-LocationData("Walse - Walse Tower Chest (Silver Armlet)", address = "D132EA", area = "Walse"),
-LocationData("Walse - Walse Tower Chest (Ether)", address = "D132EE", area = "Walse"),
+LocationData("Walse - Walse Tower Chest (Silk robe)", address = "D132E2", area = "Walse Tower"),
+LocationData("Walse - Walse Tower Chest (Maiden's Kiss)", address = "D132E6", area = "Walse Tower"),
+LocationData("Walse - Walse Tower Chest (Silver Armlet)", address = "D132EA", area = "Walse Tower"),
+LocationData("Walse - Walse Tower Chest (Ether)", address = "D132EE", area = "Walse Tower"),
 LocationData("Tycoon Castle - Tycoon Meteor Chest (Phoenix Down)", address = "D132F2", area = "Tycoon Castle"),
 LocationData("Karnak - Karnak Castle Chest MIB 1 (Heavy Spear)", address = "D132F6", area = "Karnak"),
 LocationData("Karnak - Karnak Castle Chest MIB 2 (Thunder Scroll)", address = "D132FA", area = "Karnak"),
@@ -235,7 +246,7 @@ LocationData("Flying Lonka Ruins - Flying Lonka Ruins Chest (Ancient Sword)", ad
 LocationData("Flying Lonka Ruins - Flying Lonka Ruins Chest (Full Moon)", address = "D1339A", area = "Flying Lonka Ruins"),
 LocationData("Flying Lonka Ruins - Flying Lonka Ruins Chest (Power Wrist)", address = "D1339E", area = "Flying Lonka Ruins"),
 LocationData("Flying Lonka Ruins - Flying Lonka Ruins Chest (Ether)", address = "D133A2", area = "Flying Lonka Ruins"),
-LocationData("Exdeath's Castle - Exdeath's Castle Chest (Cabin)", address = "D133A6", area = "Exdeath's Castle"),
+LocationData("Flying Lonka Ruins - Flying Lonka Ruins Chest (Cabin)", address = "D133A6", area = "Flying Lonka Ruins"),
 LocationData("Exdeath's Castle - Exdeath's Castle Chest (Ether 1)", address = "D133AA", area = "Exdeath's Castle"),
 LocationData("Exdeath's Castle - Exdeath's Castle Chest (Diamond Shield)", address = "D133AE", area = "Exdeath's Castle"),
 LocationData("Exdeath's Castle - Exdeath's Castle Chest (Ice Shield)", address = "D133B2", area = "Exdeath's Castle"),
@@ -422,7 +433,7 @@ LocationData("Fork Tower - Omniscient (Boss)", address = "C0FBAA", area = "Fork 
 LocationData("Fork Tower - Minotauros (Boss)", address = "C0FBAC", area = "Fork Tower",type="Key"),
 LocationData("Istory Falls - Leviathan (Boss)", address = "C0FBAE", area = "Istory Falls",type="Key"),
 LocationData("Solitary Island - Stalker (Boss)", address = "C0FBB0", area = "Solitary Island",type="Key"),
-LocationData("Walse Tower - GoGo (Boss)", address = "C0FBB2", area = "Walse Tower",type="Key"),
+LocationData("Walse Tower - GoGo (Boss)", address = "C0FBB2", area = "Walse Tower Sunken",type="Key"),
 LocationData("North Mountain Upper - Bahamut (Boss)", address = "C0FBB4", area = "North Mountain Upper", type="Key"),
 LocationData("ExDeath", address = "C0FFFF", area = "Void", type="Key"),
 ]

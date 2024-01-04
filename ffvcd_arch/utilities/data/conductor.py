@@ -1590,7 +1590,7 @@ class Conductor():
         
     def randomize_job_color_palettes(self):
         if True: # Future - flag for if all job palettes shuffled (for all chars and jobs)
-            palettes = list(self.DM.files['job_color_palettes']['byte_string'])
+            palettes = [self.DM.files['job_color_palettes'][i]['byte_string'] for i in self.DM.files['job_color_palettes']]
             self.RE.shuffle(palettes)
             output_str = "\n\n; JOB COLOR PALETTES \n\norg $D4A3C0\ndb "
             for palette in palettes:
@@ -1944,10 +1944,12 @@ class Conductor():
             
             # e303ac mirage start
             
-            if random_enemy.idx == '253': # OMEGA
+
+            
+            if random_enemy.idx == '253' or random_enemy.idx == 253: # OMEGA
                 output_str = output_str + "\n\n; ***Mirage Village NPC [Omega]***\n"
                 output_str = output_str + "org $E303AC\npadbyte $FF\npad $E30447\npadbyte $00\norg $E303AC\ndb $6E, $6C, $64, $66, $60, $9D, $96, $8D, $81, $7E, $96, $90, $7A, $8B, $96, $86, $7A, $7C, $81, $82, $87, $7E, $A3, $A3, $A3, $01, $81, $7A, $8C, $96, $90, $7E, $7A, $84, $87, $7E, $8C, $8C, $7E, $8C, $A3, $A3, $A3, $01\n"
-            if random_enemy.idx == '361': # SHINRYUU
+            if random_enemy.idx == '361' or random_enemy.idx == 361: # SHINRYUU
                 output_str = output_str + "\n\n; ***Moogle Forest NPC [Shinryuu]***\n"
                 output_str = output_str + "org $E24487\npadbyte $FF\npad $E245C7\npadbyte $00\norg $E24487\ndb $72, $67, $68, $6D, $71, $78, $74, $74, $9D, $96, $8D, $81, $7E, $96, $87, $88, $8F, $7A, $96, $7D, $8B, $7A, $80, $88, $87, $A3, $A3, $A3, $01, $81, $7A, $8C, $96, $90, $7E, $7A, $84, $87, $7E, $8C, $8C, $7E, $8C, $A3, $A3, $A3, $01\n"
             for weakness in random_enemy_weaknesses:
