@@ -1,24 +1,15 @@
 import os
-import settings
-import typing
 import threading
 import base64
-from copy import deepcopy
-from typing import TextIO
-
-from Utils import __version__
-from BaseClasses import Item, MultiWorld, Tutorial, ItemClassification, LocationProgressType
-from Fill import fill_restrictive, FillError, sweep_from_pool
+from BaseClasses import Item, MultiWorld, Tutorial, ItemClassification
 from worlds.AutoWorld import World, WebWorld
-from worlds.generic.Rules import add_item_rule
-from .items import item_table, item_groups, create_items, FFVCDItem, arch_item_offset, EXDEATH_ITEM_ID, WORLD2_ACCESS_ITEM_ID, WORLD3_ACCESS_ITEM_ID
+from .items import item_table, item_groups, create_item, create_world_items, FFVCDItem, arch_item_offset, WORLD2_ACCESS_ITEM_ID, WORLD3_ACCESS_ITEM_ID
 from .locations import location_data, loc_id_start
 from .options import ffvcd_options
 from .regions import create_regions
 from .rules import set_rules
 from worlds.ffvcd.ffvcd_arch.utilities.data import conductor
-from .client import FFVCDSNIClient
-from .rom import LocalRom, get_base_rom_path, patch_rom, FFVCDDeltaPatch
+from .rom import LocalRom, get_base_rom_path, patch_rom
 from collections import Counter
 
 # lots of credit to others in the repository, such as pokemonrb, dkc3 and tloz
@@ -79,20 +70,20 @@ class FFVCDWorld(World):
         self.starting_items = Counter()
         world_lock = [i for i in self.multiworld.world_lock[self.player].value][0]
         if world_lock == '2':
-            new_item = self.create_item("World 2 Access (Item)",  
+            new_item = create_item("World 2 Access (Item)",  
                         ItemClassification.progression, 
                         WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
                         self.player, ['World Access'])
             self.starting_items[new_item] = 1
             self.multiworld.push_precollected(new_item)
         if world_lock == '3':
-            new_item = self.create_item("World 2 Access (Item)",  
+            new_item = create_item("World 2 Access (Item)",  
                         ItemClassification.progression, 
                         WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
                         self.player, ['World Access'])
             self.starting_items[new_item] = 1
             self.multiworld.push_precollected(new_item)
-            new_item = self.create_item("World 3 Access (Item)",  
+            new_item = create_item("World 3 Access (Item)",  
                         ItemClassification.progression, 
                         WORLD3_ACCESS_ITEM_ID + arch_item_offset, 
                         self.player, ['World Access'])
@@ -102,16 +93,9 @@ class FFVCDWorld(World):
             
 
 
-    def create_item(self, name: str, classification, item_data_id, player, groups) -> Item:
-        return FFVCDItem(name, classification, item_data_id, player, groups)
 
-    # def create_event(self, event: str, event_id = None) -> Item:
-    #     return FFVCDItem(event, ItemClassification.progression, event_id, self.player)
-
-
-    def create_items(self):
-        
-        create_items(self)
+    def create_items(self):        
+        create_world_items(self)
         
     def post_fill(self):
 
@@ -135,6 +119,8 @@ class FFVCDWorld(World):
         
 
     def parse_options_for_conductor(self):
+        # this sets up a config file from archipelago's options
+        # for FFVCD's base randomizer to work with
         options_conductor = {}
         if self.multiworld.job_palettes[self.player]:
             options_conductor['job_palettes'] = True
@@ -145,17 +131,8 @@ class FFVCDWorld(World):
             options_conductor['four_job'] = True
         else:
             options_conductor['four_job'] = False
-        if self.multiworld.four_job[self.player]:
-            
-            options_conductor['four_job_lock_menu'] = True
-        else:
-            options_conductor['four_job_lock_menu'] = False
-            
-        if self.multiworld.extra_patches[self.player]:
-            options_conductor['extra_patches'] = True
-        else:
-            options_conductor['extra_patches'] = False
-            
+
+           
         if self.multiworld.remove_flashes[self.player]:
             options_conductor['remove_flashes'] = True
         else:
@@ -165,6 +142,8 @@ class FFVCDWorld(World):
         options_conductor['source_rom_abs_path'] = self.source_rom_abs_path
         options_conductor['world_lock'] = [i for i in self.multiworld.world_lock[self.player].value][0]
         options_conductor['player'] = self.player
+        
+        self.options_conductor = options_conductor
             
         return options_conductor
                 
@@ -172,8 +151,6 @@ class FFVCDWorld(World):
         create_regions(self.multiworld, self.player)
 
     def generate_output(self, output_directory: str):
-        
-        
         # move 
 
         r_patch_file, spoiler_file, temp_patch_path, temp_spoiler_path = self.cond.save_spoiler_and_patch(output_directory)
@@ -186,19 +163,11 @@ class FFVCDWorld(World):
         # temporarily copy file over 
         ################
         import shutil
-        print("Moving %s -> %s" % (self.filename_randomized, rompath))
+        print("Copying %s -> %s" % (self.filename_randomized, rompath))
         shutil.copy(self.filename_randomized, rompath)
         print("File moved")
         ################
 
-        if os.path.exists(self.filename_randomized):
-            os.unlink(self.filename_randomized)
-        if os.path.exists(r_patch_file):
-            os.unlink(r_patch_file)
-        if os.path.exists(spoiler_file):
-            os.unlink(spoiler_file)
-        
-        
         
         rom = LocalRom(rompath) # obsolete file=get_base_rom_path() for now, but later will need to use it somehow
         patch_rom(self.multiworld, rom, self.player)
@@ -206,6 +175,113 @@ class FFVCDWorld(World):
         
         
         rom.write_to_file(rompath)
+        
+        
+        # breakpoint()
+
+
+
+        ################
+        # new system
+        ################
+        import bsdiff4 
+        four_job = "" if self.options_conductor['four_job'] else 'no'
+        basepatch_to_use = os.path.join('worlds',
+                                        'ffvcd',
+                                        'ffvcd_arch', 
+                                        'process',
+                                        'basepatch',
+                                        "ffv_%sfjf_world%slock.bsdiff4" % (four_job,
+                                                              self.options_conductor['world_lock'])
+                                        )
+        
+        
+            
+
+        
+
+        
+        ################
+        rompath2 = rompath.replace(".smc", "_v2.smc")
+        print("Copying %s -> %s" % (self.source_rom_abs_path, rompath2))
+        shutil.copy(self.source_rom_abs_path, rompath2)
+        print("File moved")
+        ################
+        
+        
+        
+        rom2 = LocalRom(rompath2) # obsolete file=get_base_rom_path() for now, but later will need to use it somehow
+        with open(basepatch_to_use, "rb") as f:
+            delta: bytes = f.read()
+        rom2.rom_data = bsdiff4.patch(rom2.rom_data, delta)        
+        rom2.write_rom_data_to_file(rompath2)
+
+
+        rom2.read_from_file(rom2.original_file)
+
+        
+        with open(r_patch_file,'r') as f:
+            data = f.readlines()
+
+
+            
+        master = {}
+        new_loc = 0
+        for line in data:
+            line = line.split(";")[0]
+            print(line)
+            if "org" not in line and "db" not in line:
+                continue
+            
+            if "org" in line:
+                new_loc = int(line.split("$")[1],base=16) - 12582912
+                continue
+            if "db" in line:
+                each_byte = line.split(" ")[1:]
+                each_byte = [i.replace(",","").replace("$","").strip() for i in each_byte if i]
+                for b in each_byte:
+                    if b:
+                        master[new_loc] = int(b, base=16)
+                        new_loc += 1
+                    
+                    
+        
+        for idx, b in master.items():
+            rom2.buffer[idx] = b
+
+        # dragon
+        new_loc = int('C33320', base=16) - 12582912
+        rom2.buffer[new_loc] = 0
+        rom2.buffer[new_loc + 1] = 1
+        rom2.buffer[new_loc + 2] = 0
+        rom2.buffer[new_loc + 3] = 0
+        
+        b = data[-6].split("dw ")[1].split("\n")[0].replace("$","")
+        b1 = b[:2]
+        b2 = b[2:]
+
+
+        
+        for i in range(15):
+            rom2.buffer[new_loc + 4 + i * 2] = int(b2,base=16)
+            rom2.buffer[new_loc + 4 + i * 2 + 1] = int(b1,base=16)
+
+
+
+
+
+
+        patch_rom(self.multiworld, rom2, self.player)
+        
+            
+        rom2.write_to_file(rompath2)
+        
+        self.rom_name = rom.name
+                
+
+        print(rompath2)
+            
+                
 
         # patch = FFVCDDeltaPatch(os.path.splitext(rompath)[0]+FFVCDDeltaPatch.patch_file_ending, player=self.player,
         #                         player_name=self.multiworld.player_name[self.player], patched_path=rompath)
@@ -215,6 +291,13 @@ class FFVCDWorld(World):
         # if os.path.exists(rompath):
         #     os.unlink(rompath)
 
+        if os.path.exists(self.filename_randomized):
+            os.unlink(self.filename_randomized)
+        if os.path.exists(r_patch_file):
+            os.unlink(r_patch_file)
+        if os.path.exists(spoiler_file):
+            os.unlink(spoiler_file)
+        
         
         self.rom_name_available_event.set() # make sure threading continues and errors are collected
         print("Finished generate_output function")
@@ -230,36 +313,3 @@ class FFVCDWorld(World):
             multidata["connect_names"][new_name] = multidata["connect_names"][self.multiworld.player_name[self.player]]
             
             
-            
-            
-            
-            
-            
-            
-            
-    # def fill_hook(self, progitempool, usefulitempool, filleritempool, fill_locations):
-
-    #     boss_locations = [i for i in fill_locations if i.progress_type == LocationProgressType.PRIORITY]
-        
-    #     min_prog_to_fill = min(len(progitempool), len(boss_locations))
-    #     prog_bosses_to_fill = self.multiworld.random.sample(boss_locations, min_prog_to_fill)
-    #     non_prog_bosses_to_fill = [i for i in boss_locations if i not in prog_bosses_to_fill]
-    #     # first fill bosses with all progitempool
-    #     if len(progitempool) > 0:
-    #         fill_restrictive(self.multiworld, self.multiworld.state, prog_bosses_to_fill, progitempool)
-
-            
-    #     # then fill remaining bosses with useful 
-    #     len_non_prog_bosses_to_fill = len(non_prog_bosses_to_fill)
-    #     if len_non_prog_bosses_to_fill > 0:
-    #         # remaining_useful_items_to_place = self.multiworld.random.sample(usefulitempool, len_non_prog_bosses_to_fill)
-    #         # # need to remove first, before this list gets emptied out after fill_restrictive
-    #         # for item in remaining_useful_items_to_place:
-    #         #     usefulitempool.remove(item)
-    #         fill_restrictive(self.multiworld, self.multiworld.state, non_prog_bosses_to_fill, usefulitempool)
-        
-        
-    #     # cleanup all bosses at the end from locations
-    #     for boss_loc in boss_locations:
-    #         fill_locations.remove(boss_loc)
-        

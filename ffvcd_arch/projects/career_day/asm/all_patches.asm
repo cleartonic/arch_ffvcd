@@ -1,4 +1,5 @@
 ; init
+print "TEST"
 incsrc ../../shared_asm/shared_core/defines.asm
 incsrc core_code/init.asm
 

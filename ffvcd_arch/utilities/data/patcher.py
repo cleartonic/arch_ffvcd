@@ -10,14 +10,12 @@ THIS_FILEPATH = os.path.dirname(__file__)
 sys.path.append(THIS_FILEPATH)
 
 
-ASAR_PATH = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'asar', 'asar')
-MAIN_PATCH = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'projects', 'career_day', 'asm', 'all_patches.asm')
-TRANSLATE_PATCH = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'patches', 'rpge.ips')
-# RANDOMIZER_ASM = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'r-patch.asm')
-
-EXTRA_PATCH4 = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'patches', 'ff5_lr_menu-1.0.ips')
-EXTRA_PATCH5 = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'patches', 'ff5_optimize.ips')
-EXTRA_PATCH6 = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'patches', 'ff5_reequip.ips')
+ASAR_PATH = os.path.join(THIS_FILEPATH, os.pardir, os.pardir, 'process', 'asar', 'asar')
+MAIN_PATCH = os.path.join(THIS_FILEPATH, os.pardir,  os.pardir, 'projects', 'career_day', 'asm', 'all_patches.asm')
+TRANSLATE_PATCH = os.path.join(THIS_FILEPATH, os.pardir, os.pardir,  os.pardir, 'basepatch', 'patches', 'rpge.ips')
+EXTRA_PATCH4 = os.path.join(THIS_FILEPATH, os.pardir,  os.pardir, os.pardir, 'basepatch', 'patches', 'ff5_lr_menu-1.0.ips')
+EXTRA_PATCH5 = os.path.join(THIS_FILEPATH, os.pardir,  os.pardir,  os.pardir,'basepatch', 'patches', 'ff5_optimize.ips')
+EXTRA_PATCH6 = os.path.join(THIS_FILEPATH, os.pardir,  os.pardir, os.pardir, 'basepatch', 'patches', 'ff5_reequip.ips')
 
 
 HEADERED_J_SIZE = 2097664
@@ -233,7 +231,7 @@ def patch_careerday(filename, options, output_directory):
     #
     #
     fjf = bool_to_int(translateBool(options['four_job']))
-    fourjoblock = bool_to_int(translateBool(options['four_job_lock_menu']))
+    fourjoblock = bool_to_int(translateBool(options['four_job']))
     progressive_rewards = 0
     abbreviated = 1
     grantkeyitems = 0
@@ -253,11 +251,12 @@ def patch_careerday(filename, options, output_directory):
 
     remove_flashes = 0
     
+    
+    
     command = "{} --define dash=1 --define learning=1 --define pitfalls=1 \
     --define passages=1 --define double_atb=0 --define progressive={} --define abbreviated={} --define grantkeyitems={} --define boss_exp=1 --define free_tablets={} \
     --define fourjobmode={} --define fourjoblock={} --define world_lock={} --define starting_cara={} --define end_on_exdeath1={}  --define remove_ned={} --define everysteprandomencounter={} --define explv50={} --define remove_flashes={} --define kuzar_credits_warp={} \
     --fix-checksum=off --define vanillarewards=0 --no-title-check {} {}".format(ASAR_PATH,progressive_rewards, abbreviated, grantkeyitems, free_tablets, fjf, fourjoblock, world_lock, starting_cara, end_on_exdeath1, remove_ned, everysteprandomencounter, explv50, remove_flashes, kuzar_credits_warp, MAIN_PATCH, os.path.abspath(filename))
-
 
     logging.error(command)
     
@@ -270,8 +269,36 @@ def patch_random(filename, patchname):
 
 
 def process_new_seed(r_patch_file, spoiler_file, seed = random.randint(0,999999), arch_options = {}, output_directory = ''):
+
     new_filename = copy_ffv(str(seed), arch_options, output_directory)
     patch_and_return(new_filename, spoiler_file, arch_options, output_directory, r_patch_file)
     return new_filename
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

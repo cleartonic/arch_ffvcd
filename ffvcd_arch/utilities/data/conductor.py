@@ -97,7 +97,7 @@ class Conductor():
         self.faris_name = 'Faris'
         self.music_randomization = False
         self.free_shops = False
-        self.extra_patches = arch_options['extra_patches']
+        self.extra_patches = True
         self.kuzar_credits_warp = False
         self.remove_ned = False
         self.key_items_in_mib = False

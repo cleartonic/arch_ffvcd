@@ -15,6 +15,7 @@ import os
 class LocalRom(object):
 
     def __init__(self, file, patch=True, vanillaRom=None, name=None, hash=None):
+        self.original_file = file
         self.name = name
         self.hash = hash
         self.orig_buffer = None
@@ -22,7 +23,8 @@ class LocalRom(object):
         with open(file, 'rb') as stream:
             self.buffer = read_snes_rom(stream)
                 
-
+        with open(file, 'rb') as file:
+            self.rom_data = file.read()
 
         #if patch:
         #    self.patch_rom()
@@ -52,9 +54,14 @@ class LocalRom(object):
         with open(file, 'wb') as outfile:
             outfile.write(self.buffer)
 
+    def write_rom_data_to_file(self, file):
+        with open(file, 'wb') as outfile:
+            outfile.write(self.rom_data)
+
     def read_from_file(self, file):
         with open(file, 'rb') as stream:
             self.buffer = bytearray(stream.read())
+
 
 
 def patch_rom(world, rom, player):

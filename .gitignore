@@ -5,3 +5,4 @@
 *.sfc
 *.smc
 __pycache__/*
+basepatch/*

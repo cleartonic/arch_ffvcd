@@ -8,15 +8,16 @@ class JobPalettes(Toggle):
     display_name = "Randomize Job Palettes"
 class FourJob(Toggle):
     """
-    When enabled, enables four job mode. No crystals are placed in the world, and the player starts with 4 crystals
+    When enabled, enables four job mode. No crystals are placed in the world, and the player starts with 4 crystals.
+    Players are disallowed from leaving the menu if every character doesnt have a unique job
     """
     display_name = "Enable Four Job Mode"
 
-class ExtraPatches(DefaultOnToggle):
-    """
-    When enabled, optional patches for L/R functionality in menus and enhanced optimize are applied
-    """
-    display_name = "Apply optional patches"
+# class ExtraPatches(DefaultOnToggle):
+#     """
+#     When enabled, optional patches for L/R functionality in menus and enhanced optimize are applied
+#     """
+#     display_name = "Apply optional patches"
 
 class RemoveFlashes(DefaultOnToggle):
     """
@@ -41,7 +42,6 @@ class WorldLock(OptionSet):
 ffvcd_options = {
     "job_palettes": JobPalettes,
     "four_job": FourJob,
-    "extra_patches" : ExtraPatches,
     "remove_flashes" : RemoveFlashes,
     "world_lock" : WorldLock
     }

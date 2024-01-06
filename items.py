@@ -16,16 +16,19 @@ class ItemData:
         self.id = None if item_id is None else item_id + arch_item_offset
 
 
+def create_item(name: str, classification, item_data_id, player, groups) -> Item:
+    return FFVCDItem(name, classification, item_data_id, player, groups)
 
-def create_items(world):
+
+
+def create_world_items(world):
     
     # add victory first
     
     
     # manually update location and item table
     exdeath = world.multiworld.get_location("ExDeath", world.player)    
-    
-    new_item = world.create_item("Victory",  
+    new_item = create_item("Victory",  
                                 ItemClassification.progression, 
                                 EXDEATH_ITEM_ID + arch_item_offset, 
                                 world.player, ['Victory'])
@@ -37,7 +40,7 @@ def create_items(world):
     for key_item_name in [i for i in item_table if "Key Items" in item_table[i].groups]:
         item_data = item_table[key_item_name]
         if item_data.classification == ItemClassification.progression:
-            new_item = world.create_item(key_item_name, item_data.classification, item_data.id, world.player, item_data.groups)
+            new_item = create_item(key_item_name, item_data.classification, item_data.id, world.player, item_data.groups)
             placed_items.append(new_item)
             world.multiworld.itempool.append(new_item)
             
@@ -45,13 +48,13 @@ def create_items(world):
     if world.multiworld.four_job[world.player]:        
         for key_item_name in [i for i in item_table if "Abilities" in item_table[i].groups or "Magic" in item_table[i].groups]:
             item_data = item_table[key_item_name]
-            new_item = world.create_item(key_item_name, item_data.classification, item_data.id, world.player, item_data.groups)
+            new_item = create_item(key_item_name, item_data.classification, item_data.id, world.player, item_data.groups)
             placed_items.append(new_item)
             world.multiworld.itempool.append(new_item)
     else:
         for key_item_name in [i for i in item_table if "Crystals" in item_table[i].groups or "Abilities" in item_table[i].groups or "Magic" in item_table[i].groups]:
             item_data = item_table[key_item_name]
-            new_item = world.create_item(key_item_name, item_data.classification, item_data.id, world.player, item_data.groups)
+            new_item = create_item(key_item_name, item_data.classification, item_data.id, world.player, item_data.groups)
             placed_items.append(new_item)
             world.multiworld.itempool.append(new_item)
 
@@ -68,7 +71,7 @@ def create_items(world):
     item_count_to_place = len(locations_this_world) - len(placed_items) - 1
     for item_name in world.multiworld.random.sample([i for i in item_table if "Fungible" in item_table[i].groups], item_count_to_place):
         item_data = item_table[item_name]
-        new_item = world.create_item(item_name, item_data.classification, item_data.id, world.player, item_data.groups)
+        new_item = create_item(item_name, item_data.classification, item_data.id, world.player, item_data.groups)
         world.multiworld.itempool.append(new_item)
         
     # print("Item pool len %s -> location count %s" % (len(world.multiworld.itempool), len(locations_this_world)))
