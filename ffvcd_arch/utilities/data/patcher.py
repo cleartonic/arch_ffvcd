@@ -271,7 +271,7 @@ def patch_random(filename, patchname):
 def process_new_seed(r_patch_file, spoiler_file, seed = random.randint(0,999999), arch_options = {}, output_directory = ''):
 
     new_filename = copy_ffv(str(seed), arch_options, output_directory)
-    patch_and_return(new_filename, spoiler_file, arch_options, output_directory, r_patch_file)
+    # patch_and_return(new_filename, spoiler_file, arch_options, output_directory, r_patch_file)
     return new_filename
 
 

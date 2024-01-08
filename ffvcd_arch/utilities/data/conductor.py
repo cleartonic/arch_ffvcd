@@ -1130,9 +1130,11 @@ class Conductor():
                 original_boss = original_boss_list.pop()
                 
             if "Sandworm" in random_boss.enemy_list:
-                logging.error("Placed Sandworm at %s" % original_boss.enemy_list)
+                pass
+                # logging.error("Placed Sandworm at %s" % original_boss.enemy_list)
             if "Atmos" in random_boss.enemy_list:
-                logging.error("Placed Atmos at %s" % original_boss.enemy_list)
+                pass
+                # logging.error("Placed Atmos at %s" % original_boss.enemy_list)
 
 
             if original_boss.enemy_1_name == "Odin":               
@@ -2362,22 +2364,12 @@ class Conductor():
         self.patch_path = os.path.join(output_directory,'ffvcd-patch-%s-%s.asm' % (self.player, self.seed))
         with open(self.patch_path,'w') as f:
             f.write(self.patch)
-            
-        # this path is currently being used to patch
-        RANDOMIZER_ASM = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'ffvcd-patch-%s-%s.asm' % (self.player, self.seed))
-        with open(RANDOMIZER_ASM,'w') as f:
-            f.write(self.patch)
 
         self.spoiler_path = os.path.join(output_directory,'ffvcd-spoiler-%s-%s.txt' % (self.player, self.seed))
         with open(self.spoiler_path,'w') as f:
             f.write(self.spoiler)
 
-        SPOILER_FILE = os.path.join(THIS_FILEPATH,os.pardir, os.pardir, 'process', 'ffvcd-spoiler-%s-%s.txt' % (self.player, self.seed))
-        with open(SPOILER_FILE,'w') as f:
-            f.write(self.spoiler)
-
-            
-        return RANDOMIZER_ASM, SPOILER_FILE, self.patch_path, self.spoiler_path
+        return self.patch_path, self.spoiler_path
 
         
     def patch_file(self, output_directory, r_patch_file, spoiler_file):

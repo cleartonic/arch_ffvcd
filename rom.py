@@ -1,4 +1,5 @@
 import Utils
+import bsdiff4
 from Utils import read_snes_rom, __version__
 from worlds.Files import APDeltaPatch
 
@@ -61,6 +62,60 @@ class LocalRom(object):
     def read_from_file(self, file):
         with open(file, 'rb') as stream:
             self.buffer = bytearray(stream.read())
+            
+            
+    def write_randomizer_asm_to_file(self, basepatch_to_use, temp_patch_path, rompath):
+        with open(basepatch_to_use, "rb") as f:
+            delta: bytes = f.read()
+        self.rom_data = bsdiff4.patch(self.rom_data, delta)
+        self.write_rom_data_to_file(rompath)
+        self.read_from_file(self.original_file)
+
+        # the following code is taking a .asm file meant to be used with asar
+        # and instead manually updates all of the bytes
+        
+        with open(temp_patch_path,'r') as f:
+            data = f.readlines()
+
+        master = {}
+        new_loc = 0
+        for line in data:
+            line = line.split(";")[0]
+            if "org" not in line and "db" not in line:
+                continue
+            
+            if "org" in line:
+                new_loc = int(line.split("$")[1],base=16) - 12582912
+                continue
+            if "db" in line:
+                each_byte = line.split(" ")[1:]
+                each_byte = [i.replace(",","").replace("$","").strip() for i in each_byte if i]
+                for b in each_byte:
+                    if b:
+                        master[new_loc] = int(b, base=16)
+                        new_loc += 1
+                    
+                    
+        
+        for idx, b in master.items():
+            self.buffer[idx] = b
+
+        # dragon
+        new_loc = int('C33320', base=16) - 12582912
+        self.buffer[new_loc] = 0
+        self.buffer[new_loc + 1] = 1
+        self.buffer[new_loc + 2] = 0
+        self.buffer[new_loc + 3] = 0
+        
+        b = data[-6].split("dw ")[1].split("\n")[0].replace("$","")
+        b1 = b[:2]
+        b2 = b[2:]
+
+
+        
+        for i in range(15):
+            self.buffer[new_loc + 4 + i * 2] = int(b2,base=16)
+            self.buffer[new_loc + 4 + i * 2 + 1] = int(b1,base=16)
 
 
 
