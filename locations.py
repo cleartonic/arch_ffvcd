@@ -1,5 +1,5 @@
-from BaseClasses import Location, LocationProgressType
-from BaseClasses import ItemClassification, Item
+from BaseClasses import Location
+from BaseClasses import ItemClassification
 loc_id_start = 342000000
 
 
@@ -28,26 +28,18 @@ class FFVCDLocation(Location):
             parent
         )
         
-        if location_data.type == "Key":
-            # self.progress_type = LocationProgressType.PRIORITY
-            pass
-        else:
-            # self.progress_type = LocationProgressType.DEFAULT
-            self.item_rule = lambda item: item.classification != ItemClassification.progression and item.classification != ItemClassification.skip_balancing
+        if location_data.type != "Key":
+            self.item_rule = lambda item: not (item.classification & ItemClassification.progression)
             pass
         
         
         # only allow kuzar to place this seed's items
-        if location_data.area == "Kuzar":
-            self.item_rule = lambda item: item.player == self.player and not (item.classification & ItemClassification.progression)
-        
         # disallow mua from being progression, both town (brave/chicken) and dungeon (non burning vs burning)
-        if location_data.area == "Mua":
-            self.item_rule = lambda item: item.player == self.player and not (item.classification & ItemClassification.progression)
-
         # only allow karnak to place this seed's items
-        if location_data.area == "Karnak":
-            self.item_rule = lambda item: item.player == self.player and not (item.classification & ItemClassification.progression)
+        if location_data.area in ["Kuzar", "Mua", "Karnak"]:
+            self.item_rule = lambda item: item.player == self.player and not (item.classification \
+                                                                              & ItemClassification.progression)
+
 
 
         # the fire crystal post-karnak cutscene should only give non-item rewards
@@ -57,13 +49,14 @@ class FFVCDLocation(Location):
         # they can be other players' items too
         # they just can't be this world's own ITEMS 
         if "fire crystal" in location_data.name.lower():
-            self.item_rule = lambda item: item.player == self.player and not (item.classification & ItemClassification.progression) and not ('Item' in item.groups)
-
+            self.item_rule = lambda item: item.player == self.player and not \
+                (item.classification & ItemClassification.progression) and not ('Item' in item.groups)
 
             
         # disallow lone wolf/under bal castle related checks for some weird progression problems
         if location_data.address in ['C0FB38', 'C0FB3A']:
-            self.item_rule = lambda item: item.player == self.player and not (item.classification & ItemClassification.progression)
+            self.item_rule = lambda item: item.player == self.player and not \
+                (item.classification & ItemClassification.progression)
 
         
 

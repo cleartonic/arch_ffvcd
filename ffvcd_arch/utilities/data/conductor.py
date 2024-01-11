@@ -20,7 +20,11 @@ from monster_in_a_box import *
 from misc_features import *
 import patcher
 
-logging.basicConfig(level=logging.ERROR, format="%(asctime)-15s %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
+
+import logging
+logger = logging.getLogger("Final Fantasy V Career Day")
+
 
 adjust_mult = 6
 RANK_EXP_REWARD = {0:50*adjust_mult,
@@ -113,7 +117,7 @@ class Conductor():
                               'item_randomization':self.translateBool(self.item_randomization)
                               }
             
-        logging.error("Config assigned: FJF: %s Palettes: %s World_lock: %s Tiering_config: %s Tiering_percentage: %s Tiering_threshold: %s" % (str(self.fjf),str(self.jobpalettes),str(self.world_lock),str(self.tiering_config),str(self.tiering_percentage),str(self.tiering_threshold)))
+        logger.debug("Config assigned: FJF: %s Palettes: %s World_lock: %s Tiering_config: %s Tiering_percentage: %s Tiering_threshold: %s" % (str(self.fjf),str(self.jobpalettes),str(self.world_lock),str(self.tiering_config),str(self.tiering_percentage),str(self.tiering_threshold)))
 
         # Set up randomizer config
         self.config = {"PATHS" : {"data_table_path" : "tables/",
@@ -153,30 +157,30 @@ class Conductor():
         
         
         self.conductor_config = self.config['CONDUCTOR']
-        logging.error("Init data tables...")
+        logger.debug("Init data tables...")
         # Set up data tables
         self.DM = DataManager(self.config)                            #Data manager loads all the csv's into memory and sets them up for processing
-        logging.error("Init CollectibleManager...")
+        logger.debug("Init CollectibleManager...")
         self.CM = CollectibleManager(self.DM, collectible_config)              #Set up collectibles (Includes Items, magic, crystals, and abilities)
-        logging.error("Init Reward Manager...")
+        logger.debug("Init Reward Manager...")
         self.RM = RewardManager(self.CM, self.DM)          #Set up rewards (Includes chests and events)
-        logging.error("Init Shop Manager...")
+        logger.debug("Init Shop Manager...")
         self.SM = ShopManager(self.CM, self.DM)            #Set up shops
-        logging.error("Init ShopPrice Manager...")
+        logger.debug("Init ShopPrice Manager...")
         self.SPM = ShopPriceManager(self.CM, self.DM)      #Set up shop prices
-        logging.error("Init Area Manager...")
+        logger.debug("Init Area Manager...")
         self.AM = AreaManager(self.DM, self.RE)            #Set up areas (Tule, The Void, etc)
-        logging.error("Init Enemy Manager...")
+        logger.debug("Init Enemy Manager...")
         self.EM = EnemyManager(self.DM)                    #Set up enemies and bosses
-        logging.error("Init Formation Manager...")
+        logger.debug("Init Formation Manager...")
         self.FM = FormationManager(self.DM, self.EM)       #Set up battle formations
-        logging.error("Init MonsterInABox Manager...")
+        logger.debug("Init MonsterInABox Manager...")
         self.MIBM = MonsterInABoxManager(self.DM, self.RE, self.key_items_in_mib) #Set up monsters in boxes
-        logging.error("Init TextParser...")
+        logger.debug("Init TextParser...")
         self.TP = TextParser(self.config)                             #Set up Text Parser Utility Object
 
         if self.item_randomization:
-            logging.error("Init WeaponManager...")
+            logger.debug("Init WeaponManager...")
             self.WM = WeaponManager(self.DM, self.RE, self.item_randomization_percent)      #Set up Weapon Manager
             # remove the following from the pool of weapons:
             for _ in range(3):
@@ -185,7 +189,7 @@ class Conductor():
                 self.CM.add_to_placement_history(self.CM.get_by_name("Excailbur"),"No")
                 self.CM.add_to_placement_history(self.CM.get_by_name("Soot"),"No")
         
-        logging.error("Init misc setup...")
+        logger.debug("Init misc setup...")
         # Misc setup 
         self.difficulty = self.RE.randint(1,10)
         crystals = self.get_crystals()
@@ -197,17 +201,17 @@ class Conductor():
         self.odin_location_fix_patch = ""
         self.superbosses_spoiler = ""
         self.code_of_the_void = ""
-        logging.error("Init weigh collectibles...")
+        logger.debug("Init weigh collectibles...")
         self.weigh_collectibles()
-        logging.error("Init finished.")
+        logger.debug("Init finished.")
 
     def get_crystals(self):
         crystals = self.CM.get_all_of_type(Crystal)
         if self.fjf and self.job_1 != 'Random':
-            logging.error("First job assigned %s" % self.job_1)
+            logger.debug("First job assigned %s" % self.job_1)
             starting_crystal = [i for i in crystals if i.collectible_name == self.job_1][0]
         elif self.fjf and self.job_1 == 'Random':
-            logging.error("First job random, ensuring others chosen are not in pool")
+            logger.debug("First job random, ensuring others chosen are not in pool")
             temp_crystals = [i for i in crystals if i.collectible_name not in [self.job_2,self.job_3,self.job_4]]
             starting_crystal = self.RE.choice(temp_crystals)
             
@@ -215,7 +219,7 @@ class Conductor():
             starting_crystal = self.RE.choice(crystals)
             
             # while starting_crystal.collectible_name == 'Mimic' or starting_crystal.collectible_name == 'Samurai':
-            #     logging.error("Rerolling starting crystal...")
+            #     logger.debug("Rerolling starting crystal...")
             #     starting_crystal = self.RE.choice(crystals)
             
         self.CM.add_to_placement_history(starting_crystal,"No") #don't allow the starting crystal to appear anywhere in game
@@ -230,7 +234,7 @@ class Conductor():
             
         if self.fjf and any([self.job_2 != 'Random', self.job_3 != 'Random', self.job_4 != 'Random']):
 
-            logging.error("Assigning 4 jobs manually: next jobs assigned %s, %s, %s" % (self.job_2,self.job_3,self.job_4))
+            logger.debug("Assigning 4 jobs manually: next jobs assigned %s, %s, %s" % (self.job_2,self.job_3,self.job_4))
             # crystals = [x for x in crystals if x != starting_crystal and x.collectible_name != "Freelancer"]
             full_crystals = crystals[:]
             crystals = [x for x in crystals if x != starting_crystal]
@@ -241,12 +245,12 @@ class Conductor():
                 try:
                     job_2 = [i for i in full_crystals if i.collectible_name == self.job_2][0]
                 except:
-                    logging.error("Failure on job_2, choosing random")
+                    logger.debug("Failure on job_2, choosing random")
                     job_2 = crystals.pop()
                 crystals = [i for i in crystals if i != job_2]
             else:
                 job_2 = crystals.pop()
-                logging.error("Job_2 assigned %s" % (job_2.collectible_name))
+                logger.debug("Job_2 assigned %s" % (job_2.collectible_name))
 
 
 
@@ -254,23 +258,23 @@ class Conductor():
                 try:
                     job_3 = [i for i in full_crystals if i.collectible_name == self.job_3][0]
                 except:
-                    logging.error("Failure on job_3, choosing random")
+                    logger.debug("Failure on job_3, choosing random")
                     job_3 = crystals.pop()
                 crystals = [i for i in crystals if i != job_3]
             else:
                 job_3 = crystals.pop()
-                logging.error("Job_3 assigned %s" % (job_3.collectible_name))
+                logger.debug("Job_3 assigned %s" % (job_3.collectible_name))
                 
                 
             if self.job_4 != "Random":
                 try:
                     job_4 = [i for i in full_crystals if i.collectible_name == self.job_4][0]
                 except:
-                    logging.error("Failure on job_4, choosing random")
+                    logger.debug("Failure on job_4, choosing random")
                     job_4 = crystals.pop()
             else:
                 job_4 = crystals.pop()
-                logging.error("Job_4 assigned %s" % (job_4.collectible_name))
+                logger.debug("Job_4 assigned %s" % (job_4.collectible_name))
 
             
             chosen_crystals = [job_2,job_3,job_4]
@@ -308,8 +312,8 @@ class Conductor():
     #         if self.fjf:
     #             while len([i for i in chosen_crystals if i.collectible_name == 'Freelancer']) >= 1:
     #                 chosen_crystals = self.RE.sample(crystals, crystal_count)
-    #                 logging.error("Failed on pulling Freelancer, re-rolling crystals for FJ mode")
-    # #                logging.error("New: ",chosen_crystals[0].collectible_name,chosen_crystals[1].collectible_name,chosen_crystals[2].collectible_name)
+    #                 logger.debug("Failed on pulling Freelancer, re-rolling crystals for FJ mode")
+    # #                logger.debug("New: ",chosen_crystals[0].collectible_name,chosen_crystals[1].collectible_name,chosen_crystals[2].collectible_name)
 
 
         #this pretends to have placed every job, so it won't try to place any more going forward
@@ -358,7 +362,7 @@ class Conductor():
         elif self.world_lock == 2: # Lock world 2 behind Anti-Barrier & Bracelet
             set_key_item_level = 'required_key_items_lock2'
         else:
-            logging.error("Error on world_lock argument. Should be an int among 0, 1 and 2 only.")
+            logger.debug("Error on world_lock argument. Should be an int among 0, 1 and 2 only.")
         num_placed_key_items = 0
         exdeath_list = []
 
@@ -367,7 +371,7 @@ class Conductor():
         # handle granting tablets immediately per config:
         if self.free_tablets > 0:
             tablets = [i for i in self.CM.get_all_of_type(KeyItem) if "Tablet" in i.collectible_name][:self.free_tablets]
-            logging.error("Handling %s number of free tablets" % len(tablets))
+            logger.debug("Handling %s number of free tablets" % len(tablets))
             for idx, tablet in enumerate(tablets):
                 custom_reward = {'idx': 361 + idx, 'address': 'FFFFFF', 'original_reward': 'Null', 'area': 'Free Tablet %s' % (idx + 1), 'description': 'Free Tablet %s' % (idx + 1), 'reward_style': 'event', 'tier': '0', 'force_type': '', 'required_key_items': '', 'required_key_items_lock1': '', 'required_key_items_lock2': '', 'exdeath_address': '', 'hint_tags': '', 'world': ''}
                 null_reward = Reward(361 + idx,self.CM,self.DM, custom_reward)
@@ -403,11 +407,11 @@ class Conductor():
 
                 next_key_item = self.CM.get_random_collectible(self.RE, monitor_counts=True,next_reward = next_key_reward,tiering_config=self.tiering_config, tiering_percentage=self.tiering_percentage, tiering_threshold=self.tiering_threshold, of_type=KeyItem)
                 
-                # logging.error(next_key_item.collectible_name)
+                # logger.debug(next_key_item.collectible_name)
 
 
                 
-                # logging.error("LOGGING %s " % next_key_item.collectible_name)
+                # logger.debug("LOGGING %s " % next_key_item.collectible_name)
                 next_key_reward.set_collectible(next_key_item)
                 self.CM.update_placement_rewards(next_key_item, next_key_reward)
                 next_key_reward.randomized = True
@@ -423,7 +427,7 @@ class Conductor():
                     
                     next_key_reward.collectible.reward_type = "B" + og_mib_encounter_data[1:]
                     
-                    logging.error("Updating chosen mib_key %s area volume" % next_key_reward.description)
+                    logger.debug("Updating chosen mib_key %s area volume" % next_key_reward.description)
                     self.AM.update_volume(next_key_reward)
             else:
                 forbidden_items = []
@@ -443,21 +447,21 @@ class Conductor():
 
                 possible_key_items = [x for x in self.CM.get_all_of_type_respect_counts(KeyItem) if x not in forbidden_items]
                 
-                # logging.error([i.collectible_name for i in possible_key_items])
-                # logging.error("\n")
+                # logger.debug([i.collectible_name for i in possible_key_items])
+                # logger.debug("\n")
                 
 
                 
 
                 if len(possible_key_items) == 0:
-                    #logging.error("failed to place a key item here")
+                    #logger.debug("failed to place a key item here")
                     continue
                 else:
                     next_key_item = self.RE.choice(possible_key_items)
 
                         
-                    # logging.error("ITEM: %s" % next_key_item.writeable_name)
-                    # logging.error("\n")
+                    # logger.debug("ITEM: %s" % next_key_item.writeable_name)
+                    # logger.debug("\n")
                    
                     next_key_reward.set_collectible(next_key_item)
                     self.CM.update_placement_rewards(next_key_item, next_key_reward)
@@ -477,7 +481,7 @@ class Conductor():
                         og_mib_encounter_data = matching_mib.monster_chest_data
                         next_key_reward.collectible.reward_type = "B" + og_mib_encounter_data[1:]
                         
-                        logging.error("Updating chosen mib_key %s area volume" % next_key_reward.description)
+                        logger.debug("Updating chosen mib_key %s area volume" % next_key_reward.description)
                         self.AM.update_volume(next_key_reward)
                     
 
@@ -507,7 +511,7 @@ class Conductor():
                 og_mib_encounter_data = matching_mib.monster_chest_data
                 key_item_reward.mib_type = og_mib_encounter_data
                 
-                logging.error("Updating non-chosen mib_key %s area volume" % key_item_reward.description)
+                logger.debug("Updating non-chosen mib_key %s area volume" % key_item_reward.description)
                 self.AM.update_volume(key_item_reward)
         
         
@@ -541,17 +545,17 @@ class Conductor():
                 
                 
         while self.AM.any_areas_not_full():
-            #logging.error()
-            #logging.error("Area rewards: not full yet")
+            #logger.debug()
+            #logger.debug("Area rewards: not full yet")
             # area = self.AM.get_emptiest_area()
             area = self.AM.get_random_area()
 
             if area is None:
                 break
-            #logging.error("Area rewards: Area: " + area.area_name)
+            #logger.debug("Area rewards: Area: " + area.area_name)
             possibles = [x for x in self.RM.rewards if x.area == area.area_name
                          and x.randomized == False and x.reward_style != 'key']
-            #logging.error("Area rewards: # of reward spot choices: " + str(len(possibles)))
+            #logger.debug("Area rewards: # of reward spot choices: " + str(len(possibles)))
 
             # try:
             next_reward = self.RE.choice(possibles)
@@ -561,12 +565,12 @@ class Conductor():
                 
             
             if next_reward.randomized:
-                logging.error("%s was already randomzed...?" % (next_reward.description))
+                logger.debug("%s was already randomzed...?" % (next_reward.description))
 
-            #logging.error("Area rewards: checking mib status now")
+            #logger.debug("Area rewards: checking mib status now")
                 
             mib = self.MIBM.get_mib_for_area(area)
-            #logging.error("Area rewards: next reward style: " + next_reward.reward_style)
+            #logger.debug("Area rewards: next reward style: " + next_reward.reward_style)
             
             
                 
@@ -580,24 +584,24 @@ class Conductor():
                         and x.address == mib.monster_chest_id]
                     if possible_placed_mib_keys:
                         
-                        logging.error("Skipping regular item placement %s, was already placed as MIB key" % mib.readable_name)
+                        logger.debug("Skipping regular item placement %s, was already placed as MIB key" % mib.readable_name)
 
                     
                     
-                #logging.error("Area rewards: doing the mib stuff")
+                #logger.debug("Area rewards: doing the mib stuff")
                 chosen_tier = random.choice([5,6,7,8,9])
 
 
                 to_place = self.CM.get_random_collectible(self.RE,reward_loc_tier=next_reward.tier,next_reward=next_reward, respect_weight=True, of_type=Item, monitor_counts=True, tiering_config=self.tiering_config, tiering_percentage=self.tiering_percentage, tiering_threshold=self.tiering_threshold, force_tier = chosen_tier) #only items in mibs
                 
-                logging.error("Assigning MIB from chosen tier %s -> Tier %s : %s" % (chosen_tier, to_place.tier, to_place.reward_name))
+                logger.debug("Assigning MIB from chosen tier %s -> Tier %s : %s" % (chosen_tier, to_place.tier, to_place.reward_name))
                 next_reward.mib_type = mib.monster_chest_data
                 mib.processed = True
-                #logging.error(mib.processed)
-                #logging.error(next_reward.mib_type)
-                #logging.error("Area rewards: \n\n\n")
+                #logger.debug(mib.processed)
+                #logger.debug(next_reward.mib_type)
+                #logger.debug("Area rewards: \n\n\n")
             else:
-                #logging.error("Area rewards: Location to place: " + next_reward.description)
+                #logger.debug("Area rewards: Location to place: " + next_reward.description)
                 
                 # Handle some percentages 
                 
@@ -619,19 +623,19 @@ class Conductor():
                     self.CM.remove_from_placement_history(to_place)
                     to_place = [x for x in self.CM.get_all_of_type(Item) if x.collectible_name == "Elixir"][0]
             except Exception as e:
-                logging.error(e)
+                logger.debug(e)
                 
-            #logging.error("Area rewards: Reward being placed: " + to_place.reward_name)
+            #logger.debug("Area rewards: Reward being placed: " + to_place.reward_name)
             next_reward.set_collectible(to_place)
             next_reward.randomized = True
             self.AM.update_volume(next_reward)
             self.CM.update_placement_rewards(to_place, next_reward)
 
-        #logging.error("going into cleanup")
+        #logger.debug("going into cleanup")
         
         
         non_randomized_list = [i for i in self.RM.rewards if not i.randomized]
-        # logging.error("Cleanup non-randomized rewards %s" % ([i.description for i in non_randomized_list]))
+        # logger.debug("Cleanup non-randomized rewards %s" % ([i.description for i in non_randomized_list]))
         
         for next_reward in non_randomized_list:
 
@@ -644,17 +648,17 @@ class Conductor():
             self.CM.update_placement_rewards(to_place, next_reward)
         
         for i in self.AM.areas:
-            # logging.error("Cleanup, checking area: " + i.area_name)
+            # logger.debug("Cleanup, checking area: " + i.area_name)
             if i.num_placed_checks < i.num_checks:
-                logging.error("Cleanup, area %s not finished, %s placed_checks out of %s checks " % (i.area_name,i.num_placed_checks, i.num_checks))
+                logger.debug("Cleanup, area %s not finished, %s placed_checks out of %s checks " % (i.area_name,i.num_placed_checks, i.num_checks))
                 for j in [x for x in self.RM.rewards if x.area == i.area_name and x.reward_style != 'key']:
                     #1 spot remaining is the same as greater than or equal to
                     #thus the - 1
                     if i.current_volume >= i.area_capacity - 1:
-                        ##logging.error("Area had minimum capacity remaining")
+                        ##logger.debug("Area had minimum capacity remaining")
                         to_place = self.CM.get_min_value_collectible(self.RE)
                     else:
-                        ##logging.error("Area had some bonus capacity")
+                        ##logger.debug("Area had some bonus capacity")
                         remaining = self.capacity - self.current_volume
                         to_place = self.CM.get_of_value_or_lower(random,
                                                                  remaining)
@@ -669,7 +673,7 @@ class Conductor():
         
         if self.CM.collectible_config['place_all_rewards']:
             
-            logging.error("Placing all rewards final check")
+            logger.debug("Placing all rewards final check")
             unplaced_collectibles = [i for i in self.CM.collectibles if i not in self.CM.placement_history.keys()]
             
             all_valid_collectibles = [i for i in self.CM.collectibles if i.valid and i.tier]
@@ -707,7 +711,7 @@ class Conductor():
                         
                     reward_to_replace = self.RE.choice(reward_choices_to_replace)
                     
-                    logging.error("Replacing %s (%s) : %s (%s) with %s (%s)" % (reward_to_replace.description, reward_to_replace.tier, collectible_to_replace.reward_name, collectible_to_replace.tier, collectible_to_place.reward_name, collectible_to_place.tier))
+                    logger.debug("Replacing %s (%s) : %s (%s) with %s (%s)" % (reward_to_replace.description, reward_to_replace.tier, collectible_to_replace.reward_name, collectible_to_replace.tier, collectible_to_place.reward_name, collectible_to_place.tier))
                     
                     # adjust placement history for chosen collectible by -1
 
@@ -718,7 +722,7 @@ class Conductor():
                     reward_to_replace.set_collectible(collectible_to_place)
                     reward_to_replace.randomized = True
                 except:
-                    logging.error("Failure on placing %s" % collectible_to_place.reward_name)
+                    logger.debug("Failure on placing %s" % collectible_to_place.reward_name)
                 
                 
             
@@ -742,7 +746,7 @@ class Conductor():
             magic_chance = float(self.conductor_config['MAGIC_SHOP_CHANCE'])
             crystal_chance = float(self.conductor_config['CRYSTAL_SHOP_CHANCE'])            
 
-        #logging.error("difficulty: " + str(self.difficulty))
+        #logger.debug("difficulty: " + str(self.difficulty))
         
         for index, value in enumerate(self.RE.sample(self.SM.shops,len(self.SM.shops))):
             #don't waste time on invalid shops
@@ -923,7 +927,7 @@ class Conductor():
                 for content in contents:
                     if type(content) != first_slot_type:
                         contents.remove(content)
-                        logging.error("NOTICE: Removing shop entry for mismatch on collectible type")
+                        logger.debug("NOTICE: Removing shop entry for mismatch on collectible type")
 
             while(len(contents) < 8):
                 contents.append(None)
@@ -935,9 +939,9 @@ class Conductor():
         '''
         for shop in [x for x in self.SM.shops if x.valid]:
             if shop.num_items == 0:
-                logging.error(shop.readable_name)
-                logging.error(shop.shop_type)
-                logging.error(shop.valid)
+                logger.debug(shop.readable_name)
+                logger.debug(shop.shop_type)
+                logger.debug(shop.valid)
         '''
 
         #manage the must place items here
@@ -945,28 +949,28 @@ class Conductor():
             chosen_shop = None
             chosen_slot = None
             while value < 3:
-                #logging.error("guaranteeing " + index)
+                #logger.debug("guaranteeing " + index)
                 item_to_place = self.CM.get_by_id_and_type(index, ITEM_TYPE)
-                #logging.error(item_to_place.reward_name)
+                #logger.debug(item_to_place.reward_name)
                 # First attempt to place in tier 1 shop locations (world 1)
                 item_shops = [x for x in self.SM.shops if x.shop_type == ITEM_SHOP_TYPE and x.valid and x.num_items > 0 and x.num_items < 8 and (x.tier == '1' or x.tier == 1)]
                 if item_shops == []:
                     # if not, use normal method 
                     item_shops = [x for x in self.SM.shops if x.shop_type == ITEM_SHOP_TYPE and x.valid and x.num_items > 0 and x.num_items < 8]
-                #logging.error("number of item shops: " + str(len(item_shops)))
+                #logger.debug("number of item shops: " + str(len(item_shops)))
                 try:
                     chosen_shop = item_shops[self.RE.choice(range(0, len(item_shops)))]
                     chosen_shop.contents[slot] = item_to_place
                     chosen_shop.num_items = chosen_shop.num_items + 1
                 except:
                     try:
-                        #logging.error("Error on placing %s in shop, skipping..." % (item_to_place.description_name))
+                        #logger.debug("Error on placing %s in shop, skipping..." % (item_to_place.description_name))
                         pass
                     except:
-                        #logging.error("Error on placing %s in shop, skipping..." % (item_to_place))
+                        #logger.debug("Error on placing %s in shop, skipping..." % (item_to_place))
                         pass
                 slot = chosen_shop.num_items #because of 0 indexing, we want this, not this + 1
-                #logging.error("chosen slot index: " + str(chosen_slot))
+                #logger.debug("chosen slot index: " + str(chosen_slot))
 
                 value = value + 1
         
@@ -1000,7 +1004,7 @@ class Conductor():
                 new_contents.append(None)
             shop.contents = new_contents 
     def decide_progressive_bosses(self):
-        logging.error("Progressive bosses flag enabled. Deciding progressive bosses")
+        logger.debug("Progressive bosses flag enabled. Deciding progressive bosses")
         # galura
         for x in self.RM.get_rewards_by_style("key"):
             if int(x.world) == 3: # if world 3, discard
@@ -1030,10 +1034,10 @@ class Conductor():
                     if world_delta > 0:
                         x.max_world_requirements_flag = True
                         x.world_delta = world_delta
-                        logging.error("Progressive boss adjustment for location reward %s, delta %s" % (x.description,world_delta))
+                        logger.debug("Progressive boss adjustment for location reward %s, delta %s" % (x.description,world_delta))
                 except Exception as e:
                     pass
-#                    print("Error %s" % e)
+#                    logger.debug("Error %s" % e)
             
 
     def randomize_bosses(self):
@@ -1124,17 +1128,17 @@ class Conductor():
 
             # disallow Sandworm in Fork Tower
             
-            # logging.error("Original boss: %s"  % original_boss.enemy_list)
+            # logger.debug("Original boss: %s"  % original_boss.enemy_list)
             while (("Sandworm" in random_boss.enemy_list or "Atmos" in random_boss.enemy_list) and original_boss.enemy_1_name in ['Omniscient', 'Minotauros']):
                 original_boss_list = [original_boss] + original_boss_list
                 original_boss = original_boss_list.pop()
                 
             if "Sandworm" in random_boss.enemy_list:
                 pass
-                # logging.error("Placed Sandworm at %s" % original_boss.enemy_list)
+                # logger.debug("Placed Sandworm at %s" % original_boss.enemy_list)
             if "Atmos" in random_boss.enemy_list:
                 pass
-                # logging.error("Placed Atmos at %s" % original_boss.enemy_list)
+                # logger.debug("Placed Atmos at %s" % original_boss.enemy_list)
 
 
             if original_boss.enemy_1_name == "Odin":               
@@ -1186,13 +1190,13 @@ class Conductor():
                 try:
                     related_reward = [x for x in self.RM.rewards if int(x.idx) == int(original_boss.related_boss_reward)][0]
                     if related_reward.max_world_requirements_flag == True:
-#                        print(related_reward.description,related_reward.max_world_requirements_flag)
+#                        logger.debug(related_reward.description,related_reward.max_world_requirements_flag)
                         new_rank_og = new_rank
                         new_rank = min(int(new_rank) + (int(related_reward.world_delta * 10)),40)
                         progressive_flag = True
 #                        logging.info("Original boss %s Random boss %s new_rank_og %s new_rank %s" % (original_boss.enemy_list,random_boss.enemy_list,new_rank_og,new_rank))
                 except Exception as e:
-#                    print("Error %s " % e)
+#                    logger.debug("Error %s " % e)
                     pass
                 
                 
@@ -1403,7 +1407,7 @@ class Conductor():
             try:
                 new_exp = new_hp * float(self.boss_exp_percent / 100)
             except:
-                logging.error("Error on parsing boss_exp_percent %s, setting to 100 percent" % self.boss_exp_percent)
+                logger.debug("Error on parsing boss_exp_percent %s, setting to 100 percent" % self.boss_exp_percent)
                 new_exp = new_hp
             
             
@@ -1599,7 +1603,7 @@ class Conductor():
                 palette_asar = ["$"+palette[z:z+2]+", " for z in range(0,len(palette),2)]
                 output_str = output_str + ''.join(palette_asar)
             output_str = output_str[:-2]
-            #logging.error(output_str)
+            #logger.debug(output_str)
             return output_str
         
         if False: # Future - flag for keeping palettes among characters
@@ -1613,7 +1617,7 @@ class Conductor():
                     palette_asar = ["$"+palette[z:z+2]+", " for z in range(0,len(palette),2)]
                     output_str = output_str + ''.join(palette_asar)
             output_str = output_str[:-2]
-            logging.error(output_str)
+            logger.debug(output_str)
             return output_str
         
         
@@ -2099,7 +2103,7 @@ class Conductor():
                 loot_percent = 25 # defaults to 25
         except Exception as e:
             loot_percent = 25 # defaults to 25
-            logging.error("Error on loot type parse: %s" % (e))
+            logger.debug("Error on loot type parse: %s" % (e))
         for enemy in self.EM.enemies:
             for loot in loot_list:
                 # Choose item:
@@ -2124,11 +2128,11 @@ class Conductor():
                         setattr(enemy,loot,'00')
                         setattr(enemy,loot+"_name"," ")
                 else:
-                    logging.error("Invalid loot randomize argument %s" % (loot_type))
+                    logger.debug("Invalid loot randomize argument %s" % (loot_type))
                     
                     
     def randomize_weapons(self):
-        logging.error("Beginning weapon randomization...")
+        logger.debug("Beginning weapon randomization...")
         weapon_shop_price_patch = self.WM.randomize()
         if len(self.WM.banned_items) > 0:
             for _ in range(3):
@@ -2136,7 +2140,7 @@ class Conductor():
                     try:
                         self.CM.add_to_placement_history(self.CM.get_by_name(weapon['readable_name']),"No")
                     except:
-                        logging.error("Error on placement history %s" % weapon['readable_name'])
+                        logger.debug("Error on placement history %s" % weapon['readable_name'])
         return weapon_shop_price_patch
 
                     
@@ -2189,18 +2193,18 @@ class Conductor():
         try:
             randomized_weapons_ids = [i.data_dict['item_id'] for i in self.WM.weapons]
         except:
-            logging.error("No weapon manager, skipping...")
+            logger.debug("No weapon manager, skipping...")
 
         for i in range(0, len(kuzar_reward_addresses)):
-#            logging.error(i)
-            #logging.error("working on address: " + kuzar_reward_addresses[i])
+#            logger.debug(i)
+            #logger.debug("working on address: " + kuzar_reward_addresses[i])
             data = self.RM.get_reward_by_address(kuzar_reward_addresses[i]).collectible
             if data.name != "Arch Item":
-    #            logging.error("Kuzar start: %s" % (data.reward_name))
+    #            logger.debug("Kuzar start: %s" % (data.reward_name))
                 try:
                     if data.type == 'weapon' and data.reward_id in randomized_weapons_ids:
                         matched_weapon = [x for x in self.WM.weapons if data.reward_id == x.data_dict['item_id']][0]
-    #                    logging.error("Kuzar weapon name swap: %s -> %s" % (data.reward_name, matched_weapon.text_textbox))
+    #                    logger.debug("Kuzar weapon name swap: %s -> %s" % (data.reward_name, matched_weapon.text_textbox))
                         kuzar_text = self.TP.run_kuzar_encrypt({matched_weapon.text_textbox: kuzar_text_addresses[i]})
                         output = output + kuzar_text
                     else:
@@ -2210,14 +2214,14 @@ class Conductor():
                             temp_reward_name = "%s %s Magic" % (temp_reward_name, data.type)
                         
                         kuzar_text = self.TP.run_kuzar_encrypt({temp_reward_name: kuzar_text_addresses[i]})
-    #                    logging.error("Kuzar normal: %s" % (data.reward_name))
+    #                    logger.debug("Kuzar normal: %s" % (data.reward_name))
                         output = output + kuzar_text
     
                 except:
-                    #logging.error("collectible there is: " + c.reward_name)
+                    #logger.debug("collectible there is: " + c.reward_name)
                     #@ will be used for our newline character, won't otherwise be present, and don't have the problems \n causes
                     kuzar_text = self.TP.run_kuzar_encrypt({data.reward_name.replace('->', '@').replace(' Progressive', '@'): kuzar_text_addresses[i]})
-    #                logging.error("Kuzar normal: %s" % (data.reward_name))
+    #                logger.debug("Kuzar normal: %s" % (data.reward_name))
                     output = output + kuzar_text
 
         return output
@@ -2239,16 +2243,16 @@ class Conductor():
     def translateBool(self, boolean):
         
         if type(boolean) == bool:
-            # logging.error("Argument passed in to translate: %s, returning original as boolean" % (boolean))
+            # logger.debug("Argument passed in to translate: %s, returning original as boolean" % (boolean))
             return boolean
         if boolean == "false" or boolean == "False" or boolean == "off" or boolean == "0" or boolean == 0:
-            # logging.error("Argument passed in to translate: %s, returning boolean False" % (boolean))
+            # logger.debug("Argument passed in to translate: %s, returning boolean False" % (boolean))
             return False
         if boolean == "true" or boolean == "True" or boolean == "on" or boolean == "1" or boolean == 1:
-            # logging.error("Argument passed in to translate: %s, returning boolean True" % (boolean))
+            # logger.debug("Argument passed in to translate: %s, returning boolean True" % (boolean))
             return True
         else:
-            # logging.error("Argument passed in to translate: %s, returning NONETYPE" % (boolean))
+            # logger.debug("Argument passed in to translate: %s, returning NONETYPE" % (boolean))
             return None
         
 #   Unused, but may be necessary one day. The concept here is to iterate through unplaced collectibles and assign them to random rewards
@@ -2278,7 +2282,7 @@ class Conductor():
         b_color = int(self.blue_color) * 1024
 
         colors = hex(r_color+g_color+b_color).replace("0x","")
-        # print(colors)
+        # logger.debug(colors)
         
         if len(colors) == 0:
             colors = "0000"
@@ -2307,7 +2311,7 @@ class Conductor():
         
         
         patch = patch + "\n;Reward Mult\norg $C0F342\ndb $%s" % (reward_val)
-#        print(patch)
+#        logger.debug(patch)
         return patch
         
         
@@ -2360,7 +2364,7 @@ class Conductor():
         
         
     def save_spoiler_and_patch(self, output_directory):
-        logging.error("Finished randomization process, saving to file.")
+        logger.debug("Finished randomization process, saving to file.")
         self.patch_path = os.path.join(output_directory,'ffvcd-patch-%s-%s.asm' % (self.player, self.seed))
         with open(self.patch_path,'w') as f:
             f.write(self.patch)
@@ -2380,7 +2384,7 @@ class Conductor():
 
         pass_flag = True # true until process fails
         
-        logging.error("Starting randomization process.")
+        logger.debug("Starting randomization process.")
         if random_engine is None:
             random_engine = self.RE
         
@@ -2396,7 +2400,7 @@ class Conductor():
         
         for address, arch_item_data in self.arch_data.items():
             if address == 'C0FFFF':
-                print("Skipping Exdeath at C0FFFF")
+                logger.debug("Skipping Exdeath at C0FFFF")
                 continue
             
             arch_player = arch_item_data['loc_player']
@@ -2421,7 +2425,7 @@ class Conductor():
                 
 
             except Exception as e:
-                print("Error on %s: %s" % (address, e))
+                logger.debug("Error on %s: %s" % (address, e))
             
         
         
@@ -2431,16 +2435,16 @@ class Conductor():
         
         
         
-        # logging.error("Randomizing key items...")
+        # logger.debug("Randomizing key items...")
         # num_placed_key_items = self.randomize_key_items()
         
-        # #logging.error(num_placed_key_items)
+        # #logger.debug(num_placed_key_items)
         # if num_placed_key_items < (int(self.conductor_config['NUM_KEY_ITEMS'z]) - self.free_tablets):
-        #     logging.error("DID NOT PLACE ALL KEY ITEMS, pass_flag SET TO FALSE...")
+        #     logger.debug("DID NOT PLACE ALL KEY ITEMS, pass_flag SET TO FALSE...")
         #     pass_flag = False
         #     return pass_flag, (None, None)
         # # while num_placed_key_items < (int(self.conductor_config['NUM_KEY_ITEMS']) - self.free_tablets):
-        # #     logging.error("DID NOT PLACE ALL KEY ITEMS, RETRYING...")
+        # #     logger.debug("DID NOT PLACE ALL KEY ITEMS, RETRYING...")
             
         # #     # self.CM.reset_all_of_type(KeyItem)
         # #     self.CM.reset_all_types()
@@ -2448,10 +2452,10 @@ class Conductor():
         # #     self.RM.reset_rewards_by_style("mib_key")
         # #     num_placed_key_items = self.randomize_key_items()
 
-        # logging.error("Randomizing rewards...")
+        # logger.debug("Randomizing rewards...")
         # self.randomize_rewards_by_areas()
 
-        logging.error("Randomizing shops...")
+        logger.debug("Randomizing shops...")
         self.randomize_shops()
         
         
@@ -2462,30 +2466,30 @@ class Conductor():
         for i in self.RM.rewards: #this is a fix for an unsolved bug where some rewards don't get collectibles. it's rare, but it happens
             if i.collectible is None:
                 if i.reward_style != 'key':
-                    logging.error("\nUNSOLVED BUG: Placing reward for key item...\n")
+                    logger.debug("\nUNSOLVED BUG: Placing reward for key item...\n")
                     i.collectible = self.CM.get_random_collectible(self.RE, monitor_counts=True, gil_allowed=False, tiering_config=self.tiering_config, tiering_percentage=self.tiering_percentage, tiering_threshold=self.tiering_threshold)
 
         
-        logging.error("Randomizing bosses...")
+        logger.debug("Randomizing bosses...")
         self.randomize_bosses()
 
         for i in self.RM.rewards:
             if i.collectible is None:
-                logging.error(i.description)
+                logger.debug(i.description)
         
         
         if self.item_randomization:
-            logging.error("Randomizing weapons...")
+            logger.debug("Randomizing weapons...")
             weapon_shop_price_patch = self.randomize_weapons()
 
-#        logging.error("Running cleanup for guaranteeing collectibles")
+#        logger.debug("Running cleanup for guaranteeing collectibles")
 #        self.cleanup_seed()
         if self.randomize_loot_setting:
-            logging.error("Randomizing loot...")
+            logger.debug("Randomizing loot...")
             self.randomize_loot()
         
         # Patch now comes first, because some functions (randomize_superbosses) now create the spoiler as part of their process
-        logging.error("Creating spoiler & asm patch...")
+        logger.debug("Creating spoiler & asm patch...")
         patch = "hirom\n\n"
         patch = patch + self.starting_crystal_patch()
         patch = patch + self.RM.get_patch()
@@ -2512,11 +2516,11 @@ class Conductor():
             learning_patch, learning_spoiler = randomize_learning_abilities(self.RE)
             patch = patch + learning_patch
         if self.music_randomization:
-            logging.error("Shuffling music...")
+            logger.debug("Shuffling music...")
             patch = patch + shuffle_music2()
             
         if self.free_shops:
-            logging.error("Free shops...")
+            logger.debug("Free shops...")
             patch = patch + free_shop_prices()
         if self.remove_ned:
             patch = patch + self.fix_random_ned()            
@@ -2530,7 +2534,7 @@ class Conductor():
 
 
         
-        logging.error("Retreiving spoiler data")
+        logger.debug("Retreiving spoiler data")
         # spoiler = spoiler + self.spoiler_settings()
         spoiler = spoiler + self.starting_crystal_spoiler()
         spoiler = spoiler + self.get_collectible_counts()                
@@ -2561,7 +2565,7 @@ class Conductor():
             spoiler = spoiler + temp_hints
         
 
-        logging.error("Creating hash...")
+        logger.debug("Creating hash...")
         temp_hash, temp_hash_patch = self.create_hash()
         patch += temp_hash_patch
         spoiler =  temp_hash + spoiler
@@ -2607,25 +2611,6 @@ if __name__ == "__main__":
         
     
     if not seed_success:
-        logging.error("\n ***** FAILED GENERATION, NO SEED CREATED ***** \n\n")
-
-
-
-    
-    # if True:
-    #     # use this to check if mismatched rewards
-        
-    #     mismatched = {}
-    #     for i in c.CM.collectibles:
-    #         try:
-    #             if i != i.placed_reward.collectible:
-    #                 mismatched[i.placed_reward] = i
-    #         except:
-    #             pass
-    
-    #     for k, v in mismatched.items():
-    #         print(v.reward_name, "\t\t", k.description)
-    
-
+        logger.debug("\n ***** FAILED GENERATION, NO SEED CREATED ***** \n\n")
 
 

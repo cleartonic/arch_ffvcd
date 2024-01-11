@@ -23,10 +23,7 @@ def create_item(name: str, classification, item_data_id, player, groups) -> Item
 
 def create_world_items(world):
     
-    # add victory first
-    
-    
-    # manually update location and item table
+    # add victory first, manually update location and item table
     exdeath = world.multiworld.get_location("ExDeath", world.player)    
     new_item = create_item("Victory",  
                                 ItemClassification.progression, 
@@ -40,21 +37,26 @@ def create_world_items(world):
     for key_item_name in [i for i in item_table if "Key Items" in item_table[i].groups]:
         item_data = item_table[key_item_name]
         if item_data.classification == ItemClassification.progression:
-            new_item = create_item(key_item_name, item_data.classification, item_data.id, world.player, item_data.groups)
+            new_item = create_item(key_item_name, item_data.classification, item_data.id, \
+                                   world.player, item_data.groups)
             placed_items.append(new_item)
             world.multiworld.itempool.append(new_item)
             
     # add crystals only if four job not enabled
     if world.multiworld.four_job[world.player]:        
-        for key_item_name in [i for i in item_table if "Abilities" in item_table[i].groups or "Magic" in item_table[i].groups]:
+        for key_item_name in [i for i in item_table if "Abilities" in item_table[i].groups or \
+                              "Magic" in item_table[i].groups]:
             item_data = item_table[key_item_name]
-            new_item = create_item(key_item_name, item_data.classification, item_data.id, world.player, item_data.groups)
+            new_item = create_item(key_item_name, item_data.classification, item_data.id, \
+                                   world.player, item_data.groups)
             placed_items.append(new_item)
             world.multiworld.itempool.append(new_item)
     else:
-        for key_item_name in [i for i in item_table if "Crystals" in item_table[i].groups or "Abilities" in item_table[i].groups or "Magic" in item_table[i].groups]:
+        for key_item_name in [i for i in item_table if "Crystals" in item_table[i].groups or \
+                              "Abilities" in item_table[i].groups or "Magic" in item_table[i].groups]:
             item_data = item_table[key_item_name]
-            new_item = create_item(key_item_name, item_data.classification, item_data.id, world.player, item_data.groups)
+            new_item = create_item(key_item_name, item_data.classification, item_data.id, \
+                                   world.player, item_data.groups)
             placed_items.append(new_item)
             world.multiworld.itempool.append(new_item)
 
@@ -64,17 +66,17 @@ def create_world_items(world):
     
     # then calculate remaining    
     locations_this_world = [i for i in world.multiworld.get_locations(world.player)]
-    # print("Init item pool len %s -> location count %s" % (len(world.multiworld.itempool), len(locations_this_world)))
     
     # this has a minus 1 at the end to accommodate special locations like "ExDeath" at the end
     
     item_count_to_place = len(locations_this_world) - len(placed_items) - 1
-    for item_name in world.multiworld.random.sample([i for i in item_table if "Fungible" in item_table[i].groups], item_count_to_place):
+    for item_name in world.multiworld.random.sample([i for i in item_table if "Fungible" in \
+                                                     item_table[i].groups], item_count_to_place):
         item_data = item_table[item_name]
-        new_item = create_item(item_name, item_data.classification, item_data.id, world.player, item_data.groups)
+        new_item = create_item(item_name, item_data.classification, item_data.id, \
+                                                   world.player, item_data.groups)
         world.multiworld.itempool.append(new_item)
         
-    # print("Item pool len %s -> location count %s" % (len(world.multiworld.itempool), len(locations_this_world)))
 
 item_table = {
     "Knight Crystal" : ItemData(100, ItemClassification.useful, ["Unique", "Crystals"]),

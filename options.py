@@ -13,12 +13,6 @@ class FourJob(Toggle):
     """
     display_name = "Enable Four Job Mode"
 
-# class ExtraPatches(DefaultOnToggle):
-#     """
-#     When enabled, optional patches for L/R functionality in menus and enhanced optimize are applied
-#     """
-#     display_name = "Apply optional patches"
-
 class RemoveFlashes(DefaultOnToggle):
     """
     When enabled, optional patches for removing flashes (notably Neo ExDeath) are applied

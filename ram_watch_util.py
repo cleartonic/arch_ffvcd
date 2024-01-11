@@ -2,10 +2,10 @@
 def address_to_ram(address = None, location_type = None):
     try:
         if not address:
-            print("Must supply address, returning None")
+            # print("Must supply address, returning None")
             return None
         elif not location_type:
-            print("Must supply location_type (chest or event), returning None")
+            # print("Must supply location_type (chest or event), returning None")
             return None
         else:
             if location_type == "chest":
@@ -13,11 +13,11 @@ def address_to_ram(address = None, location_type = None):
             elif location_type == "event":
                 dict_to_use = event_flag_dict
             else:
-                print("Invalid location_type (chest or event), returning None")
+                # print("Invalid location_type (chest or event), returning None")
                 return None
             return dict_to_use[address]
     except Exception as e:
-        print("Error on returning %s, %s" % (address, e))
+        # print("Error on returning %s, %s" % (address, e))
         return None
             
     
@@ -25,10 +25,10 @@ def address_to_ram(address = None, location_type = None):
 def ram_to_address(byte = None, bit = None, location_type = None): 
     try:
         if byte == None or bit == None:
-            print("Must supply all args, returning None")
+            # print("Must supply all args, returning None")
             return None
         elif not location_type:
-            print("Must supply location_type (chest or event), returning None")
+            # print("Must supply location_type (chest or event), returning None")
             return None
         else:
             ret = None
@@ -38,7 +38,7 @@ def ram_to_address(byte = None, bit = None, location_type = None):
             elif location_type == "event":
                 dict_to_use = event_flag_dict
             else:
-                print("Invalid location_type (chest or event), returning None")
+                # print("Invalid location_type (chest or event), returning None")
                 return None
             
             
@@ -46,12 +46,12 @@ def ram_to_address(byte = None, bit = None, location_type = None):
                 if v['byte'] == byte and v['bit'] == bit:
                     ret = v        
             if not ret:
-                print("No address found, returning None")
+                # print("No address found, returning None")
                 return None
             else:
                 return ret
     except Exception as e:
-        print("Error on returning %s %s, %s" % (byte, bit, e))
+        # print("Error on returning %s %s, %s" % (byte, bit, e))
         return None
         
     

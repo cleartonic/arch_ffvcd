@@ -1,9 +1,10 @@
 import os
 import threading
 import base64
-from BaseClasses import Item, MultiWorld, Tutorial, ItemClassification
+from BaseClasses import MultiWorld, Tutorial, ItemClassification
 from worlds.AutoWorld import World, WebWorld
-from .items import item_table, item_groups, create_item, create_world_items, FFVCDItem, arch_item_offset, WORLD2_ACCESS_ITEM_ID, WORLD3_ACCESS_ITEM_ID
+from .items import item_table, item_groups, create_item, create_world_items, arch_item_offset, \
+    WORLD2_ACCESS_ITEM_ID, WORLD3_ACCESS_ITEM_ID
 from .locations import location_data, loc_id_start
 from .options import ffvcd_options
 from .regions import create_regions
@@ -13,17 +14,17 @@ from .client import FFVCDSNIClient
 from .rom import LocalRom, get_base_rom_path, patch_rom
 from collections import Counter
 import shutil
-
+import logging
+logger = logging.getLogger("Final Fantasy V Career Day")
 
 THIS_FILEPATH = os.path.dirname(__file__)
-
 
 # lots of credit to others in the repository, such as pokemonrb, dkc3 and tloz
 
 class FFVCDWebWorld(WebWorld):
     setup_en = Tutorial(
         "Multiworld Setup Guide",
-        "A guide to playing Final Fantasy V with Archipelago.",
+        "A guide to playing Final Fantasy V Career Day with Archipelago.",
         "English",
         "setup_en.md",
         "setup/en",
@@ -120,7 +121,8 @@ class FFVCDWorld(World):
         options_conductor = self.parse_options_for_conductor()
 
         
-        self.cond = conductor.Conductor(self.multiworld.random, options_conductor, arch_data = data, player = self.player, seed = self.multiworld.seed)
+        self.cond = conductor.Conductor(self.multiworld.random, options_conductor, arch_data = data, \
+                                        player = self.player, seed = self.multiworld.seed)
         self.cond.randomize()
         
 
@@ -176,7 +178,7 @@ class FFVCDWorld(World):
                                         "ffv_%sfjf_world%slock.bsdiff4" % (four_job,
                                                               self.options_conductor['world_lock'])
                                         )
-        print("Copying %s -> %s" % (self.source_rom_abs_path, rompath))
+        logger.debug("Copying %s -> %s" % (self.source_rom_abs_path, rompath))
         
         shutil.copy(self.source_rom_abs_path, rompath)
         
@@ -212,7 +214,7 @@ class FFVCDWorld(World):
         rom.write_to_file(rompath)
         
         self.rom_name_available_event.set() # make sure threading continues and errors are collected
-        print("Finished generate_output function")
+        logger.debug("Finished generate_output function")
         
         
     def modify_multidata(self, multidata: dict):

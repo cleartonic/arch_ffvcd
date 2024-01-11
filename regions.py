@@ -1,17 +1,12 @@
-from copy import deepcopy
-from BaseClasses import MultiWorld, Region, Entrance, LocationProgressType, ItemClassification
-from .items import item_table, item_groups
-from .locations import location_data, FFVCDLocation, create_location, LocationData, loc_id_start
+from BaseClasses import MultiWorld, Region, Entrance
+from .locations import location_data, create_location
 from worlds.generic.Rules import add_rule
-from .items import arch_item_offset
 
 def create_region(multiworld: MultiWorld, player: int, region_name: str, parent_region : Region = None):
-    # print("Creating region %s" % region_name)
     ret = FFVCDRegion(region_name, player, multiworld)
     # find all locations for region
     for location_data_entry in location_data:
         if location_data_entry.area == region_name:
-            # print("Match on region %s -> location %s" % (region_name, location_data_entry.name))
             location_object = create_location(multiworld, player, location_data_entry, parent_region)
             location_object.parent_region = ret
             ret.locations.append(location_object)
@@ -139,20 +134,6 @@ def create_regions(multiworld, player: int):
                               lambda state: state.has("Hiryuu Call", player))
 
     
-    # regions = []
-
-    # nm_region = multiworld.get_region("North Mountain", player)
-    # for region_name in [i for i in region_lookup if i not in ["Moogle Village", "Bal Castle", "North Mountain"]]:
-    #     new_region = create_region(multiworld, player, region_name, nm_region)
-    #     regions.append(new_region)
-    #     new_entrance = Entrance(player, region_name, nm_region)
-    #     new_entrance.connect(new_region)
-    #     nm_region.exits.append(new_entrance)
-    #     new_entrance_b = Entrance(player, "North Mountain", new_region)
-    #     new_entrance_b.connect(new_region)
-    #     new_region.exits.append(new_entrance_b)
-    # multiworld.regions += regions
-
     void_region = multiworld.get_region("Void", player)
     exdeath = multiworld.get_location("ExDeath", player)
     exdeath.parent_region = void_region

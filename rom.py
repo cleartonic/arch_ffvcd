@@ -26,14 +26,6 @@ class LocalRom(object):
                 
         with open(file, 'rb') as file:
             self.rom_data = file.read()
-
-        #if patch:
-        #    self.patch_rom()
-        #    self.orig_buffer = self.buffer.copy()
-        #if vanillaRom:
-        #    with open(vanillaRom, 'rb') as vanillaStream:
-        #        self.orig_buffer = read_snes_rom(vanillaStream)
-        
         
     def read_bit(self, address: int, bit_number: int) -> bool:
         bitflag = (1 << bit_number)
