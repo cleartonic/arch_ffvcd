@@ -135,9 +135,9 @@ class Conductor():
                                  'MAGIC_RELEVANCE_WEIGHT_MODIFIER' : 10,
                                  'SHINRYUU_VANILLA' : True,
                                  'SHINRYUU_ADDRESS' : 'D135FA',
-                                 'ITEM_SHOP_CHANCE' : .6,
-                                 'MAGIC_SHOP_CHANCE' : .25,
-                                 'CRYSTAL_SHOP_CHANCE' : .15,
+                                 'ITEM_SHOP_CHANCE' : .7,
+                                 'MAGIC_SHOP_CHANCE' : .2,
+                                 'CRYSTAL_SHOP_CHANCE' : .1,
                                  'BOSS_RANK_ADJUST_LOW' : .8,
                                  'BOSS_RANK_ADJUST_MED' : 1.0,
                                  'BOSS_RANK_ADJUST_HIGH' : 1.2}, 
@@ -749,7 +749,7 @@ class Conductor():
         #logger.debug("difficulty: " + str(self.difficulty))
         
         for index, value in enumerate(self.RE.sample(self.SM.shops,len(self.SM.shops))):
-            #don't waste time on invalid shops
+            # skip invalid shops
             if value.valid is False:
                 continue
 
@@ -810,13 +810,13 @@ class Conductor():
             if kind == "item":
                 if value.num_items < 4:
                     value.num_items = 4
-                if not self.fjf_strict:
-                    item_chance = item_chance - .1
-                    magic_chance = magic_chance + .05
-                    crystal_chance = crystal_chance + .05
-                else:
-                    item_chance = item_chance - .1
-                    magic_chance = magic_chance + .1                    
+                # if not self.fjf_strict:
+                #     item_chance = item_chance - .1
+                #     magic_chance = magic_chance + .05
+                #     crystal_chance = crystal_chance + .05
+                # else:
+                #     item_chance = item_chance - .1
+                #     magic_chance = magic_chance + .1                    
                 value.shop_type = ITEM_SHOP_TYPE
                 for i in range(0, value.num_items):
                     while True:
@@ -840,13 +840,13 @@ class Conductor():
             elif kind == "magic":
                 if value.num_items > 5:
                     value.num_items = 5
-                if not self.fjf_strict:
-                    item_chance = item_chance + .05
-                    magic_chance = magic_chance - .1
-                    crystal_chance = crystal_chance + .05
-                else:
-                    item_chance = item_chance + .1
-                    magic_chance = magic_chance - .1                    
+                # if not self.fjf_strict:
+                #     item_chance = item_chance + .05
+                #     magic_chance = magic_chance - .1
+                #     crystal_chance = crystal_chance + .05
+                # else:
+                #     item_chance = item_chance + .1
+                #     magic_chance = magic_chance - .1                    
                 value.shop_type = MAGIC_SHOP_TYPE
                 try:
                     for i in range(0, value.num_items):
@@ -880,12 +880,12 @@ class Conductor():
             else:
                 if value.num_items > 4:
                     value.num_items = 4
-                if not self.fjf_strict:
-                    item_chance = item_chance + .05
-                    magic_chance = magic_chance + .05
-                    crystal_chance = crystal_chance - .1
-                else:
-                    pass # this doesn't matter, shouldn't be placing this type on fjf_strict = True
+                # if not self.fjf_strict:
+                #     item_chance = item_chance + .05
+                #     magic_chance = magic_chance + .05
+                #     crystal_chance = crystal_chance - .1
+                # else:
+                #     pass # this doesn't matter, shouldn't be placing this type on fjf_strict = True
                 value.shop_type = CRYSTAL_SHOP_TYPE #shop type: crystal/ability
                 try:
                     for i in range(0, value.num_items):
@@ -2184,7 +2184,18 @@ class Conductor():
 
     def kuzar_text_patch(self):
         kuzar_reward_addresses = ['C0FB02','C0FB04','C0FB06','C0FB08','C0FB0A','C0FB0C','C0FB0E','C0FB10','C0FB12','C0FB14','C0FB16','C0FB18']
-        kuzar_text_addresses =   ['E23F98','E240A5','E23F7A','E2404C','E240C4','E23FD6','E24011','E24088','E23FF4','E2406A','E23FB7','E2402D']
+        kuzar_text_addresses =   ['E23F7A',
+                                    'E23F98',
+                                    'E23FB7',
+                                    'E23FD6',
+                                    'E23FF4',
+                                    'E24011',
+                                    'E2402D',
+                                    'E2404C',
+                                    'E2406A',
+                                    'E24088',
+                                    'E240A5',
+                                    'E240C4']
         
         output = ";=====================\n"
         output = output + ";Kuzar Reward Text Fix\n"
@@ -2202,6 +2213,7 @@ class Conductor():
             if data.name != "Arch Item":
     #            logger.debug("Kuzar start: %s" % (data.reward_name))
                 try:
+
                     if data.type == 'weapon' and data.reward_id in randomized_weapons_ids:
                         matched_weapon = [x for x in self.WM.weapons if data.reward_id == x.data_dict['item_id']][0]
     #                    logger.debug("Kuzar weapon name swap: %s -> %s" % (data.reward_name, matched_weapon.text_textbox))

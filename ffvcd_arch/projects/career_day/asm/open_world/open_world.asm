@@ -739,3 +739,13 @@ lda $06
 sep #$20
 stz !unusedram3
 jml $C0585D
+
+
+; fix wind shrine potion guy to always give reward before/after wind shrine cleared 
+org $CE096A
+db $FB, $FB
+
+; fix walse tower guard's text
+org $e16e82
+;You cannot enter this tower without the Walse Tower Key.
+db $78, $88, $8E, $96, $7C, $7A, $87, $87, $88, $8D, $96, $7E, $87, $8D, $7E, $8B, $96, $8D, $81, $82, $8C, $96, $8D, $88, $90, $7E, $8B, $01, $96, $90, $82, $8D, $81, $88, $8E, $8D, $96, $8D, $81, $7E, $96, $76, $7A, $85, $8C, $7E, $96, $73, $88, $90, $7E, $8B, $96, $6A, $7E, $92, $A3, $00

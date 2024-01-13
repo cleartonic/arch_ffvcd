@@ -26,9 +26,6 @@ db $A5, $19						;Set Event Flag 119
 
 ; inverted from fire crystal, restore NPCs in Karnak...?
 
-db $CA, $57, $01				;Clear Flag 2/3/4/5/57 01
-db $CA, $6B, $01				;Clear Flag 2/3/4/5/6B 01
-db $CB, $6C, $01				;Set Flag 2/3/4/5/6C 01
 db $CA, $58, $01				;Clear Flag 2/3/4/5/58 01
 db $CA, $59, $01				;Clear Flag 2/3/4/5/59 01
 db $CA, $5A, $01				;Clear Flag 2/3/4/5/5A 01
@@ -48,7 +45,7 @@ db $CA, $67, $01				;Clear Flag 2/3/4/5/67 01
 db $CA, $68, $01				;Clear Flag 2/3/4/5/68 01
 db $CA, $69, $01				;Clear Flag 2/3/4/5/69 01
 db $CA, $6A, $01				;Clear Flag 2/3/4/5/6A 01
-db $CA, $57, $01				;Clear Flag 2/3/4/5/57 01
+; db $CA, $57, $01				;Clear Flag 2/3/4/5/57 01 - this is karnak town fire (also portal boss?)
 db $CA, $6B, $01				;Clear Flag 2/3/4/5/6B 01
 db $CB, $6C, $01				;Set Flag 2/3/4/5/6C 01
 db $CB, $6D, $01				;Set Flag 2/3/4/5/6D 01

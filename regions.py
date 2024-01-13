@@ -72,15 +72,20 @@ def create_regions(multiworld, player: int):
                               lambda state: state.has("Trench Page", player)\
                               and state.has("Submarine Key", player))
     setup_region_and_entrance(multiworld, player, "Hiryuu Valley", "World 2 Access", access_rule = None)
+    setup_region_and_entrance(multiworld, player, "Istory", "World 2 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Istory Falls", "World 3 Access", access_rule = \
-                              lambda state: state.has("Falls Page", player)\
+                          lambda state: state.has("Falls Page", player)\
                               and state.has("Submarine Key", player))
     setup_region_and_entrance(multiworld, player, "Jacole", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Karnak", "World 1 Access", access_rule = \
                               lambda state: state.has("Steamship Key", player))
     setup_region_and_entrance(multiworld, player, "Karnak Meteor", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Kelb", "World 2 Access", access_rule = None)
-    setup_region_and_entrance(multiworld, player, "Kuzar", "World 2 Access", access_rule = None)
+    setup_region_and_entrance(multiworld, player, "Kuzar", "World 2 Access", access_rule =  \
+                              lambda state: state.has("1st Tablet", player) and 
+                              state.has("2nd Tablet", player) and
+                              state.has("3rd Tablet", player) and
+                              state.has("4th Tablet", player))
     setup_region_and_entrance(multiworld, player, "Lix", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Lonka Meteor", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Mirage Village", "World 3 Access", access_rule = \
@@ -92,14 +97,24 @@ def create_regions(multiworld, player: int):
     setup_region_and_entrance(multiworld, player, "Mua Forest", "World 2 Access", access_rule = \
                               lambda state: state.has("Elder Branch", player))
     setup_region_and_entrance(multiworld, player, "North Mountain", "World 1 Access", access_rule = None)
-    setup_region_and_entrance(multiworld, player, "North Mountain Upper", "World 3 Access", access_rule = \
+    setup_region_and_entrance(multiworld, player, "North Mountain (World 3)", "World 3 Access", access_rule = \
                               lambda state: state.has("Mirage Radar", player))
     setup_region_and_entrance(multiworld, player, "Phoenix Tower", "World 3 Access", access_rule = \
                               lambda state: state.has("Mirage Radar", player))
     setup_region_and_entrance(multiworld, player, "Pirate's Cave", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Pyramid", "World 3 Access", access_rule = \
                               lambda state: state.has("Pyramid Page", player))
-    setup_region_and_entrance(multiworld, player, "Rift", "World 3 Access", access_rule = \
+    setup_region_and_entrance(multiworld, player, "Rift (1 Tablet)", "World 3 Access", access_rule = \
+                              lambda state: state.has("1st Tablet", player))
+    setup_region_and_entrance(multiworld, player, "Rift (2 Tablets)", "World 3 Access", access_rule = \
+                              lambda state: state.has("1st Tablet", player) and 
+                              state.has("2nd Tablet", player))
+    setup_region_and_entrance(multiworld, player, "Rift (3 Tablets)", "World 3 Access", access_rule = \
+                              lambda state: state.has("1st Tablet", player) and 
+                              state.has("2nd Tablet", player) and
+                              state.has("3rd Tablet", player) and
+                              state.has("4th Tablet", player))
+    setup_region_and_entrance(multiworld, player, "Rift (4 Tablets)", "World 3 Access", access_rule = \
                               lambda state: state.has("1st Tablet", player) and 
                               state.has("2nd Tablet", player) and
                               state.has("3rd Tablet", player) and
@@ -122,8 +137,8 @@ def create_regions(multiworld, player: int):
                               state.has("2nd Tablet", player) and
                               state.has("3rd Tablet", player) and
                               state.has("4th Tablet", player))
-    setup_region_and_entrance(multiworld, player, "Walse", "World 1 Access", access_rule = None)
-    setup_region_and_entrance(multiworld, player, "Walse Kingdom", "World 1 Access", access_rule = None)
+    setup_region_and_entrance(multiworld, player, "Walse Town", "World 1 Access", access_rule = None)
+    setup_region_and_entrance(multiworld, player, "Walse Castle", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Walse Meteor", "World 1 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Walse Tower", "World 1 Access", access_rule = 
                               lambda state: state.has("Walse Tower Key", player))
@@ -150,53 +165,4 @@ class FFVCDRegion(Region):
         super().__init__(name, player, multiworld)
         
         
-region_lookup = ["Ancient Library",
-                "Bal Castle",
-                "Barrier Tower",
-                "Big Bridge",
-                "Carwen",
-                "Catapult",
-                "Crescent Island",
-                "Desert of Shifting Sands",
-                "Exdeath's Castle",
-                "Flying Lonka Ruins",
-                "Fork Tower",
-                "Great Trench",
-                "Hiryuu Valley",
-                "Istory Falls",
-                "Jacole",
-                "Karnak",
-                "Karnak Meteor",
-                "Kelb",
-                "Kuzar",
-                "Lix",
-                "Lonka Meteor",
-                "Mirage Village",
-                "Moogle Village",
-                "Moogle Waterway",
-                "Mua",
-                "Mua Forest",
-                "North Mountain",
-                "Phoenix Tower",
-                "Pirate's Cave",
-                "Pyramid",
-                "Rift",
-                "Rugor",
-                "Ruined City",
-                "Ship Graveyard",
-                "Solitary Island",
-                "Steamship",
-                "Surgate Castle",
-                "Torna Canal",
-                "Tule",
-                "Tule Pass",
-                "Tycoon Castle",
-                "Tycoon Meteor",
-                "Void",
-                "Walse",
-                "Walse Kingdom",
-                "Walse Meteor",
-                "Walse Tower",
-                "Wind Shrine",
-                "Zeza Fleet"]
                         
