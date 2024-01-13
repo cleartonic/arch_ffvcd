@@ -30,18 +30,17 @@ class FFVCDLocation(Location):
         )
         
         self.item_rule = lambda x: True
-        print("%s -> %s" % (location_data.name, location_data.location_type))
         if location_data.location_type != "key":
-            self.item_rule = lambda item: not (item.classification & ItemClassification.progression)
+            add_item_rule(self, lambda item: not (item.classification & ItemClassification.progression))
 
         
         
         # only allow kuzar to place this seed's items
         # disallow mua from being progression, both town (brave/chicken) and dungeon (non burning vs burning)
         # only allow karnak to place this seed's items
-        if location_data.area in ["Kuzar", "Mua", "Karnak"]:
-            self.item_rule = lambda item: item.player == self.player and not (item.classification \
-                                                                              & ItemClassification.progression)
+        # disallow lone wolf/under bal castle related checks for some weird progression problems
+        if location_data.area in ["Kuzar", "Mua", "Karnak"] or location_data.address in ['C0FB38', 'C0FB3A']:
+            add_item_rule(self, lambda item: item.player == self.player)
 
 
 
@@ -52,14 +51,9 @@ class FFVCDLocation(Location):
         # they can be other players' items too
         # they just can't be this world's own ITEMS 
         if "fire crystal" in location_data.name.lower():
-            self.item_rule = lambda item: item.player == self.player and not \
-                (item.classification & ItemClassification.progression) and not ('Item' in item.groups)
+            add_item_rule(self, lambda item: not ('Item' in item.groups))
 
             
-        # disallow lone wolf/under bal castle related checks for some weird progression problems
-        if location_data.address in ['C0FB38', 'C0FB3A']:
-            self.item_rule = lambda item: item.player == self.player and not \
-                (item.classification & ItemClassification.progression)
 
             
 
