@@ -1,4 +1,4 @@
-from Options import Toggle, DefaultOnToggle, OptionSet
+from Options import Toggle, DefaultOnToggle, Range
 
 
 class JobPalettes(Toggle):
@@ -19,18 +19,16 @@ class RemoveFlashes(DefaultOnToggle):
     """
     display_name = "Apply flash removal"
 
-class WorldLock(OptionSet):
+class WorldLock(Range):
     """Determines how many worlds are available from the start.
     1: The first world is available. Adamantite unlocks World 2. Defeating Exdeath in World 2 unlocks World 3 via Anti Barrier and Bracelet.
     2: Worlds 1 and 2 are available. Defeating Exdeath in World 2 unlocks World 3 via Anti Barrier and Bracelet.
     3: All worlds are available immediately.    
     """
     display_name = "World Lock"
-    valid_keys = {
-        "1",
-        "2",
-        "3",
-    }
+    range_start = 1
+    range_end = 3
+    default = 3
 
 
 ffvcd_options = {
