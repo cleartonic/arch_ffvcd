@@ -1,6 +1,7 @@
 import os
 import threading
 import base64
+import settings
 from BaseClasses import MultiWorld, Tutorial, ItemClassification
 from worlds.AutoWorld import World, WebWorld
 from .items import item_table, item_groups, create_item, create_world_items, arch_item_offset, \
@@ -11,7 +12,7 @@ from .regions import create_regions
 from .rules import set_rules
 from worlds.ffvcd.ffvcd_arch.utilities.data import conductor
 from .client import FFVCDSNIClient
-from .rom import LocalRom, get_base_rom_path, patch_rom
+from .rom import LocalRom, get_base_rom_path, patch_rom, FFVCDDeltaPatch
 from collections import Counter
 import shutil
 import logging
@@ -34,16 +35,27 @@ class FFVCDWebWorld(WebWorld):
     tutorials = [setup_en]
 
 
+class FFVCDSettings(settings.Group):
+    class FFVCDRomFile(settings.UserFilePath):
+        """File name of the Final Fantasy V (Japan) 1.0 ROM"""
+        description = "Final Fantasy V (Japan) 1.0 rom"
+        copy_to = "Final Fantasy V (Japan).sfc"
+        md5s = [FFVCDDeltaPatch.hash]
+
+    rom_file: FFVCDRomFile = FFVCDRomFile(FFVCDRomFile.copy_to)
+
 class FFVCDWorld(World):
     """Final Fantasy V: Career Day"""
 
     game = "Final Fantasy V Career Day"
     option_definitions = ffvcd_options
-    settings: None
+
+    settings_key = "ffvcd_options"
+    settings: FFVCDSettings
     
     
     topology_present = False
-    data_version = 1
+    data_version = 0
     base_id = 776000
     
     item_name_to_id = {name: data.id for name, data in item_table.items()}
@@ -75,15 +87,15 @@ class FFVCDWorld(World):
 
     def generate_early(self):
         self.starting_items = Counter()
-        world_lock = [i for i in self.multiworld.world_lock[self.player].value][0]
-        if world_lock == '2':
+        world_lock = self.multiworld.world_lock[self.player].value
+        if world_lock == 2:
             new_item = create_item("World 2 Access (Item)",  
                         ItemClassification.progression, 
                         WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
                         self.player, ['World Access'])
             self.starting_items[new_item] = 1
             self.multiworld.push_precollected(new_item)
-        if world_lock == '3':
+        elif world_lock == 3:
             new_item = create_item("World 2 Access (Item)",  
                         ItemClassification.progression, 
                         WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
@@ -148,7 +160,7 @@ class FFVCDWorld(World):
 
             
         options_conductor['source_rom_abs_path'] = self.source_rom_abs_path
-        options_conductor['world_lock'] = [i for i in self.multiworld.world_lock[self.player].value][0]
+        options_conductor['world_lock'] = self.multiworld.world_lock[self.player].value
         options_conductor['player'] = self.player
         
         self.options_conductor = options_conductor
@@ -190,15 +202,16 @@ class FFVCDWorld(World):
         
 
         self.rom_name = rom.name
-                
 
-        # patch = FFVCDDeltaPatch(os.path.splitext(rompath)[0]+FFVCDDeltaPatch.patch_file_ending, player=self.player,
-        #                         player_name=self.multiworld.player_name[self.player], patched_path=rompath)
+        rom.write_to_file(rompath)
+
+        patch = FFVCDDeltaPatch(os.path.splitext(rompath)[0]+FFVCDDeltaPatch.patch_file_ending, player=self.player,
+                                player_name=self.multiworld.player_name[self.player], patched_path=rompath)
         
-        # patch.write()
+        patch.write()
     
-        # if os.path.exists(rompath):
-        #     os.unlink(rompath)
+        if os.path.exists(rompath):
+            os.unlink(rompath)
 
         if os.path.exists(self.filename_randomized):
             os.unlink(self.filename_randomized)
@@ -211,7 +224,6 @@ class FFVCDWorld(World):
         #     os.unlink(temp_spoiler_path)
         
 
-        rom.write_to_file(rompath)
         
         self.rom_name_available_event.set() # make sure threading continues and errors are collected
         logger.debug("Finished generate_output function")
