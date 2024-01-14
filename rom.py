@@ -8,7 +8,7 @@ ROM_PLAYER_LIMIT = 65535
 
 import hashlib
 import os
-
+from settings import get_settings
 
 
 
@@ -127,10 +127,10 @@ class FFVCDDeltaPatch(APDeltaPatch):
         return get_base_rom_bytes()
 
 
-def get_base_rom_bytes(file_name: str = "") -> bytes:
+def get_base_rom_bytes() -> bytes:
     base_rom_bytes = getattr(get_base_rom_bytes, "base_rom_bytes", None)
     if not base_rom_bytes:
-        file_name = get_base_rom_path(file_name)
+        file_name = get_base_rom_path()
         base_rom_bytes = bytes(read_snes_rom(open(file_name, "rb")))
 
         basemd5 = hashlib.md5()
@@ -141,14 +141,12 @@ def get_base_rom_bytes(file_name: str = "") -> bytes:
         get_base_rom_bytes.base_rom_bytes = base_rom_bytes
     return base_rom_bytes
 
-def get_base_rom_path(file_name: str = "") -> str:
-    options = Utils.get_options()
-    if not file_name:
-        file_name = options["ffvcd_options"]["rom_file"]
+
+def get_base_rom_path():
+    file_name = get_settings()["ffvcd_options"]["rom_file"]
     if not os.path.exists(file_name):
         file_name = Utils.user_path(file_name)
     return file_name
-
 
 
 
