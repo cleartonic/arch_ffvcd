@@ -55,7 +55,7 @@ class FFVCDWorld(World):
     
     
     topology_present = False
-    data_version = 0
+    data_version = 1
     base_id = 776000
     
     item_name_to_id = {name: data.id for name, data in item_table.items()}
