@@ -40,7 +40,7 @@ class FFVCDLocation(Location):
         # only allow karnak to place this seed's items
         # disallow lone wolf/under bal castle related checks for some weird progression problems
         if location_data.area in ["Kuzar", "Mua", "Karnak"] or location_data.address in ['C0FB38', 'C0FB3A']:
-            add_item_rule(self, lambda item: item.player != self.player or 'Item' not in item.groups)
+            add_item_rule(self, lambda item: item.player == self.player)
 
 
 
@@ -51,7 +51,7 @@ class FFVCDLocation(Location):
         # they can be other players' items too
         # they just can't be this world's own ITEMS 
         if "fire crystal" in location_data.name.lower():
-            add_item_rule(self, lambda item: not ('Item' in item.groups))
+            add_item_rule(self, lambda item: item.player != self.player or 'Item' not in item.groups)
 
             
 
