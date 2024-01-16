@@ -45,7 +45,7 @@ def create_world_items(world):
     # add crystals only if four job not enabled
     if world.multiworld.four_job[world.player]:        
         for key_item_name in [i for i in item_table if "Abilities" in item_table[i].groups or \
-                              "Magic" in item_table[i].groups]:
+                              "Magic" in item_table[i].groups or "Gil" in item_table[i].groups]:
             item_data = item_table[key_item_name]
             new_item = create_item(key_item_name, item_data.classification, item_data.id, \
                                    world.player, item_data.groups)
@@ -53,7 +53,8 @@ def create_world_items(world):
             world.multiworld.itempool.append(new_item)
     else:
         for key_item_name in [i for i in item_table if "Crystals" in item_table[i].groups or \
-                              "Abilities" in item_table[i].groups or "Magic" in item_table[i].groups]:
+                              "Abilities" in item_table[i].groups or "Magic" in item_table[i].groups\
+                                  or "Gil" in item_table[i].groups]:
             item_data = item_table[key_item_name]
             new_item = create_item(key_item_name, item_data.classification, item_data.id, \
                                    world.player, item_data.groups)
@@ -540,33 +541,33 @@ item_table = {
     "Water Scroll Item" : ItemData(814, ItemClassification.useful, ["Fungible", "Item"]),
     "Thunder Scroll Item" : ItemData(815, ItemClassification.useful, ["Fungible", "Item"]),
     
-    # "100 Gold" : ItemData(900, ItemClassification.useful, ["Gold", "Item"]),
-    # "300 Gold" : ItemData(901, ItemClassification.useful, ["Gold", "Item"]),
-    # "1000 Gold" : ItemData(902, ItemClassification.useful, ["Gold", "Item"]),
-    # "5000 (#1) Gold" : ItemData(903, ItemClassification.useful, ["Gold", "Item"]),
-    # "9900 Gold" : ItemData(904, ItemClassification.useful, ["Gold", "Item"]),
-    # "8000 (#1) Gold" : ItemData(905, ItemClassification.useful, ["Gold", "Item"]),
-    # "4400 Gold" : ItemData(906, ItemClassification.useful, ["Gold", "Item"]),
-    # "10000 (#1) Gold" : ItemData(907, ItemClassification.useful, ["Gold", "Item"]),
-    # "5000 (#2) Gold" : ItemData(908, ItemClassification.useful, ["Gold", "Item"]),
-    # "7000 Gold" : ItemData(909, ItemClassification.useful, ["Gold", "Item"]),
-    # "5000 (#3) Gold" : ItemData(910, ItemClassification.useful, ["Gold", "Item"]),
-    # "9000 (#1) Gold" : ItemData(911, ItemClassification.useful, ["Gold", "Item"]),
-    # "18000 Gold" : ItemData(912, ItemClassification.useful, ["Gold", "Item"]),
-    # "2500 Gold" : ItemData(913, ItemClassification.useful, ["Gold", "Item"]),
-    # "4900 Gold" : ItemData(914, ItemClassification.useful, ["Gold", "Item"]),
-    # "9500 Gold" : ItemData(915, ItemClassification.useful, ["Gold", "Item"]),
-    # "9000 (#2) Gold" : ItemData(916, ItemClassification.useful, ["Gold", "Item"]),
-    # "8000 (#2) Gold" : ItemData(917, ItemClassification.useful, ["Gold", "Item"]),
-    # "10000 (#2) Gold" : ItemData(918, ItemClassification.useful, ["Gold", "Item"]),
-    # "12000 (#1) Gold" : ItemData(919, ItemClassification.useful, ["Gold", "Item"]),
-    # "12000 (#2) Gold" : ItemData(920, ItemClassification.useful, ["Gold", "Item"]),
-    # "9000 (#3) Gold" : ItemData(921, ItemClassification.useful, ["Gold", "Item"]),
-    # "12000 (#3) Gold" : ItemData(922, ItemClassification.useful, ["Gold", "Item"]),
-    # "5000 (#4) Gold" : ItemData(923, ItemClassification.useful, ["Gold", "Item"]),
-    # "15000 Gold" : ItemData(924, ItemClassification.useful, ["Gold", "Item"]),
-    # "20000 Gold" : ItemData(925, ItemClassification.useful, ["Gold", "Item"]),
-    # "25000 Gold" : ItemData(926, ItemClassification.useful, ["Gold", "Item"]),
+    "100 Gil" : ItemData(900, ItemClassification.useful, ["Gil", "Item"]),
+    "300 Gil" : ItemData(901, ItemClassification.useful, ["Gil", "Item"]),
+    "1000 Gil" : ItemData(902, ItemClassification.useful, ["Gil", "Item"]),
+    "5000 Gil (#1)" : ItemData(903, ItemClassification.useful, ["Gil", "Item"]),
+    "9900 Gil" : ItemData(904, ItemClassification.useful, ["Gil", "Item"]),
+    "8000 Gil (#1)" : ItemData(905, ItemClassification.useful, ["Gil", "Item"]),
+    "4400 Gil" : ItemData(906, ItemClassification.useful, ["Gil", "Item"]),
+    "10000 Gil (#1)" : ItemData(907, ItemClassification.useful, ["Gil", "Item"]),
+    "5000 Gil (#2)" : ItemData(908, ItemClassification.useful, ["Gil", "Item"]),
+    "8000 Gil (#2)" : ItemData(909, ItemClassification.useful, ["Gil", "Item"]),
+    "5000 Gil (#3)" : ItemData(910, ItemClassification.useful, ["Gil", "Item"]),
+    "9000 Gil (#1)" : ItemData(911, ItemClassification.useful, ["Gil", "Item"]),
+    "18000 Gil" : ItemData(912, ItemClassification.useful, ["Gil", "Item"]),
+    "2500 Gil" : ItemData(913, ItemClassification.useful, ["Gil", "Item"]),
+    "4900 Gil" : ItemData(914, ItemClassification.useful, ["Gil", "Item"]),
+    "9500 Gil" : ItemData(915, ItemClassification.useful, ["Gil", "Item"]),
+    "9000 Gil (#2)" : ItemData(916, ItemClassification.useful, ["Gil", "Item"]),
+    "8000 Gil (#3)" : ItemData(917, ItemClassification.useful, ["Gil", "Item"]),
+    "10000 Gil (#2)" : ItemData(918, ItemClassification.useful, ["Gil", "Item"]),
+    "12000 Gil (#1)" : ItemData(919, ItemClassification.useful, ["Gil", "Item"]),
+    "12000 Gil (#2)" : ItemData(920, ItemClassification.useful, ["Gil", "Item"]),
+    "9000 Gil (#3)" : ItemData(921, ItemClassification.useful, ["Gil", "Item"]),
+    "12000 Gil (#3)" : ItemData(922, ItemClassification.useful, ["Gil", "Item"]),
+    "5000 Gil (#4)" : ItemData(923, ItemClassification.useful, ["Gil", "Item"]),
+    "15000 Gil" : ItemData(924, ItemClassification.useful, ["Gil", "Item"]),
+    "20000 Gil" : ItemData(925, ItemClassification.useful, ["Gil", "Item"]),
+    "25000 Gil" : ItemData(926, ItemClassification.useful, ["Gil", "Item"]),
 
 
     "Walse Tower Key" : ItemData(1000, ItemClassification.progression, ["Unique", "Key Items"]),

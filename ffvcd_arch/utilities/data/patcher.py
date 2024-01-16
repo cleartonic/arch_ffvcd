@@ -1,7 +1,6 @@
 import subprocess
 import random
 import os
-import ips
 import sys
 import logging
 import zipfile

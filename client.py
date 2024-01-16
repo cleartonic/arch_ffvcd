@@ -4,7 +4,8 @@ from NetUtils import ClientStatus, color
 from worlds.AutoSNIClient import SNIClient
 from .locations import loc_id_start
 from .items import item_table, arch_item_offset
-from .rom import crystal_ram_data, magic_ram_data, ability_ram_data, item_ram_data, key_item_data
+from .rom import crystal_ram_data, magic_ram_data, ability_ram_data, item_ram_data, \
+    key_item_ram_data, gil_ram_data
 from .ram_watch_util import address_to_ram, ram_to_address, full_flag_dict
 
 snes_logger = logging.getLogger("SNES")
@@ -292,13 +293,46 @@ class FFVCDSNIClient(SNIClient):
                         else:
                             pass
 
+            ##############
+            # RECEIVE GIL
+            ##############
+            
+            
+            if arch_item_id in gil_ram_data.keys():
+                if ctx.slot == item.player:
+                    pass
+                else:
+                        
 
+                    current_bytes = await snes_read(ctx, WRAM_START + 0x947, 0x03)
+                    b1, b2, b3 = current_bytes[0], current_bytes[1], current_bytes[2]
+                    current_gil = (b3 * 65536) + (b2 * 256) + b1
+                    current_gil += gil_ram_data[arch_item_id]
+                    
+                    current_gil = min(current_gil, 16777215) # 0xFFFFFF limit
+                    
+                    b1 = current_gil // 65536
+                    b2 = (current_gil % 65536) // 256
+                    b3 = (current_gil % 65536) % 256
+                    
+                    
+                    snes_buffered_write(ctx, WRAM_START + 0x947, bytes([b3]))
+                    snes_buffered_write(ctx, WRAM_START + 0x948, bytes([b2]))
+                    snes_buffered_write(ctx, WRAM_START + 0x949, bytes([b1]))
+                    
+
+                
+                
+                
+                
+                
+                    
             ####################            
             # RECEIVE KEY ITEMS
             ####################
             
-            if arch_item_id in key_item_data.keys():
-                key_item_data_entries = key_item_data[arch_item_id]
+            if arch_item_id in key_item_ram_data.keys():
+                key_item_data_entries = key_item_ram_data[arch_item_id]
                 
                 if arch_item_id != 1005 and arch_item_id != 1006:    
                     for key_item_data_entry in key_item_data_entries:

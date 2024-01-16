@@ -40,7 +40,10 @@ class Reward:
     @property
     def asar_output(self):
         if self.mib_type is None:
-            return f"org ${self.address} \ndb ${self.collectible.reward_type}, ${self.collectible.patch_id}"
+            try:
+                return f"org ${self.address} \ndb ${self.collectible.reward_type}, ${self.collectible.patch_id}"
+            except:
+                pass
         else:
             return f"org ${self.address} \ndb ${self.mib_type}, ${self.collectible.patch_id}"
     

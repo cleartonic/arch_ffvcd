@@ -11,7 +11,7 @@ from .regions import create_regions
 from .rules import set_rules
 from worlds.ffvcd.ffvcd_arch.utilities.data import conductor
 from .client import FFVCDSNIClient
-from .rom import LocalRom, get_base_rom_path, patch_rom
+from .rom import LocalRom, get_base_rom_path, patch_rom, FFVCDDeltaPatch
 from collections import Counter
 import shutil
 import logging
@@ -75,15 +75,17 @@ class FFVCDWorld(World):
 
     def generate_early(self):
         self.starting_items = Counter()
-        world_lock = [i for i in self.multiworld.world_lock[self.player].value][0]
-        if world_lock == '2':
+        
+        # +1 to value from options for readability
+        world_lock = self.multiworld.world_lock[self.player].value + 1
+        if world_lock == 2:
             new_item = create_item("World 2 Access (Item)",  
                         ItemClassification.progression, 
                         WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
                         self.player, ['World Access'])
             self.starting_items[new_item] = 1
             self.multiworld.push_precollected(new_item)
-        if world_lock == '3':
+        if world_lock == 3:
             new_item = create_item("World 2 Access (Item)",  
                         ItemClassification.progression, 
                         WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
@@ -148,7 +150,7 @@ class FFVCDWorld(World):
 
             
         options_conductor['source_rom_abs_path'] = self.source_rom_abs_path
-        options_conductor['world_lock'] = [i for i in self.multiworld.world_lock[self.player].value][0]
+        options_conductor['world_lock'] = self.multiworld.world_lock[self.player].value + 1
         options_conductor['player'] = self.player
         
         self.options_conductor = options_conductor
@@ -192,13 +194,16 @@ class FFVCDWorld(World):
         self.rom_name = rom.name
                 
 
-        # patch = FFVCDDeltaPatch(os.path.splitext(rompath)[0]+FFVCDDeltaPatch.patch_file_ending, player=self.player,
-        #                         player_name=self.multiworld.player_name[self.player], patched_path=rompath)
+        rom.write_to_file(rompath)
         
-        # patch.write()
+        
+        patch = FFVCDDeltaPatch(os.path.splitext(rompath)[0]+FFVCDDeltaPatch.patch_file_ending, player=self.player,
+                                player_name=self.multiworld.player_name[self.player], patched_path=rompath)
+        
+        patch.write()
     
-        # if os.path.exists(rompath):
-        #     os.unlink(rompath)
+        if os.path.exists(rompath):
+            os.unlink(rompath)
 
         if os.path.exists(self.filename_randomized):
             os.unlink(self.filename_randomized)
@@ -211,7 +216,7 @@ class FFVCDWorld(World):
         #     os.unlink(temp_spoiler_path)
         
 
-        rom.write_to_file(rompath)
+
         
         self.rom_name_available_event.set() # make sure threading continues and errors are collected
         logger.debug("Finished generate_output function")

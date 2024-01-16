@@ -23,7 +23,6 @@ db $C4, $03						;Fade out at speed 0C
 db $73
 db $CD, $76, $07				;Run event index 0776
 db $A4, $FE						;Set Event Flag 1FE
-db $CB, $57, $01				;Clear Flag 2/3/4/5/57 01
 db $CB, $6B, $01				;Clear Flag 2/3/4/5/6B 01
 db $CA, $6C, $01				;Set Flag 2/3/4/5/6C 01
 db $CB, $58, $01				;Clear Flag 2/3/4/5/58 01
@@ -45,7 +44,7 @@ db $CB, $67, $01				;Clear Flag 2/3/4/5/67 01
 db $CB, $68, $01				;Clear Flag 2/3/4/5/68 01
 db $CB, $69, $01				;Clear Flag 2/3/4/5/69 01
 db $CB, $6A, $01				;Clear Flag 2/3/4/5/6A 01
-db $CB, $57, $01				;Clear Flag 2/3/4/5/57 01
+
 db $CB, $6B, $01				;Clear Flag 2/3/4/5/6B 01
 db $CA, $6C, $01				;Set Flag 2/3/4/5/6C 01
 db $CA, $6D, $01				;Set Flag 2/3/4/5/6D 01

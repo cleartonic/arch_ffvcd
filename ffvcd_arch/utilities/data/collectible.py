@@ -227,7 +227,8 @@ class Gil(Collectible):
     reward_type = ""
     def __init__(self, gil_id, data_row):
         self.reward_type = data_row['power_byte']
-        super().__init__(data_row['number_byte'], str(data_row['readable_amount']) + " gil",
+        self.gil_id = gil_id
+        super().__init__(data_row['number_byte'], str(data_row['readable_amount']) + " Gil",
                          int(data_row['value']), [],data_row['max_count'], tier=data_row['tier'])
 
     @property
@@ -364,8 +365,12 @@ class CollectibleManager():
 
     def get_by_arch(self, c_name, c_id):
         for i in self.collectibles:
-            if i.name == c_name and i.reward_id == c_id and i.valid:
-                return i
+            if c_name == "Gil":
+                if i.name == c_name and i.gil_id == c_id and i.valid:
+                    return i
+            else:
+                if i.name == c_name and i.reward_id == c_id and i.valid:
+                    return i
         return None
 
 

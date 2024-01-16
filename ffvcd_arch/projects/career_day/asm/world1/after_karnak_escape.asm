@@ -45,7 +45,9 @@ db $CA, $67, $01				;Clear Flag 2/3/4/5/67 01
 db $CA, $68, $01				;Clear Flag 2/3/4/5/68 01
 db $CA, $69, $01				;Clear Flag 2/3/4/5/69 01
 db $CA, $6A, $01				;Clear Flag 2/3/4/5/6A 01
-; db $CA, $57, $01				;Clear Flag 2/3/4/5/57 01 - this is karnak town fire (also portal boss?)
+
+db $CB, $57, $01				;Clear Flag 2/3/4/5/57 01 - this is karnak town fire (also portal boss?)
+
 db $CA, $6B, $01				;Clear Flag 2/3/4/5/6B 01
 db $CB, $6C, $01				;Set Flag 2/3/4/5/6C 01
 db $CB, $6D, $01				;Set Flag 2/3/4/5/6D 01

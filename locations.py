@@ -22,7 +22,7 @@ class LocationData:
 class FFVCDLocation(Location):
     game = "ffvcd"
 
-    def __init__(self, player, location_data, parent=None):
+    def __init__(self, player, location_data, parent=None, progression_checks_setting = 0):
         super(FFVCDLocation, self).__init__(
             player, location_data.name,
             location_data.address,
@@ -30,8 +30,16 @@ class FFVCDLocation(Location):
         )
         
         self.item_rule = lambda x: True
-        if location_data.location_type != "key":
-            add_item_rule(self, lambda item: not (item.classification & ItemClassification.progression))
+        
+        
+        # when progression_checks_setting == 0, this is the "bosses" setting
+        # meaning only bosses will give progression checks
+        
+        # if progression_checks_setting == 1, then the following rule does not need
+        # to be applied        
+        if not progression_checks_setting:
+            if location_data.location_type != "key":
+                add_item_rule(self, lambda item: not (item.classification & ItemClassification.progression))
 
         
         
@@ -50,8 +58,13 @@ class FFVCDLocation(Location):
         # will simply overwrite/update (magic, abilities, crystals)
         # they can be other players' items too
         # they just can't be this world's own ITEMS 
-        if "fire crystal" in location_data.name.lower():
-            add_item_rule(self, lambda item: not ('Item' in item.groups))
+        
+        # this needs to be fixed - you cannot use other definitions in item class 
+        # because its shared across world
+        # it doesnt belong as an item rule 
+
+        # if "fire crystal" in location_data.name.lower():
+        #     add_item_rule(self, lambda item: not ('Item' in item.groups))
 
             
 
@@ -59,7 +72,8 @@ class FFVCDLocation(Location):
 
 
 def create_location(world, player, location_data, parent=None):
-    return_location = FFVCDLocation(player, location_data, parent)
+    progression_checks_setting = world.progression_checks[player].value
+    return_location = FFVCDLocation(player, location_data, parent, progression_checks_setting)
     return return_location
 
 location_data = [

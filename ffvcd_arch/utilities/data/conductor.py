@@ -2417,6 +2417,9 @@ class Conductor():
             
             arch_player = arch_item_data['loc_player']
             arch_item_name = arch_item_data['loc_name']
+            
+
+            
             arch_item_progression = arch_item_data['loc_progression']
             
             try:
@@ -2433,11 +2436,17 @@ class Conductor():
                 else:
                     entry = arch_data[[i for i in arch_data if arch_data[i]['name'] == arch_item_name][0]]
                     collectible = self.CM.get_by_arch(entry['item_type'], entry['item_id'])                
-                reward.set_collectible(collectible)
+                    
+                if collectible:
+                    reward.set_collectible(collectible)
+                else:
+                    logger.warning("Error on assigning collectible to reward %s" % arch_item_data )
+
                 
 
             except Exception as e:
-                logger.debug("Error on %s: %s" % (address, e))
+                logger.warning("Error on %s: %s" % (address, e))
+
             
         
         
