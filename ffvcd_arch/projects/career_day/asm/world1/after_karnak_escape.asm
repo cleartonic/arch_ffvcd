@@ -44,7 +44,7 @@ db $CA, $66, $01				;Clear Flag 2/3/4/5/66 01
 db $CA, $67, $01				;Clear Flag 2/3/4/5/67 01
 db $CA, $68, $01				;Clear Flag 2/3/4/5/68 01
 db $CA, $69, $01				;Clear Flag 2/3/4/5/69 01
-db $CA, $6A, $01				;Clear Flag 2/3/4/5/6A 01
+db $CB, $6A, $01				;Clear Flag 2/3/4/5/6A 01 // this is second row of guards and is turn off. it used for checking that karnak was finished, and should not ever get set on again
 
 db $CB, $57, $01				;Clear Flag 2/3/4/5/57 01 - this is karnak town fire (also portal boss?)
 

@@ -228,18 +228,22 @@ class FFVCDSNIClient(SNIClient):
                 ability_data = ability_ram_data[arch_item_id]
                 ability_data_bit, ability_data_ram_addr = ability_data
                 
+                # character 1 
                 current_bit = await snes_read(ctx, WRAM_START + ability_data_ram_addr, 0x01)
                 new_bit = hex_or_return_int(hex(current_bit[0]), ability_data_bit)
                 snes_buffered_write(ctx, WRAM_START + ability_data_ram_addr, bytes([new_bit]))
 
+                # character 2
                 current_bit = await snes_read(ctx, WRAM_START + ability_data_ram_addr + 0x14, 0x01)
                 new_bit = hex_or_return_int(hex(current_bit[0]), ability_data_bit)
                 snes_buffered_write(ctx, WRAM_START + ability_data_ram_addr + 0x14, bytes([new_bit]))
 
+                # character 3
                 current_bit = await snes_read(ctx, WRAM_START + ability_data_ram_addr + 0x28, 0x01)
                 new_bit = hex_or_return_int(hex(current_bit[0]), ability_data_bit)
                 snes_buffered_write(ctx, WRAM_START + ability_data_ram_addr + 0x28, bytes([new_bit]))
 
+                # character 4
                 current_bit = await snes_read(ctx, WRAM_START + ability_data_ram_addr + 0x3C, 0x01)
                 new_bit = hex_or_return_int(hex(current_bit[0]), ability_data_bit)
                 snes_buffered_write(ctx, WRAM_START + ability_data_ram_addr + 0x3C, bytes([new_bit]))

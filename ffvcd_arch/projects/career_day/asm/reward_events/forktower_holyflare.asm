@@ -50,8 +50,10 @@ db $00                          ;Player Hold
 db $FF                          ;End Event
 
 ; pad $C9A27C
+org $C84364
+db $50, $A5, $C9
+org $C9A550
 
-org $C9A27D
 
 db $7C                          ;<Unknown>
 ; db $10                          ;Player pose: face up, left hand forward
@@ -60,6 +62,12 @@ db $80, $03                     ;Sprite 080 do event: Move Down
 db $80, $0A                     ;Sprite 080 do event: Hide
 ; db $70                          ;Very short pause
 db $BD, $2F, $FF                ;Start Event Battle 2F
+
+
+; turn on so arch can see boss defeated flag
+db $A4, $F2                     ;Turn on bit 04 at address 0x7e0a52 - this would ordinarily cause world map to change
+db $72
+
 db $B4, $29                     ;Play Background Music Fanfare 1 (short)
 ; db $39                          ;Player pose: face down, both arms raised
 ; db $C5, $20                     ;<unknown>
@@ -84,7 +92,7 @@ db $C4, $03                     ;Fade out Speed 02
 db $73
 
 ; arch - do not change tiles on world map, allowing fork tower to be re-done
-; db $A4, $F2                     ;Turn on bit 04 at address 0x7e0a52 - this would ordinarily cause world map to change
+db $A5, $F2                     ;Turn on bit 04 at address 0x7e0a52 - this would ordinarily cause world map to change
 
 ; these are fork tower flags for "in fork tower mode" that will get set off after finishing
 db $A5, $70            ; set address 000A42 bit OFF 01

@@ -24,7 +24,6 @@ db $A4, $06				;Set Event Flag 106
 db $B4, $33				;Play Background Music Royal Palace
 db $A2, $2D				;Set Event Flag 02D
 db $CB, $69, $01		;Clear Flag 2/3/4/5/69 01
-db $CA, $6A, $01		;Set Flag 2/3/4/5/6A 01
 db $CB, $53, $01		;Clear Flag 2/3/4/5/53 01
 db $CB, $72, $01		;Clear Flag 2/3/4/5/72 01
 db $CA, $73, $01		;Set Flag 2/3/4/5/73 01

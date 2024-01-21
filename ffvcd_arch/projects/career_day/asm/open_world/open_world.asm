@@ -749,3 +749,10 @@ db $FB, $FB
 org $e16e82
 ;You cannot enter this tower without the Walse Tower Key.
 db $78, $88, $8E, $96, $7C, $7A, $87, $87, $88, $8D, $96, $7E, $87, $8D, $7E, $8B, $96, $8D, $81, $82, $8C, $96, $8D, $88, $90, $7E, $8B, $01, $96, $90, $82, $8D, $81, $88, $8E, $8D, $96, $8D, $81, $7E, $96, $76, $7A, $85, $8C, $7E, $96, $73, $88, $90, $7E, $8B, $96, $6A, $7E, $92, $A3, $00
+
+
+; fix karnak guards position
+org $CE6ED5
+db $FE, $FE
+org $CE6EDC
+db $FE, $FE

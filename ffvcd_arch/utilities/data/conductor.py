@@ -2183,7 +2183,7 @@ class Conductor():
     
 
     def kuzar_text_patch(self):
-        kuzar_reward_addresses = ['C0FB02','C0FB04','C0FB06','C0FB08','C0FB0A','C0FB0C','C0FB0E','C0FB10','C0FB12','C0FB14','C0FB16','C0FB18']
+        kuzar_reward_addresses = ['C0FB06','C0FB02','C0FB16','C0FB0C','C0FB12','C0FB0E','C0FB18','C0FB08','C0FB14','C0FB10','C0FB04','C0FB0A']
         kuzar_text_addresses =   ['E23F7A',
                                     'E23F98',
                                     'E23FB7',
@@ -2210,31 +2210,31 @@ class Conductor():
 #            logger.debug(i)
             #logger.debug("working on address: " + kuzar_reward_addresses[i])
             data = self.RM.get_reward_by_address(kuzar_reward_addresses[i]).collectible
-            if data.name != "Arch Item":
+            # breakpoint()
     #            logger.debug("Kuzar start: %s" % (data.reward_name))
-                try:
+            try:
 
-                    if data.type == 'weapon' and data.reward_id in randomized_weapons_ids:
-                        matched_weapon = [x for x in self.WM.weapons if data.reward_id == x.data_dict['item_id']][0]
-    #                    logger.debug("Kuzar weapon name swap: %s -> %s" % (data.reward_name, matched_weapon.text_textbox))
-                        kuzar_text = self.TP.run_kuzar_encrypt({matched_weapon.text_textbox: kuzar_text_addresses[i]})
-                        output = output + kuzar_text
-                    else:
-    
-                        temp_reward_name = data.reward_name.replace('->', '@').replace(' Progressive', '@')
-                        if 'magic_id' in data.__dict__.keys():
-                            temp_reward_name = "%s %s Magic" % (temp_reward_name, data.type)
-                        
-                        kuzar_text = self.TP.run_kuzar_encrypt({temp_reward_name: kuzar_text_addresses[i]})
-    #                    logger.debug("Kuzar normal: %s" % (data.reward_name))
-                        output = output + kuzar_text
-    
-                except:
-                    #logger.debug("collectible there is: " + c.reward_name)
-                    #@ will be used for our newline character, won't otherwise be present, and don't have the problems \n causes
-                    kuzar_text = self.TP.run_kuzar_encrypt({data.reward_name.replace('->', '@').replace(' Progressive', '@'): kuzar_text_addresses[i]})
-    #                logger.debug("Kuzar normal: %s" % (data.reward_name))
+                if data.type == 'weapon' and data.reward_id in randomized_weapons_ids:
+                    matched_weapon = [x for x in self.WM.weapons if data.reward_id == x.data_dict['item_id']][0]
+#                    logger.debug("Kuzar weapon name swap: %s -> %s" % (data.reward_name, matched_weapon.text_textbox))
+                    kuzar_text = self.TP.run_kuzar_encrypt({matched_weapon.text_textbox: kuzar_text_addresses[i]})
                     output = output + kuzar_text
+                else:
+
+                    temp_reward_name = data.reward_name.replace('->', '@').replace(' Progressive', '@')
+                    if 'magic_id' in data.__dict__.keys():
+                        temp_reward_name = "%s %s Magic" % (temp_reward_name, data.type)
+                    
+                    kuzar_text = self.TP.run_kuzar_encrypt({temp_reward_name: kuzar_text_addresses[i]})
+#                    logger.debug("Kuzar normal: %s" % (data.reward_name))
+                    output = output + kuzar_text
+
+            except:
+                #logger.debug("collectible there is: " + c.reward_name)
+                #@ will be used for our newline character, won't otherwise be present, and don't have the problems \n causes
+                kuzar_text = self.TP.run_kuzar_encrypt({data.reward_name.replace('->', '@').replace(' Progressive', '@'): kuzar_text_addresses[i]})
+#                logger.debug("Kuzar normal: %s" % (data.reward_name))
+                output = output + kuzar_text
 
         return output
 
