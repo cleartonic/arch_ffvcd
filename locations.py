@@ -1,6 +1,7 @@
 from BaseClasses import Location
 from BaseClasses import ItemClassification
 from worlds.generic.Rules import add_item_rule
+from .items import arch_item_offset
 loc_id_start = 342000000
 
 
@@ -41,6 +42,7 @@ class FFVCDLocation(Location):
             if location_data.location_type != "key":
                 add_item_rule(self, lambda item: not (item.classification & ItemClassification.progression))
 
+
         
         
         # only allow kuzar to place this seed's items
@@ -49,6 +51,12 @@ class FFVCDLocation(Location):
         # disallow lone wolf/under bal castle related checks for some weird progression problems
         if location_data.area in ["Kuzar", "Mua", "Karnak"] or location_data.address in ['C0FB38', 'C0FB3A']:
             add_item_rule(self, lambda item: item.player == self.player)
+
+        # kuzar shouldn't have key items because of the permanent choice of using tablets
+        # mua shouldn't have key items because of chicken knife/brave blade
+        # void shouldn't have key items because of ragnarok chest/too late in the game
+        if location_data.area in ["Kuzar", "Mua", "Void"]:
+            add_item_rule(self, lambda item: not (item.classification & ItemClassification.progression))
 
 
 
@@ -68,6 +76,15 @@ class FFVCDLocation(Location):
 
             
 
+
+        # gil cannot be on events
+        # item ids 900-999 are gil 
+        if location_data.location_type == "event" or location_data.location_type == "key":
+            add_item_rule(self, lambda item: not ((item.code - arch_item_offset) > 900 and \
+                                                  (item.code - arch_item_offset) < 999)\
+                                                  and item.player == self.player)
+
+        
             
 
 
@@ -228,7 +245,7 @@ LocationData("Steamship - Steamship Chest (Elixir 1)", address = "D1333E", area 
 LocationData("Steamship - Steamship Chest (GrnBeret)", address = "D13342", area = "Steamship", location_type="chest"),
 LocationData("Steamship - Steamship Chest (Thief's Glove)", address = "D13346", area = "Steamship", location_type="chest"),
 LocationData("Steamship - Steamship Chest (Elixir 2)", address = "D1334A", area = "Steamship", location_type="chest"),
-LocationData("Ancient Library Lower - Ancient Library Chest (Ether)", address = "D1334E", area = "Ancient Library Lower", location_type="chest"),
+LocationData("Ancient Library - Ancient Library Chest (Ether)", address = "D1334E", area = "Ancient Library", location_type="chest"),
 LocationData("Ancient Library Lower - Ancient Library Chest (Phoenix Down)", address = "D13352", area = "Ancient Library Lower", location_type="chest"),
 LocationData("Ancient Library Lower - Ancient Library Chest (Stealth Suit)", address = "D13356", area = "Ancient Library Lower", location_type="chest"),
 LocationData("Jacole - Jacole Cave Chest (Shuriken)", address = "D1335A", area = "Jacole", location_type="chest"),

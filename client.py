@@ -346,7 +346,7 @@ class FFVCDSNIClient(SNIClient):
                         if key_item_direction == "ON":
                             new_bit = hex_or_return_int(hex(current_bit[0]), key_item_bit)
                         elif key_item_direction == "OFF":
-                            new_bit = hex_xor_return_int(hex(current_bit[0]), key_item_bit)
+                            new_bit = hex_shift_left_return_int(hex(current_bit[0]), key_item_bit)
                         else:
                             break
                             
@@ -371,11 +371,23 @@ class FFVCDSNIClient(SNIClient):
     
 def hex_or_return_int(a, b):
     return min(int(a,base=16) | int(b, base=16), 255)
-def hex_xor_return_int(a, b):
-    return min(int(a,base=16) ^ int(b, base=16), 255)
+def hex_shift_left_return_int(a, b):
+    x = int(a,base=16)
+    y = int(hex_map[b])
+    z = x & ~(1 << y)
+    return z
 def hex_and_return_int(a, b):
     return min(int(a,base=16) & int(b, base=16), 255)
 def convert_int_to_two_bytes_as_list(i):
     return [i % 256, i // 256]
 def convert_two_bytes_to_int(a, b):
     return a + b * 256
+
+hex_map = {"01" : 0,
+           "02" : 1,
+           "04" : 2,
+           "08" : 3,
+           "10" : 4,
+           "20" : 5,
+           "40" : 6,
+           "80" : 7}

@@ -208,6 +208,9 @@ class FFVCDWorld(World):
         if os.path.exists(self.filename_randomized):
             os.unlink(self.filename_randomized)
             
+        if os.path.exists(temp_patch_path):
+            os.unlink(temp_patch_path)
+            
             
         # later you can uncomment these to remove temp files
         # if os.path.exists(temp_spoiler_path):
