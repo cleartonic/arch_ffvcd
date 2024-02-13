@@ -128,7 +128,7 @@ class FFVCDSNIClient(SNIClient):
                 direction = event_flag_data['direction']
                 loc_id = event_flag_addr + loc_id_start
                 
-                # exdeath special handling
+                # exdeath special handling for victory condition
                 if event_flag_addr == 0xC0FFFF:
                     status1 = check_status_bits(ram_byte, 0, direction)
                     status2 = check_status_bits(ram_byte, 1, direction)
@@ -144,8 +144,11 @@ class FFVCDSNIClient(SNIClient):
 
                 if loc_id not in ctx.locations_checked and status:
                     new_checks.append(loc_id)
-            except Exception as e:
-                print("Error checking full_flag_dict: %s" % e)
+                    
+            
+            except:
+                import traceback
+                print("Error checking full_flag_dict: %s" % traceback.print_exc())
                 
 
         for new_check_id in new_checks:
