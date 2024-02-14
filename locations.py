@@ -81,8 +81,7 @@ class FFVCDLocation(Location):
         # item ids 900-999 are gil 
         if location_data.location_type == "event" or location_data.location_type == "key":
             add_item_rule(self, lambda item: not ((item.code - arch_item_offset) > 900 and \
-                                                  (item.code - arch_item_offset) < 999)\
-                                                  and item.player == self.player)
+                                                  (item.code - arch_item_offset) < 999))
 
         
             
