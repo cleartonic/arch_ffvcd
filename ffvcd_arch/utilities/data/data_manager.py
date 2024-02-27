@@ -1,7 +1,9 @@
 import pkgutil, json
-import os, sys
-THIS_FILEPATH = os.path.dirname(__file__)
-sys.path.append(THIS_FILEPATH)
+import os
+
+
+THIS_FILEPATH = os.path.abspath(os.path.dirname(__file__))
+print("\n\nTESTING!\n%s\n%s\n\n" % ((__file__, THIS_FILEPATH)))
 
 class DataManager():
     def __init__(self, config):

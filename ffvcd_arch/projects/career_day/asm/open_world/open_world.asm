@@ -756,3 +756,7 @@ org $CE6ED5
 db $FE, $FE
 org $CE6EDC
 db $FE, $FE
+
+; abbreviate credits
+
+org $C8ECEF

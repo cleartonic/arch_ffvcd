@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import os, sys
 import json, pkgutil
-THIS_FILEPATH = os.path.dirname(__file__)
-sys.path.append(THIS_FILEPATH)
+THIS_FILEPATH = os.path.abspath(os.path.dirname(__file__))
 
 class TextParser():
     def __init__(self, config):

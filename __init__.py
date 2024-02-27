@@ -15,6 +15,7 @@ from .rom import LocalRom, get_base_rom_path, patch_rom, FFVCDDeltaPatch
 from collections import Counter
 import shutil
 import logging
+import pkgutil
 logger = logging.getLogger("Final Fantasy V Career Day")
 
 THIS_FILEPATH = os.path.dirname(__file__)
@@ -55,6 +56,7 @@ class FFVCDWorld(World):
     set_rules = set_rules
     
     cond = None
+    starting_crystals = None # passed to conductor later
 
     
     def __init__(self, world: MultiWorld, player: int):
@@ -103,8 +105,9 @@ class FFVCDWorld(World):
 
 
 
-    def create_items(self):        
-        create_world_items(self)
+    def create_items(self):
+        
+        self.starting_crystals = create_world_items(self)
         
     def post_fill(self):
 
@@ -154,6 +157,8 @@ class FFVCDWorld(World):
         options_conductor['player'] = self.player
         
         self.options_conductor = options_conductor
+        
+        options_conductor['starting_crystals'] = self.starting_crystals
             
         return options_conductor
                 
@@ -162,10 +167,8 @@ class FFVCDWorld(World):
 
     def generate_output(self, output_directory: str):
         # move 
-
-        temp_patch_path, temp_spoiler_path = self.cond.save_spoiler_and_patch(output_directory)
-        self.filename_randomized = self.cond.patch_file(output_directory, temp_patch_path, temp_spoiler_path)
-
+        temp_patch_path = self.cond.save_patch(output_directory)
+        self.filename_randomized = self.cond.patch_file(output_directory)
 
         rompath = os.path.join(output_directory, f"{self.multiworld.get_out_file_name_base(self.player)}.smc")
 
@@ -180,23 +183,15 @@ class FFVCDWorld(World):
                                         "ffv_%sfjf_world%slock.bsdiff4" % (four_job,
                                                               self.options_conductor['world_lock'])
                                         )
-        logger.debug("Copying %s -> %s" % (self.source_rom_abs_path, rompath))
-        
+        logger.debug("Copying %s -> %s" % (self.source_rom_abs_path, rompath))        
         shutil.copy(self.source_rom_abs_path, rompath)
-        
-        
-        
         rom = LocalRom(rompath)
         rom.write_randomizer_asm_to_file(basepatch_to_use, temp_patch_path, rompath)
         patch_rom(self.multiworld, rom, self.player)
-        
-
         self.rom_name = rom.name
-                
-
         rom.write_to_file(rompath)
-        
-        
+
+
         patch = FFVCDDeltaPatch(os.path.splitext(rompath)[0]+FFVCDDeltaPatch.patch_file_ending, player=self.player,
                                 player_name=self.multiworld.player_name[self.player], patched_path=rompath)
         
@@ -210,16 +205,6 @@ class FFVCDWorld(World):
             
         if os.path.exists(temp_patch_path):
             os.unlink(temp_patch_path)
-            
-            
-        # later you can uncomment these to remove temp files
-        # if os.path.exists(temp_spoiler_path):
-        #     os.unlink(temp_spoiler_path)
-        # if os.path.exists(temp_spoiler_path):
-        #     os.unlink(temp_spoiler_path)
-        
-
-
         
         self.rom_name_available_event.set() # make sure threading continues and errors are collected
         logger.debug("Finished generate_output function")
@@ -234,4 +219,11 @@ class FFVCDWorld(World):
             new_name = base64.b64encode(bytes(self.rom_name)).decode()
             multidata["connect_names"][new_name] = multidata["connect_names"][self.multiworld.player_name[self.player]]
             
-            
+        
+    def write_spoiler(self, spoiler_handle) -> None:
+        output = '\n----------------------------------------\n\
+FINAL FANTASY V: CAREER DAY ARCHIPELAGO\nPlayer: %s\n\
+----------------------------------------\n' % (self.player)
+        
+        data = output + self.cond.spoiler
+        spoiler_handle.write(data)

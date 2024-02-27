@@ -639,7 +639,7 @@ gil_ram_data = {900 : 100,
 
 key_item_ram_data = {1000	: [[7, 0x4A, 1], [5, 0x67, 0], [0, 0x68, 1]],  # Walse Tower Key
                 1001	: [[6, 0x4A, 1]], # Steamship Key
-                1002	: [[5, 0x4A, 1], [0, 0x39, 1], [1, 0x39, 1]], # Ifrits Fire
+                1002	: [[5, 0x4A, 1], [0, 0x39, 1] , [1, 0x39, 1]], # Ifrits Fire
                 1003	: [[4, 0x4A, 1],[3, 0x1B, 1],], # SandWormBait
                 1004	: [[3, 0x4A, 1]], # Big Bridge Key
                 1005	: [[2, 0x4A, 1],[0x2C, 0xE5, 0x00],[0x00, 0xE6, 0x00],[0xAC, 0xE7, 0x00],[0xA5, 0xE8, 0x00],], # Hiryuu Call
@@ -652,12 +652,12 @@ key_item_ram_data = {1000	: [[7, 0x4A, 1], [5, 0x67, 0], [0, 0x68, 1]],  # Walse
                 1012	: [[1, 0x4B, 1]], # Falls Page
                 1013	: [[5, 0x4C, 1]], # Mirage Radar
                 1014	: [[2, 0x4C, 1],[2, 0x53, 1],[0, 0xAF, 1],], # Adamantite
-                1015	: [[1, 0x4C, 1],[4, 0x39, 1],], # Moogle Suit
-                1016	: [[7, 0x4D, 1],[1, 0x22, 1],], # Elder Branch
-                1017	: [[5, 0x4D, 1],[3, 0x24, 1],], # 1st Tablet
-                1018	: [[4, 0x4D, 1],[6, 0x25, 1],], # 2nd Tablet
-                1019	: [[3, 0x4D, 1],[1, 0x26, 1],], # 3rd Tablet
-                1020	: [[2, 0x4D, 1],[3, 0x26, 1],], # 4th Tablet
+                1015	: [[1, 0x4C, 1],[4, 0x39, 1]], # Moogle Suit
+                1016	: [[7, 0x4D, 1],[1, 0x22, 1]], # Elder Branch
+                1017	: [[5, 0x4D, 1],[3, 0x24, 1]], # 1st Tablet
+                1018	: [[4, 0x4D, 1],[6, 0x25, 1]], # 2nd Tablet
+                1019	: [[3, 0x4D, 1],[1, 0x26, 1]], # 3rd Tablet
+                1020	: [[2, 0x4D, 1],[3, 0x26, 1]], # 4th Tablet
                 }
 
 event_flag_dict = {0xC0FAB2: {'name': 'Wind Crystal (Knight)',
@@ -877,11 +877,7 @@ event_flag_dict = {0xC0FAB2: {'name': 'Wind Crystal (Knight)',
   'ram_address': 0xA18,
   'bit': 7,
   'direction': 1},
- 0xC0FB28: {'name': 'Brave Blade (Brave Blade)',
-  'ram_address': 0xA14,
-  'bit': 1,
-  'direction': 1},
- 0xC0FB2A: {'name': 'Chicken Knife (Chicken Knife)',
+ 0xC0FB28: {'name': 'Secret Area (Brave Blade/Chicken Knife)',
   'ram_address': 0xA14,
   'bit': 1,
   'direction': 1},

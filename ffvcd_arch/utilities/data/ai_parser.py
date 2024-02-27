@@ -6,8 +6,7 @@ Created on Sun Oct 13 12:05:20 2019
 """
 
 import os, sys, json, pkgutil
-THIS_FILEPATH = os.path.dirname(__file__)
-sys.path.append(THIS_FILEPATH)
+THIS_FILEPATH = os.path.abspath(os.path.dirname(__file__))
 
 
 def parse_ai_data(filename):

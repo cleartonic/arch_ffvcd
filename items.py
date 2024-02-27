@@ -1,5 +1,4 @@
 import os, sys
-sys.path.append(os.path.join(os.pardir,os.pardir))
 from BaseClasses import ItemClassification, Item
 arch_item_offset = 352000000
 
@@ -43,23 +42,33 @@ def create_world_items(world):
             world.multiworld.itempool.append(new_item)
             
     # add crystals only if four job not enabled
-    if world.multiworld.four_job[world.player]:        
+    if world.multiworld.four_job[world.player]:
+        starting_crystals = world.multiworld.random.sample([i for i in item_table if "Crystals" in item_table[i].groups],4)       
         for key_item_name in [i for i in item_table if "Abilities" in item_table[i].groups or \
                               "Magic" in item_table[i].groups or "Gil" in item_table[i].groups]:
-            item_data = item_table[key_item_name]
-            new_item = create_item(key_item_name, item_data.classification, item_data.id, \
-                                   world.player, item_data.groups)
-            placed_items.append(new_item)
-            world.multiworld.itempool.append(new_item)
+            
+            if key_item_name not in starting_crystals:
+                
+                item_data = item_table[key_item_name]
+                new_item = create_item(key_item_name, item_data.classification, item_data.id, \
+                                       world.player, item_data.groups)
+                placed_items.append(new_item)
+                world.multiworld.itempool.append(new_item)
     else:
+        
+        # first choose starting crystal
+        starting_crystals = [world.multiworld.random.choice([i for i in item_table if "Crystals" in item_table[i].groups])]
+
         for key_item_name in [i for i in item_table if "Crystals" in item_table[i].groups or \
                               "Abilities" in item_table[i].groups or "Magic" in item_table[i].groups\
                                   or "Gil" in item_table[i].groups]:
-            item_data = item_table[key_item_name]
-            new_item = create_item(key_item_name, item_data.classification, item_data.id, \
-                                   world.player, item_data.groups)
-            placed_items.append(new_item)
-            world.multiworld.itempool.append(new_item)
+            if key_item_name not in starting_crystals:
+                item_data = item_table[key_item_name]
+                new_item = create_item(key_item_name, item_data.classification, item_data.id, \
+                                       world.player, item_data.groups)
+                placed_items.append(new_item)
+                world.multiworld.itempool.append(new_item)
+
 
         
 
@@ -78,6 +87,8 @@ def create_world_items(world):
                                                    world.player, item_data.groups)
         world.multiworld.itempool.append(new_item)
         
+        
+    return starting_crystals
 
 item_table = {
     "Knight Crystal" : ItemData(100, ItemClassification.useful, ["Unique", "Crystals"]),

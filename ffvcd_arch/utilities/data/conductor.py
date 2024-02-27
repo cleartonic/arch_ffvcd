@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 import random
-import operator
-import configparser
-import math, os, sys
-THIS_FILEPATH = os.path.dirname(__file__)
+import os, sys
+THIS_FILEPATH = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(THIS_FILEPATH)
 import logging
-from data_manager import *
-from collectible import *
-from reward import *
-from shop import *
-from shop_price import *
-from area import *
-from enemy import *
-from formation import *
-from text_parser import *
-from monster_in_a_box import *
+from data_manager import DataManager
+from collectible import Item, Magic, Crystal, Ability, KeyItem, CollectibleManager
+from reward import Reward, RewardManager
+from shop import ShopManager
+from shop_price import ShopPriceManager
+from area import AreaManager
+from enemy import EnemyManager
+from formation import Formation, FormationManager
+from text_parser import TextParser
+from monster_in_a_box import MonsterInABoxManager
 # from item_randomization import *
-from misc_features import *
+from misc_features import randomize_default_abilities, randomize_learning_abilities, free_shop_prices
 import patcher
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
@@ -68,7 +66,7 @@ class Conductor():
         self.filename_randomized = None
         self.seed = seed
         self.fjf = arch_options['four_job']
-        self.fjf_strict = False
+        self.fjf_strict = True
         self.fjf_num_jobs = 4
         self.jobpalettes = arch_options['job_palettes']
         self.world_lock = 1
@@ -179,15 +177,15 @@ class Conductor():
         logger.debug("Init TextParser...")
         self.TP = TextParser(self.config)                             #Set up Text Parser Utility Object
 
-        if self.item_randomization:
-            logger.debug("Init WeaponManager...")
-            self.WM = WeaponManager(self.DM, self.RE, self.item_randomization_percent)      #Set up Weapon Manager
-            # remove the following from the pool of weapons:
-            for _ in range(3):
-                self.CM.add_to_placement_history(self.CM.get_by_name("Brave Blade"),"No")
-                self.CM.add_to_placement_history(self.CM.get_by_name("Chicken Knife"),"No")
-                self.CM.add_to_placement_history(self.CM.get_by_name("Excailbur"),"No")
-                self.CM.add_to_placement_history(self.CM.get_by_name("Soot"),"No")
+        # if self.item_randomization:
+        #     logger.debug("Init WeaponManager...")
+        #     self.WM = WeaponManager(self.DM, self.RE, self.item_randomization_percent)      #Set up Weapon Manager
+        #     # remove the following from the pool of weapons:
+        #     for _ in range(3):
+        #         self.CM.add_to_placement_history(self.CM.get_by_name("Brave Blade"),"No")
+        #         self.CM.add_to_placement_history(self.CM.get_by_name("Chicken Knife"),"No")
+        #         self.CM.add_to_placement_history(self.CM.get_by_name("Excailbur"),"No")
+        #         self.CM.add_to_placement_history(self.CM.get_by_name("Soot"),"No")
         
         logger.debug("Init misc setup...")
         # Misc setup 
@@ -206,7 +204,15 @@ class Conductor():
         logger.debug("Init finished.")
 
     def get_crystals(self):
+
+        arch_crystals_names = [i.split(" ")[0] for i in self.arch_options['starting_crystals']]
+        
+        if self.fjf:
+            self.job_1, self.job_2, self.job_3, self.job_4 = arch_crystals_names
+        else:
+            self.job_1 = arch_crystals_names[0]
         crystals = self.CM.get_all_of_type(Crystal)
+        
         if self.fjf and self.job_1 != 'Random':
             logger.debug("First job assigned %s" % self.job_1)
             starting_crystal = [i for i in crystals if i.collectible_name == self.job_1][0]
@@ -216,7 +222,7 @@ class Conductor():
             starting_crystal = self.RE.choice(temp_crystals)
             
         else:
-            starting_crystal = self.RE.choice(crystals)
+            starting_crystal = [i for i in crystals if i.collectible_name == self.job_1][0]
             
             # while starting_crystal.collectible_name == 'Mimic' or starting_crystal.collectible_name == 'Samurai':
             #     logger.debug("Rerolling starting crystal...")
@@ -282,7 +288,7 @@ class Conductor():
             crystals = [x for x in crystals if x != starting_crystal]
             if not self.fjf:
                 crystal_count = self.RE.randint(int(self.conductor_config['STARTING_CRYSTAL_COUNT']), len(crystals))
-                crystal_count = crystal_count - (self.difficulty // 3) #TODO: bring this to config
+                crystal_count = crystal_count - (self.difficulty // 3)
     
     
                 if crystal_count < int(self.conductor_config['MINIMUM_ALLOWABLE_CRYSTAL_COUNT']):
@@ -320,7 +326,9 @@ class Conductor():
         if self.fjf:
             for crystal in [x for x in self.CM.get_all_of_type(Crystal) if x != starting_crystal]:
                 self.CM.add_to_placement_history(crystal,"No")
-        if self.fjf_strict:
+                
+                
+        # the below used to call for self.fjf_strict but now it's default
             # For Four Job mode, mark all Abilities as unobtainable 
             for ability in [x for x in self.CM.get_all_of_type(Ability)]:
                 self.CM.add_to_placement_history(ability,"No")
@@ -749,6 +757,7 @@ class Conductor():
         #logger.debug("difficulty: " + str(self.difficulty))
         
         for index, value in enumerate(self.RE.sample(self.SM.shops,len(self.SM.shops))):
+            
             # skip invalid shops
             if value.valid is False:
                 continue
@@ -1998,9 +2007,6 @@ class Conductor():
     def assign_hints(self):
         # hint_text will be a list of text strings with hints
         hint_text = []
-            
-        
-
 
         keys = self.RM.get_rewards_by_style('key')
         if self.key_items_in_mib:
@@ -2010,13 +2016,7 @@ class Conductor():
         keys_main = []
         areas_barren = []
         for i in keys:
-            if i.collectible.name == 'Key Item':
-                keys_main.append(i)
-            elif i.collectible.name == "Arch Item":
-                if i.collectible.arch_item_progression:
-                    keys_main.append(i)
-            else:
-                areas_barren.append(i.area)
+            keys_main.append(i)
 
         areas_barren = list(set(areas_barren))
         self.RE.shuffle(keys_main)
@@ -2031,9 +2031,9 @@ class Conductor():
         
         for key in keys_hint1:
             if key.collectible.name == "Arch Item":
-                hint_str = "They say that %s|holds player %s's %s." % (key.area, key.collectible.arch_player, key.collectible.collectible_name)
+                hint_str = "They say that %s|holds player %s's|%s." % (key.area, key.collectible.arch_player, key.collectible.collectible_name[:25])
             else:
-                hint_str = "They say that %s|holds this player's %s." % (key.area, key.collectible.collectible_name)
+                hint_str = "They say that %s|holds this player's|%s." % (key.area, key.collectible.collectible_name[:25])
             hint_text.append(hint_str)
 
         # ###########
@@ -2374,22 +2374,20 @@ class Conductor():
         spoiler += '\n'
         return spoiler, patch        
         
+
         
-    def save_spoiler_and_patch(self, output_directory):
+    
+    def save_patch(self, output_directory):
         logger.debug("Finished randomization process, saving to file.")
         self.patch_path = os.path.join(output_directory,'ffvcd-patch-%s-%s.asm' % (self.player, self.seed))
         with open(self.patch_path,'w') as f:
             f.write(self.patch)
 
-        self.spoiler_path = os.path.join(output_directory,'ffvcd-spoiler-%s-%s.txt' % (self.player, self.seed))
-        with open(self.spoiler_path,'w') as f:
-            f.write(self.spoiler)
-
-        return self.patch_path, self.spoiler_path
+        return self.patch_path
 
         
-    def patch_file(self, output_directory, r_patch_file, spoiler_file):
-        self.filename_randomized = patcher.process_new_seed(r_patch_file, spoiler_file, self.seed, self.arch_options, output_directory)
+    def patch_file(self, output_directory):
+        self.filename_randomized = patcher.process_new_seed(self.seed, self.arch_options, output_directory)
         return self.filename_randomized
 
     def randomize(self, random_engine=None):

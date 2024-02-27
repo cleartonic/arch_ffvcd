@@ -332,6 +332,7 @@ class FFVCDSNIClient(SNIClient):
                     # first check all other cases
                     if arch_item_id != 1005 and arch_item_id != 1006:    
                         for key_item_data_entry in key_item_data_entries:
+                            
                             key_item_bit, key_item_addr_offset, key_item_direction = key_item_data_entry
     
                             current_byte = await snes_read(ctx, WRAM_START + 0xA00 + key_item_addr_offset, 0x01)
@@ -343,6 +344,9 @@ class FFVCDSNIClient(SNIClient):
                                 break
                                 
                             snes_buffered_write(ctx, WRAM_START + 0xA00 + key_item_addr_offset, bytes([new_byte]))
+                            
+                            # this needs to be called here because some addresses have multiple bits affected
+                            await snes_flush_writes(ctx)
                     # handle hiryuu / submarine
                     
                     elif arch_item_id == 1005 or arch_item_id == 1006:   
@@ -356,6 +360,7 @@ class FFVCDSNIClient(SNIClient):
                         for key_item_data_entry in key_item_data_entries[1:]:
                             key_item_byte, key_item_addr_offset, key_item_direction = key_item_data_entry
                             snes_buffered_write(ctx, WRAM_START + 0xA00 + key_item_addr_offset, bytes([key_item_byte]))
+
                             
                 await snes_flush_writes(ctx)
             except Exception as e:

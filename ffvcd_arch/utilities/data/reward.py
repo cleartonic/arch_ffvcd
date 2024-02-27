@@ -54,17 +54,17 @@ class Reward:
         if str(type(self.collectible)) == "<class 'collectible.KeyItem'>":
             return '{:30}'.format("%s " % (self.description)) + '{:30}'.format("%s" % (self.collectible.reward_name))
         if str(type(self.collectible)) == "<class 'collectible.Magic'>":
-            return '{:50}'.format("T%s %s %s" % (self.tier, self.description, self.original_reward)) + '{:50}'.format("T%s %s (%s)" % (self.collectible.tier, self.collectible.reward_name, self.collectible.type))
+            return '{:50}'.format("%s %s" % (self.description, self.original_reward)) + '{:50}'.format("%s (%s)" % (self.collectible.reward_name, self.collectible.type))
         if str(type(self.collectible)) == "<class 'collectible.Ability'>":
-            return '{:50}'.format("T%s %s %s" % (self.tier, self.description, self.original_reward)) + '{:50}'.format("T%s %s (%s)" % (self.collectible.tier, self.collectible.reward_name, "Ability"))
+            return '{:50}'.format("%s %s" % (self.description, self.original_reward)) + '{:50}'.format("%s (%s)" % (self.collectible.reward_name, "Ability"))
         if str(type(self.collectible)) == "<class 'collectible.Crystal'>":
-            return '{:50}'.format("T%s %s %s" % (self.tier, self.description, self.original_reward)) + '{:50}'.format("T%s %s (%s)" % (self.collectible.tier, self.collectible.reward_name, "Crystal"))
+            return '{:50}'.format("%s %s" % (self.description, self.original_reward)) + '{:50}'.format("%s (%s)" % (self.collectible.reward_name, "Crystal"))
     
 
         if self.mib_type is None:
-            return  '{:50}'.format("T%s %s %s" % (self.tier, self.description, self.original_reward)) + '{:50}'.format("T%s %s" % (self.collectible.tier, self.collectible.reward_name))
+            return  '{:50}'.format("%s %s" % (self.description, self.original_reward)) + '{:50}'.format("%s" % (self.collectible.reward_name))
         else:
-            return '{:50}'.format("T%s %s %s" % (self.tier, self.description, self.original_reward)) + '{:50}'.format("T%s %s (monster-in-a-box)" % (self.collectible.tier, self.collectible.reward_name))
+            return '{:50}'.format("%s %s" % (self.description, self.original_reward)) + '{:50}'.format("%s (monster-in-a-box)" % (self.collectible.reward_name))
 
     def generate_from_data(self, data):
         
@@ -120,7 +120,7 @@ class RewardManager:
             output = output + "{:<40}".format("{:<40}".format(i.description)+"{:<40}".format(i.collectible.reward_name))+"\n"
         output = output + "-----*********-----\n\n\n"
         
-        output = output + "-----CHESTS AND EVENTS (T = Tier)-----\n"
+        output = output + "-----CHESTS AND EVENTS-----\n"
         for i in [x for x in self.rewards if str(type(x.collectible)) != "<class 'collectible.KeyItem'>"]:
             output = output + i.short_output + "\n"
         output = output + "-----****************-----\n\n"
