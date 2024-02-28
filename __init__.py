@@ -166,6 +166,7 @@ class FFVCDWorld(World):
         create_regions(self.multiworld, self.player)
 
     def generate_output(self, output_directory: str):
+
         # move 
         temp_patch_path = self.cond.save_patch(output_directory)
         self.filename_randomized = self.cond.patch_file(output_directory)

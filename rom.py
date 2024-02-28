@@ -1,5 +1,6 @@
 import Utils
 import bsdiff4
+import pkgutil
 from Utils import read_snes_rom, __version__
 from worlds.Files import APDeltaPatch
 
@@ -53,9 +54,12 @@ class LocalRom(object):
             
             
     def write_randomizer_asm_to_file(self, basepatch_to_use, temp_patch_path, rompath):
-        with open(basepatch_to_use, "rb") as f:
-            delta: bytes = f.read()
-        self.rom_data = bsdiff4.patch(self.rom_data, delta)
+        # with open(basepatch_to_use, "rb") as f:
+        #     delta: bytes = f.read()
+            
+
+        base_patch = pkgutil.get_data(__name__,basepatch_to_use)
+        self.rom_data = bsdiff4.patch(self.rom_data, base_patch)
         self.write_rom_data_to_file(rompath)
         self.read_from_file(self.original_file)
 
