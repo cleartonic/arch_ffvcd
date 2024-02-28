@@ -77,17 +77,16 @@ class FFVCDWorld(World):
 
     def generate_early(self):
         self.starting_items = Counter()
+        self.world_lock = self.multiworld.world_lock[self.player].value + 1
         
-        # +1 to value from options for readability
-        world_lock = self.multiworld.world_lock[self.player].value + 1
-        if world_lock == 2:
+        if self.world_lock == 2:
             new_item = create_item("World 2 Access (Item)",  
                         ItemClassification.progression, 
                         WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
                         self.player, ['World Access'])
             self.starting_items[new_item] = 1
             self.multiworld.push_precollected(new_item)
-        if world_lock == 3:
+        if self.world_lock == 3:
             new_item = create_item("World 2 Access (Item)",  
                         ItemClassification.progression, 
                         WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
@@ -153,7 +152,7 @@ class FFVCDWorld(World):
 
             
         options_conductor['source_rom_abs_path'] = self.source_rom_abs_path
-        options_conductor['world_lock'] = self.multiworld.world_lock[self.player].value + 1
+        options_conductor['world_lock'] = self.world_lock
         options_conductor['player'] = self.player
         
         self.options_conductor = options_conductor

@@ -10,10 +10,10 @@ def load_json_data(filepath: str):
     return json.loads(pkgutil.get_data(__name__,filepath).decode('utf-8-sig'))
 
 
-text_dict_chest = load_json_data(os.path.join(THIS_FILEPATH, 'tables','text_tables', 'json','text_table_chest.json'))
+text_dict_chest = load_json_data(os.path.join('tables','text_tables', 'json','text_table_chest.json'))
 text_dict_chest2 = dict((v,k) for k,v in text_dict_chest.items())
 
-text_dict_shop = load_json_data(os.path.join(THIS_FILEPATH, 'tables','text_tables', 'json','text_table_shop.json'))
+text_dict_shop = load_json_data(os.path.join('tables','text_tables', 'json','text_table_shop.json'))
 text_dict_shop2 = dict((v,k) for k,v in text_dict_shop.items())
 
 

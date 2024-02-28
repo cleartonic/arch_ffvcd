@@ -10,7 +10,7 @@ class TextParser():
         def load_json_data(filepath: str):
             return json.loads(pkgutil.get_data(__name__,filepath).decode('utf-8-sig'))
         
-        self.text_dict = load_json_data(os.path.join(THIS_FILEPATH, 'tables','text_tables', 'json','text_table_chest.json'))
+        self.text_dict = load_json_data(os.path.join('tables','text_tables', 'json','text_table_chest.json'))
         self.text_dict2 = dict((v,k) for k,v in self.text_dict.items())
 
 

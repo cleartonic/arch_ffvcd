@@ -9,15 +9,6 @@ import shutil
 import logging
 logger = logging.getLogger("Final Fantasy V Career Day")
 
-THIS_FILEPATH = os.path.abspath(os.path.dirname(__file__))
-
-
-ASAR_PATH = os.path.join(THIS_FILEPATH, os.pardir, os.pardir, 'process', 'asar', 'asar')
-MAIN_PATCH = os.path.join(THIS_FILEPATH, os.pardir,  os.pardir, 'projects', 'career_day', 'asm', 'all_patches.asm')
-TRANSLATE_PATCH = os.path.join(THIS_FILEPATH, os.pardir, os.pardir,  os.pardir, 'basepatch', 'patches', 'rpge.ips')
-EXTRA_PATCH4 = os.path.join(THIS_FILEPATH, os.pardir,  os.pardir, os.pardir, 'basepatch', 'patches', 'ff5_lr_menu-1.0.ips')
-EXTRA_PATCH5 = os.path.join(THIS_FILEPATH, os.pardir,  os.pardir,  os.pardir,'basepatch', 'patches', 'ff5_optimize.ips')
-EXTRA_PATCH6 = os.path.join(THIS_FILEPATH, os.pardir,  os.pardir, os.pardir, 'basepatch', 'patches', 'ff5_reequip.ips')
 
 
 

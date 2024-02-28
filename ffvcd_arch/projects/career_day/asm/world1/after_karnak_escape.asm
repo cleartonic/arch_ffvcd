@@ -9,10 +9,12 @@ db $C4, $0C						;Fade out Speed 0C
 db $73
 db $A5, $FF						;Clear Event Flag 1FF
 
+db $CA, $9D, $02				;Set Flag 2/3/4/5/9D 02 (karnak weapon shop 2 turned on)
+
 ; disable for archipelago - lets the player re-enter karnak and fight
 db $A5, $E4						;Set Event Flag 1E4
-db $CA, $81, $01				;Clear Flag 2/3/4/5/81 01
-db $CB, $9D, $02				;Set Flag 2/3/4/5/9D 02
+db $CA, $81, $01				;Clear Flag 2/3/4/5/81 01 
+
 db $CA, $54, $01				;Clear Flag 2/3/4/5/54 01
 db $CB, $51, $01				;Set Flag 2/3/4/5/51 01
 

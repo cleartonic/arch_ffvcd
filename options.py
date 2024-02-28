@@ -26,9 +26,9 @@ class WorldLock(Choice):
     3: All worlds are available immediately.    
     """
     display_name = "World Lock"
-    option_1 = 0
-    option_2 = 1
-    option_3 = 2
+    option_world_1 = 0
+    option_world_2 = 1
+    option_world_3 = 2
 
 
 class ProgressionChecks(Choice):
