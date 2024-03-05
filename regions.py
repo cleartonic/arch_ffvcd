@@ -47,6 +47,7 @@ def create_regions(multiworld, player: int):
 
             
     setup_region_and_entrance(multiworld, player, "Ancient Library", "World 1 Access", access_rule = None)
+    setup_region_and_entrance(multiworld, player, "Ancient Library (World 3)", "World 3 Access", access_rule = None)
     setup_region_and_entrance(multiworld, player, "Ancient Library Lower", "World 1 Access", access_rule =\
                               lambda state: state.has("Ifrit's Fire", player))
     setup_region_and_entrance(multiworld, player, "Bal Castle", "World 2 Access", access_rule = None)

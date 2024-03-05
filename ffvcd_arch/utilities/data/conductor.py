@@ -2210,7 +2210,6 @@ class Conductor():
 #            logger.debug(i)
             #logger.debug("working on address: " + kuzar_reward_addresses[i])
             data = self.RM.get_reward_by_address(kuzar_reward_addresses[i]).collectible
-            # breakpoint()
     #            logger.debug("Kuzar start: %s" % (data.reward_name))
             try:
 
@@ -2437,6 +2436,8 @@ class Conductor():
                     
                 if collectible:
                     reward.set_collectible(collectible)
+                    setattr(reward, 'reward_arch', arch_item_name)
+                    setattr(reward, 'reward_arch_player', arch_player)
                 else:
                     logger.warning("Error on assigning collectible to reward %s" % arch_item_data )
 
@@ -2534,10 +2535,7 @@ class Conductor():
         if self.learning_abilities:
             learning_patch, learning_spoiler = randomize_learning_abilities(self.RE)
             patch = patch + learning_patch
-        if self.music_randomization:
-            logger.debug("Shuffling music...")
-            patch = patch + shuffle_music2()
-            
+
         if self.free_shops:
             logger.debug("Free shops...")
             patch = patch + free_shop_prices()
@@ -2560,15 +2558,10 @@ class Conductor():
         spoiler = spoiler + self.RM.get_spoiler(self.world_lock, self.free_tablets)
         spoiler = spoiler + self.SM.get_spoiler()
         # spoiler = spoiler + self.CM.get_spoiler()    
-        #spoiler = spoiler + self.EM.get_spoiler()
-        spoiler = spoiler + self.superbosses_spoiler
-        
-        
-        ######## FIX FIX 
-        spoiler = spoiler + self.FM.get_spoiler(self.remove_ned)
-        
-        
-        
+        # spoiler = spoiler + self.EM.get_spoiler()
+        # spoiler = spoiler + self.superbosses_spoiler
+        # spoiler = spoiler + self.FM.get_spoiler(self.remove_ned)
+
         if self.item_randomization:
             spoiler = spoiler + self.WM.get_spoiler
 

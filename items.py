@@ -30,8 +30,9 @@ def create_world_items(world):
                                 world.player, ['Victory'])
     exdeath.place_locked_item(new_item)
     
-    
+    ##################    
     # add progression items
+    ##################
     placed_items = []
     for key_item_name in [i for i in item_table if "Key Items" in item_table[i].groups]:
         item_data = item_table[key_item_name]
@@ -39,36 +40,46 @@ def create_world_items(world):
             new_item = create_item(key_item_name, item_data.classification, item_data.id, \
                                    world.player, item_data.groups)
             placed_items.append(new_item)
-            world.multiworld.itempool.append(new_item)
+
+
             
-    # add crystals only if four job not enabled
+    ###############
+    # FOUR JOB ENABLED
+    # do not add abilities/crystals to pool if four job enabled
+    ###############
     if world.multiworld.four_job[world.player]:
-        starting_crystals = world.multiworld.random.sample([i for i in item_table if "Crystals" in item_table[i].groups],4)       
-        for key_item_name in [i for i in item_table if "Abilities" in item_table[i].groups or \
-                              "Magic" in item_table[i].groups or "Gil" in item_table[i].groups]:
+        starting_crystals = world.multiworld.random.sample([i for i in item_table \
+                                                            if "Crystals" in item_table[i].groups],4)       
+        for item_name in [i for i in item_table\
+                              if "Magic" in item_table[i].groups or "Gil" in item_table[i].groups]:
             
-            if key_item_name not in starting_crystals:
+            if item_name not in starting_crystals:
                 
-                item_data = item_table[key_item_name]
-                new_item = create_item(key_item_name, item_data.classification, item_data.id, \
+                item_data = item_table[item_name]
+                new_item = create_item(item_name, item_data.classification, item_data.id, \
                                        world.player, item_data.groups)
                 placed_items.append(new_item)
-                world.multiworld.itempool.append(new_item)
+
+
+
+    ###############
+    # FOUR JOB DISABLED
+    # add crystals only if four job not enabled
+    ###############
     else:
         
         # first choose starting crystal
-        starting_crystals = [world.multiworld.random.choice([i for i in item_table if "Crystals" in item_table[i].groups])]
+        starting_crystals = [world.multiworld.random.choice([i for i in item_table \
+                                                             if "Crystals" in item_table[i].groups])]
 
-        for key_item_name in [i for i in item_table if "Crystals" in item_table[i].groups or \
+        for item_name in [i for i in item_table if "Crystals" in item_table[i].groups or \
                               "Abilities" in item_table[i].groups or "Magic" in item_table[i].groups\
                                   or "Gil" in item_table[i].groups]:
-            if key_item_name not in starting_crystals:
-                item_data = item_table[key_item_name]
-                new_item = create_item(key_item_name, item_data.classification, item_data.id, \
+            if item_name not in starting_crystals:
+                item_data = item_table[item_name]
+                new_item = create_item(item_name, item_data.classification, item_data.id, \
                                        world.player, item_data.groups)
                 placed_items.append(new_item)
-                world.multiworld.itempool.append(new_item)
-
 
         
 
@@ -76,7 +87,6 @@ def create_world_items(world):
     
     # then calculate remaining    
     locations_this_world = [i for i in world.multiworld.get_locations(world.player)]
-    
     # this has a minus 1 at the end to accommodate special locations like "ExDeath" at the end
     
     item_count_to_place = len(locations_this_world) - len(placed_items) - 1
@@ -85,6 +95,12 @@ def create_world_items(world):
         item_data = item_table[item_name]
         new_item = create_item(item_name, item_data.classification, item_data.id, \
                                                    world.player, item_data.groups)
+            
+        placed_items.append(new_item)
+
+    world.random.shuffle(placed_items)
+    # add remaining to itempool
+    for new_item in placed_items:
         world.multiworld.itempool.append(new_item)
         
         

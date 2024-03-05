@@ -45,12 +45,10 @@ class FFVCDLocation(Location):
 
         
         
-        # only allow kuzar to place this seed's items
-        # disallow mua from being progression, both town (brave/chicken) and dungeon (non burning vs burning)
-        # only allow karnak to place this seed's items
         # disallow lone wolf/under bal castle related checks for some weird progression problems
-        if location_data.area in ["Kuzar", "Mua", "Karnak"] or location_data.address in ['C0FB38', 'C0FB3A']:
-            add_item_rule(self, lambda item: item.player == self.player)
+
+        # if location_data.address - loc_id_start in [0xC0FB38, 0xC0FB3A]:
+        #     add_item_rule(self, lambda item: item.player == self.player)
 
         # kuzar shouldn't have key items because of the permanent choice of using tablets
         # mua shouldn't have key items because of chicken knife/brave blade
@@ -121,7 +119,7 @@ LocationData("Lix - Temptation Song at Lix (Charm)", address = 0xC0FAE0, area = 
 LocationData("Istory - Love Song at Istory (Love)", address = 0xC0FAE2, area = "Istory", location_type="event"),
 LocationData("Kelb - Requiem Song at Kelb (Requiem)", address = 0xC0FAE4, area = "Kelb", location_type="event"),
 LocationData("Surgate Castle - Speed Song at Surgate (Speed)", address = 0xC0FAE6, area = "Surgate Castle", location_type="event"),
-LocationData("Ancient Library - Magic Song at Ancient Library (Magic)", address = 0xC0FAE8, area = "Ancient Library", location_type="event"),
+LocationData("Ancient Library (World 3) - Magic Song at Ancient Library (Magic)", address = 0xC0FAE8, area = "Ancient Library (World 3)", location_type="event"),
 LocationData("Crescent Island - Power Song from Crescent Town (Power)", address = 0xC0FAEA, area = "Crescent Island", location_type="event"),
 LocationData("Crescent Island - Hero Song from Crescent Town (Hero)", address = 0xC0FAEC, area = "Crescent Island", location_type="event"),
 LocationData("Fork Tower - Fork Tower, two Magics (Holy)", address = 0xC0FAEE, area = "Fork Tower", location_type="event"),

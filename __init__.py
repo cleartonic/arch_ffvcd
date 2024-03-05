@@ -16,6 +16,8 @@ from collections import Counter
 import shutil
 import logging
 import pkgutil
+from Fill import fill_restrictive
+
 logger = logging.getLogger("Final Fantasy V Career Day")
 
 THIS_FILEPATH = os.path.dirname(__file__)
@@ -105,30 +107,27 @@ class FFVCDWorld(World):
 
 
     def create_items(self):
-        
+
         self.starting_crystals = create_world_items(self)
         
-    def post_fill(self):
-
-
-        locs = [i for i in self.multiworld.get_locations(self.player)]
-        data = {}
+        # state = self.multiworld.get_all_state(False)
         
-        for loc in locs:
-            if loc.address:
-                lname = loc.item.name
-                data[hex(loc.address - loc_id_start).replace("0x","").upper()] = {'loc_name' : lname,
-                                                                   'loc_player' : loc.item.player,
-                                                                   'loc_progression' : loc.item.advancement}
+        
+        # locations_to_place_this_world = [self.multiworld.get_location("Carwen - Lone Wolf Barrel (Cabin)"\
+        #                                                               ,self.player),
+        #                                  self.multiworld.get_location("Bal Castle - Lone Wolf Chest (Thunder Whip)"\
+        #                                                               ,self.player)]
 
+        # items_to_place = self.random.sample([i for i in self.multiworld.itempool if i.player == self.player \
+        #                                      and not i.advancement], len(locations_to_place_this_world))
         
-        options_conductor = self.parse_options_for_conductor()
+        # for item in items_to_place:
+        #     state.remove(item)
+        #     self.multiworld.itempool.remove(item)
 
-        
-        self.cond = conductor.Conductor(self.multiworld.random, options_conductor, arch_data = data, \
-                                        player = self.player, seed = self.multiworld.seed)
-        self.cond.randomize()
-        
+        # for attempts_remaining in range(2, -1, -1):
+        #     fill_restrictive(self.multiworld, state, locations_to_place_this_world, items_to_place,
+        #                      single_player_placement=True, lock=True, allow_excluded=True)
 
     def parse_options_for_conductor(self):
         # this sets up a config file from archipelago's options
@@ -165,6 +164,26 @@ class FFVCDWorld(World):
         create_regions(self.multiworld, self.player)
 
     def generate_output(self, output_directory: str):
+        
+        locs = [i for i in self.multiworld.get_locations(self.player)]
+        data = {}
+        
+        for loc in locs:
+            if loc.address:
+                lname = loc.item.name
+                data[hex(loc.address - loc_id_start).replace("0x","").upper()] = {'loc_name' : lname,
+                                                                   'loc_player' : loc.item.player,
+                                                                   'loc_progression' : loc.item.advancement}
+
+        
+        options_conductor = self.parse_options_for_conductor()
+
+        
+        self.cond = conductor.Conductor(self.multiworld.per_slot_randoms[self.player], options_conductor, arch_data = data, \
+                                        player = self.player, seed = self.multiworld.seed)
+
+        self.cond.randomize()
+        
 
         # move 
         temp_patch_path = self.cond.save_patch(output_directory)
@@ -176,8 +195,7 @@ class FFVCDWorld(World):
         # new system
         ################
         four_job = "" if self.options_conductor['four_job'] else 'no'
-        basepatch_to_use = os.path.join(THIS_FILEPATH,
-                                        'ffvcd_arch', 
+        basepatch_to_use = os.path.join('ffvcd_arch', 
                                         'process',
                                         'basepatch',
                                         "ffv_%sfjf_world%slock.bsdiff4" % (four_job,
