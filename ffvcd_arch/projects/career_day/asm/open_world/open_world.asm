@@ -760,3 +760,8 @@ db $FE, $FE
 ; abbreviate credits
 
 org $C8ECEF
+
+
+; disable lone wolf from being interacted with
+org $F047A2
+db $00, $00

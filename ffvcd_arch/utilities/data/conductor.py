@@ -1689,7 +1689,7 @@ class Conductor():
         return output
 
     def starting_crystal_spoiler(self):
-        output = "-----STARTING JOB, WEAPON, MAGIC-----"
+        output = "-------STARTING JOB, WEAPON, MAGIC------"
         output = output + "\nStarting job:     " + self.starting_crystal.reward_name    
         output = output + "\nStarting weapon:  " + self.starting_crystal.starting_weapon
         output = output + "\nStarting spell:   " + self.starting_crystal.starting_spell
@@ -1698,7 +1698,7 @@ class Conductor():
         else:
             ability_start = self.starting_crystal.starting_ability
         output = output + "\nStarting ability: " + ability_start
-        output = output + "\n-----***************************-----\n"
+        output = output + "\n----------------------------------------\n"
         if self.fjf:
             output = output + "Four Job Mode:"
             for crystal in self.chosen_crystals:
@@ -2031,7 +2031,11 @@ class Conductor():
         
         for key in keys_hint1:
             if key.collectible.name == "Arch Item":
-                hint_str = "They say that %s|holds player %s's|%s." % (key.area, key.collectible.arch_player, key.collectible.collectible_name[:25])
+                # try to parse player name, if not, default to player number
+                try:
+                    hint_str = "They say that %s|holds %s's|%s." % (key.area, self.arch_options['all_player_names'][key.collectible.arch_player][:25], key.collectible.collectible_name[:25])
+                except:
+                    hint_str = "They say that %s|holds player %s's|%s." % (key.area, key.collectible.arch_player, key.collectible.collectible_name[:25])
             else:
                 hint_str = "They say that %s|holds this player's|%s." % (key.area, key.collectible.collectible_name[:25])
             hint_text.append(hint_str)
@@ -2545,7 +2549,7 @@ class Conductor():
             
         patch = patch + self.parse_configs()
 
-        spoiler = "CAREER DAY SPOILER LOG\n"
+        spoiler = ""
         if self.seed is not None and self.setting_string is not None:
             spoiler = spoiler + self.spoiler_intro()
 
@@ -2580,7 +2584,12 @@ class Conductor():
         logger.debug("Creating hash...")
         temp_hash, temp_hash_patch = self.create_hash()
         patch += temp_hash_patch
-        spoiler =  temp_hash + spoiler
+        
+        hyphens = '----------------------------------------'
+        output = '\n%s\nFINAL FANTASY V: CAREER DAY ARCHIPELAGO\nPlayer #: %s\nPlayer Name: %s\n%s\n' % \
+            (hyphens, self.arch_options['player'], self.arch_options['player_name'], hyphens)
+
+        spoiler =  output + temp_hash + ("%s" % hyphens) + "\n" + spoiler
 
         if self.jobpalettes:
             patch = patch + self.randomize_job_color_palettes()

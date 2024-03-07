@@ -25,16 +25,26 @@ There are many other key items. For example, one of the required Tablets may be 
 The Great Trench requires World 3 access, the Submarine Key to use the submarine function of the ship,
 and the Trench Page to allow access to the dungeon.
 
-Under standard settings, only bosses can award progression related checks for either the player's seed
-or for other players' multiworlds. All other chests & events provide anything from helpful to filler rewards. 
+Under the default "Bosses" setting for Progression Checks, only bosses can award 
+progression related checks for either the player's seed, or for other players' multiworlds. 
+All other chests & events provide anything from helpful to filler rewards. 
+
+However, playing with "All" for Progression Checks means that every event & chest can have
+progression related checks. To obtain a full list of checks, generate a test multiworld and
+review the full list of checks in the spoiler log under the FFVCD section. 
+
+A basic strategy for FFVCD is to look at the below list of bosses, and attempt to clear
+the ones with the lowest HP locations first. Then, as your party powers up and receives
+more key items, more boss locations will be able to be checked.
 
 [Visit this page for a list of boss checks & their key item requirements](https://docs.google.com/spreadsheets/d/1BJzRHtVyrVoeD3W902XJfPTl43juvg_3158A6ajVd_o/edit#gid=0)
 
 ## Key Items
 
-[Visit this FFVCD Wiki page for the list of key item descriptions](https://www.bigbridge.studio/cdwiki/doku.php?id=key_items)
 The default setting for FFVCD in Archipelago is "World 1 (W1) lock", which means that the player is locked in
-World 1 until Worlds 2 & 3 are unlocked.  
+World 1 until Worlds 2 & 3 are unlocked.
+
+[Visit this FFVCD Wiki page for the list of key item descriptions](https://www.bigbridge.studio/cdwiki/doku.php?id=key_items)
 
 ## Reward Placement
 
@@ -42,10 +52,24 @@ Besides the bosses mentioned above, all other locations for finding items are ei
 a test seed and review all of these in the spoiler log. Each seed will generate the following and send across the multi-
 world:
 
-- All individual Job Crystals
+- All individual Job Crystals 
 - All individual magic spells (all types in the magic menu) 
-- All Job abilities. Each ability is learned for each party member (e.g., finding Summon Lv3 adds it to everyone)
-- All remaining items placed are for one of each item, ranging from regular items to weapons and armor
+- All job abilities. Each ability is learned for each party member (e.g., finding Summon Lv3 adds it to everyone)
+- Depending on how many item slots are left, regular items will be drawn, including consumable items, weapons, armor, and accessories
+
+If playing with the four job mode, Crystals and Abilities will not be placed. 
+
+## Hints
+
+Various NPCs in the game will give you hints about where randomly selected items are in the multiworld.
+
+[Visit this FFVCD Wiki page for the list of hint locations with screenshots](https://www.bigbridge.studio/cdwiki/doku.php?id=hint_system)
+
+## Other information
+
+Some locations in the base game that would be missable are designed to be re-checkable. For example, 
+all of the Karnak escape sequence can be re-triggered by re-entering the Steamship after completing
+the first Karnak escape.
 
 ## Where is the settings page?
 

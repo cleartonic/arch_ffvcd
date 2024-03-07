@@ -4,7 +4,7 @@ import base64
 from BaseClasses import MultiWorld, Tutorial, ItemClassification
 from worlds.AutoWorld import World, WebWorld
 from .items import item_table, item_groups, create_item, create_world_items, arch_item_offset, \
-    WORLD2_ACCESS_ITEM_ID, WORLD3_ACCESS_ITEM_ID
+    WORLD2_ACCESS_ITEM_ID, WORLD3_ACCESS_ITEM_ID, ITEM_CODE_GIL
 from .locations import location_data, loc_id_start
 from .options import ffvcd_options
 from .regions import create_regions
@@ -41,7 +41,10 @@ class FFVCDWorld(World):
     """Final Fantasy V: Career Day"""
 
     game = "Final Fantasy V Career Day"
-    option_definitions = ffvcd_options
+    
+    options_dataclass = ffvcd_options
+    options: ffvcd_options
+
     settings: None
     
     
@@ -79,7 +82,7 @@ class FFVCDWorld(World):
 
     def generate_early(self):
         self.starting_items = Counter()
-        self.world_lock = self.multiworld.world_lock[self.player].value + 1
+        self.world_lock = self.options.world_lock.value + 1
         
         if self.world_lock == 2:
             new_item = create_item("World 2 Access (Item)",  
@@ -108,43 +111,62 @@ class FFVCDWorld(World):
 
     def create_items(self):
 
-        self.starting_crystals = create_world_items(self)
+        self.starting_crystals, placed_items = create_world_items(self)
+        
+        self.multiworld.get_location("Kelb - CornaJar at Kelb (CornaJar)", self.player).access_rule(\
+        lambda state: state.has("Catch Ability", self.player, 1) or state.has("Trainer Crystal", self.player, 1))
+            
+            
+        # breakpoint()
+        # Handle local items 
+        
+        
+ 
+        
+        # This is currently disabled because lone wolf has been deactivated
+        # May need this code in the future
+        
+        ############
+        # LONE WOLF
+        # disallow lone wolf/under bal castle related 
+        # checks for some weird progression problems
+        ############
         
         # state = self.multiworld.get_all_state(False)
-        
-        
         # locations_to_place_this_world = [self.multiworld.get_location("Carwen - Lone Wolf Barrel (Cabin)"\
         #                                                               ,self.player),
-        #                                  self.multiworld.get_location("Bal Castle - Lone Wolf Chest (Thunder Whip)"\
+        #                                   self.multiworld.get_location("Bal Castle - Lone Wolf Chest (Thunder Whip)"\
         #                                                               ,self.player)]
 
-        # items_to_place = self.random.sample([i for i in self.multiworld.itempool if i.player == self.player \
-        #                                      and not i.advancement], len(locations_to_place_this_world))
+        # items_to_place = self.random.sample([i for i in placed_items if ITEM_CODE_GIL not in i.groups], \
+        #                                     len(locations_to_place_this_world))
         
         # for item in items_to_place:
         #     state.remove(item)
         #     self.multiworld.itempool.remove(item)
 
-        # for attempts_remaining in range(2, -1, -1):
-        #     fill_restrictive(self.multiworld, state, locations_to_place_this_world, items_to_place,
-        #                      single_player_placement=True, lock=True, allow_excluded=True)
 
+        # fill_restrictive(self.multiworld, state, locations_to_place_this_world, items_to_place,
+        #                   single_player_placement=True, lock=True, allow_excluded=True)
+            
+            
+            
     def parse_options_for_conductor(self):
         # this sets up a config file from archipelago's options
         # for FFVCD's base randomizer to work with
         options_conductor = {}
-        if self.multiworld.job_palettes[self.player]:
+        if self.options.job_palettes:
             options_conductor['job_palettes'] = True
         else:
             options_conductor['job_palettes'] = False
             
-        if self.multiworld.four_job[self.player]:
+        if self.options.four_job:
             options_conductor['four_job'] = True
         else:
             options_conductor['four_job'] = False
 
            
-        if self.multiworld.remove_flashes[self.player]:
+        if self.options.remove_flashes:
             options_conductor['remove_flashes'] = True
         else:
             options_conductor['remove_flashes'] = False
@@ -153,10 +175,12 @@ class FFVCDWorld(World):
         options_conductor['source_rom_abs_path'] = self.source_rom_abs_path
         options_conductor['world_lock'] = self.world_lock
         options_conductor['player'] = self.player
+        options_conductor['player_name'] = self.multiworld.player_name[self.player]
+        options_conductor['all_player_names'] = self.multiworld.player_name
+        options_conductor['starting_crystals'] = self.starting_crystals
         
         self.options_conductor = options_conductor
         
-        options_conductor['starting_crystals'] = self.starting_crystals
             
         return options_conductor
                 
@@ -164,18 +188,21 @@ class FFVCDWorld(World):
         create_regions(self.multiworld, self.player)
 
     def generate_output(self, output_directory: str):
-        
         locs = [i for i in self.multiworld.get_locations(self.player)]
         data = {}
         
         for loc in locs:
-            if loc.address:
-                lname = loc.item.name
-                data[hex(loc.address - loc_id_start).replace("0x","").upper()] = {'loc_name' : lname,
-                                                                   'loc_player' : loc.item.player,
-                                                                   'loc_progression' : loc.item.advancement}
+            if loc.address and loc.item:
+                try:
+                    lname = loc.item.name
+                    data[hex(loc.address - loc_id_start).replace("0x","").upper()] = {'loc_name' : lname,
+                                                                       'loc_player' : loc.item.player,
+                                                                       'loc_progression' : loc.item.advancement}
+                except:
+                    pass
+            else:
+                print("No item for %s" % loc)
 
-        
         options_conductor = self.parse_options_for_conductor()
 
         
@@ -239,9 +266,4 @@ class FFVCDWorld(World):
             
         
     def write_spoiler(self, spoiler_handle) -> None:
-        output = '\n----------------------------------------\n\
-FINAL FANTASY V: CAREER DAY ARCHIPELAGO\nPlayer: %s\n\
-----------------------------------------\n' % (self.player)
-        
-        data = output + self.cond.spoiler
-        spoiler_handle.write(data)
+        spoiler_handle.write(self.cond.spoiler)

@@ -153,7 +153,7 @@ def create_regions(multiworld, player: int):
     void_region = multiworld.get_region("Void", player)
     exdeath = multiworld.get_location("ExDeath", player)
     exdeath.parent_region = void_region
-    void_region.locations.append(exdeath)
+    # void_region.locations.append(exdeath)
 
 
 

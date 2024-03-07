@@ -118,12 +118,12 @@ class RewardManager:
         keys = sorted(keys, key = lambda i: i.description)
         for i in keys:
             output = output + "{:<40}".format("{:<40}".format(i.description)+"{:<40}".format(i.collectible.reward_name))+"\n"
-        output = output + "-----*********-----\n\n\n"
+        # output = output + "-----*********-----\n\n\n"
         
-        output = output + "-----CHESTS AND EVENTS-----\n"
-        for i in [x for x in self.rewards if str(type(x.collectible)) != "<class 'collectible.KeyItem'>"]:
-            output = output + i.short_output + "\n"
-        output = output + "-----****************-----\n\n"
+        # output = output + "-----CHESTS AND EVENTS-----\n"
+        # for i in [x for x in self.rewards if str(type(x.collectible)) != "<class 'collectible.KeyItem'>"]:
+        #     output = output + i.short_output + "\n"
+        # output = output + "-----****************-----\n\n"
 
 
         output = output + "\n\n"

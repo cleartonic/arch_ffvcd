@@ -1,118 +1,165 @@
-# Setup Guide for Pokémon Red and Blue: Archipelago
-
-## Important
-
-As we are using BizHawk, this guide is only applicable to Windows and Linux systems.
+# Final Fantasy V Career Day Setup Guide
 
 ## Required Software
 
-- BizHawk: [BizHawk Releases from TASVideos](https://tasvideos.org/BizHawk/ReleaseHistory)
-  - Version 2.3.1 and later are supported. Version 2.9.1 is recommended.
-  - Detailed installation instructions for BizHawk can be found at the above link.
-  - Windows users must run the prereq installer first, which can also be found at the above link.
-- The built-in Archipelago client, which can be installed [here](https://github.com/ArchipelagoMW/Archipelago/releases)
-- Pokémon Red and/or Blue ROM files. The Archipelago community cannot provide these.
+- [Archipelago](https://github.com/ArchipelagoMW/Archipelago/releases). Make sure to check the box for `SNI Client - Final Fantasy V Career Day Patch Setup`
 
+
+- Hardware or software capable of loading and playing SNES ROM files
+    - An emulator capable of connecting to SNI such as:
+        - snes9x-rr from: [snes9x rr](https://github.com/gocha/snes9x-rr/releases),
+        - BizHawk from: [TASVideos](https://tasvideos.org/BizHawk)
+        - RetroArch 1.10.3 or newer from: [RetroArch Website](https://retroarch.com?page=platforms). Or,
+    - An SD2SNES, FXPak Pro ([FXPak Pro Store Page](https://krikzz.com/store/home/54-fxpak-pro.html)), or other
+      compatible hardware
+- Your legally obtained Final Fantasy V Career Day ROM file, probably named `Final Fantasy V (Japan).sfc`
+    - Acquire a base 1.0 Japanese version of Final Fantasy V. You can confirm if you have the correct version by running the following Windows command. Find the directory where your ROM is in Windows Explorer, click the address by (where it says This PC > ...), type cmd, press Enter, then input the following command with your specific filename
+    - certutil -hashfile "Final Fantasy V (Japan).sfc" MD5
+    - The MD5 hash should return: d69b2115e17d1cf2cb3590d3f75febb9
+    
 ## Optional Software
+- Final Fantasy V Career Day Tracker
+	- Seto's PopTracker from: [Discord server](https://cdn.discordapp.com/attachments/1074658481992388618/1195179911720226939/ffv_career_day_ap.zip?ex=65f3a688&is=65e13188&hm=54b55ba9f4679ba72b82b9c0de440547b909b921b5b94ab3cefe1536d38fd0cc&)
 
-- [Pokémon Red and Blue Archipelago Map Tracker](https://github.com/j-imbo/pkmnrb_jim/releases/latest), for use with [PopTracker](https://github.com/black-sliver/PopTracker/releases)
 
+## Installation Procedures
 
-## Configuring BizHawk
+### Windows Setup
 
-Once BizHawk has been installed, open EmuHawk and change the following settings:
+1. During the installation of Archipelago, you will have been asked to install the SNI Client. If you did not do this,
+   or you are on an older version, you may run the installer again to install the SNI Client.
+2. During setup, you will be asked to locate your base ROM file. This is your Final Fantasy V Career Day ROM file.
+3. If you are using an emulator, you should assign your Lua capable emulator as your default program for launching ROM
+   files.
+    1. Extract your emulator's folder to your Desktop, or somewhere you will remember.
+    2. Right-click on a ROM file and select **Open with...**
+    3. Check the box next to **Always use this app to open .sfc files**
+    4. Scroll to the bottom of the list and click the grey text **Look for another App on this PC**
+    5. Browse for your emulator's `.exe` file and click **Open**. This file should be located inside the folder you
+       extracted in step one.
 
-- (If using 2.8 or earlier) Go to Config > Customize. Switch to the Advanced tab, then switch the Lua Core from "NLua+KopiLua" to
-  "Lua+LuaInterface". Then restart EmuHawk. This is required for the Lua script to function correctly.
-  **NOTE: Even if "Lua+LuaInterface" is already selected, toggle between the two options and reselect it. Fresh installs** 
-  **of newer versions of EmuHawk have a tendency to show "Lua+LuaInterface" as the default selected option but still load** 
-  **"NLua+KopiLua" until this step is done.**
-- Under Config > Customize > Advanced, make sure the box for AutoSaveRAM is checked, and click the 5s button.
-  This reduces the possibility of losing save data in emulator crashes.
-- Under Config > Customize, check the "Run in background" box. This will prevent disconnecting from the client while
-EmuHawk is running in the background.
+## Create a Config (.yaml) File
 
-It is strongly recommended to associate GB rom extensions (\*.gb) to the EmuHawk we've just installed.
-To do so, we simply have to search any Gameboy rom we happened to own, right click and select "Open with...", unfold
-the list that appears and select the bottom option "Look for another application", then browse to the BizHawk folder
-and select EmuHawk.exe.
+### What is a config file and why do I need one?
 
-## Configuring your YAML file
+See the guide on setting up a basic YAML at the Archipelago setup
+guide: [Basic Multiworld Setup Guide](/tutorial/Archipelago/setup/en)
 
-### What is a YAML file and why do I need one?
+### Where do I get a config file?
 
-Your YAML file contains a set of configuration options which provide the generator with information about how it should
-generate your game. Each player of a multiworld will provide their own YAML file. This setup allows each player to enjoy
-an experience customized for their taste, and different players in the same multiworld can all have different options.
+The Player Settings page on the website allows you to configure your personal settings and export a config file from
+them. Player settings page: [Final Fantasy V Career Day Player Settings Page](/games/Final%20Fantasy%20V%20Career%20Day/player-settings)
 
-### Where do I get a YAML file?
+### Verifying your config file
 
-You can generate a yaml or download a template by visiting the [Pokemon Red and Blue Player Settings Page](/games/Pokemon%20Red%20and%20Blue/player-settings)
+If you would like to validate your config file to make sure it works, you may do so on the YAML Validator page. YAML
+validator page: [YAML Validation page](/check)
 
-It is important to note that the `game_version` option determines the ROM file that will be patched.
-Both the player and the person generating (if they are generating locally) will need the corresponding ROM file.
+## Generating a Single-Player Game
 
-For `trainer_name` and `rival_name` the following regular characters are allowed:
-
-* `‘’“”·… ABCDEFGHIJKLMNOPQRSTUVWXYZ():;[]abcdefghijklmnopqrstuvwxyzé'-?!.♂$×/,♀0123456789`
-
-And the following special characters (these each count as one character):
-* `<'d>`
-* `<'l>`
-* `<'t>`
-* `<'v>`
-* `<'r>`
-* `<'m>`
-* `<PK>`
-* `<MN>`
-* `<MALE>` alias for `♂`
-* `<FEMALE>` alias for `♀`
+1. Navigate to the Player Settings page, configure your options, and click the "Generate Game" button.
+    - Player Settings page: [Final Fantasy V Career Day Player Settings Page](/games/Final%20Fantasy%20V%20Career%20Day/player-settings)
+2. You will be presented with a "Seed Info" page.
+3. Click the "Create New Room" link.
+4. You will be presented with a server page, from which you can download your patch file.
+5. Double-click on your patch file, and the Final Fantasy V Career Day Client will launch automatically, create your ROM from the
+   patch file, and open your emulator for you.
 
 ## Joining a MultiWorld Game
 
-### Generating and Patching a Game
+### Obtain your patch file and create your ROM
 
-1. Create your settings file (YAML).
-2. Follow the general Archipelago instructions for [generating a game](../../Archipelago/setup/en#generating-a-game).
-This will generate an output file for you. Your patch file will have a `.apred` or `.apblue` file extension.
-3. Open `ArchipelagoLauncher.exe`
-4. Select "Open Patch" on the left side and select your patch file.
-5. If this is your first time patching, you will be prompted to locate your vanilla ROM.
-6. A patched `.gb` file will be created in the same place as the patch file.
-7. On your first time opening a patch with BizHawk Client, you will also be asked to locate `EmuHawk.exe` in your
-BizHawk install.
+When you join a multiworld game, you will be asked to provide your config file to whoever is hosting. Once that is done,
+the host will provide you with either a link to download your patch file, or with a zip file containing everyone's patch
+files. Your patch file should have a `.apffvcd` extension.
 
-If you're playing a single-player seed and you don't care about autotracking or hints, you can stop here, close the
-client, and load the patched ROM in any emulator. However, for multiworlds and other Archipelago features, continue
-below using BizHawk as your emulator.
+Put your patch file on your desktop or somewhere convenient, and double click it. This should automatically launch the
+client, and will also create your ROM in the same place as your patch file.
 
-### Connect to the Multiserver
+### Connect to the client
 
-By default, opening a patch file will do steps 1-5 below for you automatically. Even so, keep them in your memory just
-in case you have to close and reopen a window mid-game for some reason.
+#### With an emulator
 
-1. Pokémon Red and Blue use Archipelago's BizHawk Client. If the client isn't still open from when you patched your
-game, you can re-open it from the launcher.
-2. Ensure EmuHawk is running the patched ROM.
-3. In EmuHawk, go to `Tools > Lua Console`. This window must stay open while playing.
-4. In the Lua Console window, go to `Script > Open Script…`.
-5. Navigate to your Archipelago install folder and open `data/lua/connector_bizhawk_generic.lua`.
-6. The emulator may freeze every few seconds until it manages to connect to the client. This is expected. The BizHawk
-Client window should indicate that it connected and recognized Pokémon Red/Blue.
-7. To connect the client to the server, enter your room's address and port (e.g. `archipelago.gg:38281`) into the
-top text field of the client and click Connect.
+When the client launched automatically, SNI should have also automatically launched in the background. If this is its
+first time launching, you may be prompted to allow it to communicate through the Windows Firewall.
 
-To connect the client to the multiserver simply put `<address>:<port>` on the textfield on top and press enter (if the
-server uses password, type in the bottom textfield `/connect <address>:<port> [password]`)
+##### snes9x-rr
 
-## Auto-Tracking
+1. Load your ROM file if it hasn't already been loaded.
+2. Click on the File menu and hover on **Lua Scripting**
+3. Click on **New Lua Script Window...**
+4. In the new window, click **Browse...**
+5. Select the connector lua file included with your client
+    - Look in the Archipelago folder for `/SNI/lua/Connector.lua`.
+6. If you see an error while loading the script that states `socket.dll missing` or similar, navigate to the folder of
+the lua you are using in your file explorer and copy the `socket.dll` to the base folder of your snes9x install.
 
-Pokémon Red and Blue has a fully functional map tracker that supports auto-tracking.
+##### BizHawk
 
-1. Download [Pokémon Red and Blue Archipelago Map Tracker](https://github.com/j-imbo/pkmnrb_jim/releases/latest) and [PopTracker](https://github.com/black-sliver/PopTracker/releases).
-2. Open PopTracker, and load the Pokémon Red and Blue pack. 
-3. Click on the "AP" symbol at the top.
-4. Enter the AP address, slot name and password. 
+1. Ensure you have the BSNES core loaded. This is done with the main menubar, under:
+    - (≤ 2.8) `Config` 〉 `Cores` 〉 `SNES` 〉 `BSNES`
+    - (≥ 2.9) `Config` 〉 `Preferred Cores` 〉 `SNES` 〉 `BSNESv115+`
+2. Load your ROM file if it hasn't already been loaded.
+   If you changed your core preference after loading the ROM, don't forget to reload it (default hotkey: Ctrl+R).
+3. Drag+drop the `Connector.lua` file included with your client onto the main EmuHawk window.
+    - Look in the Archipelago folder for `/SNI/lua/Connector.lua`.
+    - You could instead open the Lua Console manually, click `Script` 〉 `Open Script`, and navigate to `Connector.lua`
+      with the file picker.
 
-The rest should take care of itself! Items and checks will be marked automatically, and it even knows your settings - It
-will hide checks & adjust logic accordingly.
+##### RetroArch 1.10.3 or newer
+
+You only have to do these steps once. Note, RetroArch 1.9.x will not work as it is older than 1.10.3.
+
+1. Enter the RetroArch main menu screen.
+2. Go to Settings --> User Interface. Set "Show Advanced Settings" to ON.
+3. Go to Settings --> Network. Set "Network Commands" to ON. (It is found below Request Device 16.) Leave the default
+   Network Command Port at 55355.
+
+![Screenshot of Network Commands setting](/static/generated/docs/A%20Link%20to%20the%20Past/retroarch-network-commands-en.png)
+4. Go to Main Menu --> Online Updater --> Core Downloader. Scroll down and select "Nintendo - SNES / SFC (bsnes-mercury
+   Performance)".
+
+When loading a ROM, be sure to select a **bsnes-mercury** core. These are the only cores that allow external tools to
+read ROM data.
+
+#### With hardware
+
+This guide assumes you have downloaded the correct firmware for your device. If you have not done so already, please do
+this now. SD2SNES and FXPak Pro users may download the appropriate firmware on the SD2SNES releases page. SD2SNES
+releases page: [SD2SNES Releases Page](https://github.com/RedGuyyyy/sd2snes/releases)
+
+Other hardware may find helpful information on the usb2snes platforms
+page: [usb2snes Supported Platforms Page](http://usb2snes.com/#supported-platforms)
+
+1. Close your emulator, which may have auto-launched.
+2. Power on your device and load the ROM.
+
+### Connect to the Archipelago Server
+
+The patch file which launched your client should have automatically connected you to the AP Server. There are a few
+reasons this may not happen however, including if the game is hosted on the website but was generated elsewhere. If the
+client window shows "Server Status: Not Connected", simply ask the host for the address of the server, and copy/paste it
+into the "Server" input field then press enter.
+
+The client will attempt to reconnect to the new server address, and should momentarily show "Server Status: Connected".
+
+### Play the game
+
+When the client shows both SNES Device and Server as connected, you're ready to begin playing. Congratulations on
+successfully joining a multiworld game!
+
+## Hosting a MultiWorld game
+
+The recommended way to host a game is to use our hosting service. The process is relatively simple:
+
+1. Collect config files from your players.
+2. Create a zip file containing your players' config files.
+3. Upload that zip file to the Generate page above.
+    - Generate page: [WebHost Seed Generation Page](/generate)
+4. Wait a moment while the seed is generated.
+5. When the seed is generated, you will be redirected to a "Seed Info" page.
+6. Click "Create New Room". This will take you to the server page. Provide the link to this page to your players, so
+   they may download their patch files from there.
+7. Note that a link to a MultiWorld Tracker is at the top of the room page. The tracker shows the progress of all
+   players in the game. Any observers may also be given the link to this page.
+8. Once all players have joined, you may begin playing.

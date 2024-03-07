@@ -1,4 +1,5 @@
-from Options import Toggle, DefaultOnToggle, Choice
+from dataclasses import dataclass
+from Options import Toggle, DefaultOnToggle, Choice, PerGameCommonOptions
 
 
 class JobPalettes(Toggle):
@@ -33,8 +34,8 @@ class WorldLock(Choice):
 
 class ProgressionChecks(Choice):
     """Determines where progression checks are in the game for the multiworld.
-    1: All boss locations before the Rift are valid checks for progression
-    2: All bosses before the Rift, events & chests are valid checks for progression
+    1: All boss locations (before the Rift only) are valid checks for progression
+    2: All bosses (before the Rift only), all events & all chests are valid checks for progression
     """
     display_name = "Progression Checks"
     option_bosses = 0
@@ -42,11 +43,10 @@ class ProgressionChecks(Choice):
 
 
 
-
-ffvcd_options = {
-    "job_palettes": JobPalettes,
-    "four_job": FourJob,
-    "remove_flashes" : RemoveFlashes,
-    "world_lock" : WorldLock,
-    "progression_checks" : ProgressionChecks,
-    }
+@dataclass
+class ffvcd_options(PerGameCommonOptions):
+    job_palettes: JobPalettes
+    four_job: FourJob
+    remove_flashes : RemoveFlashes
+    world_lock : WorldLock
+    progression_checks : ProgressionChecks
