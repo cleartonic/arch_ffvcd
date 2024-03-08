@@ -2418,19 +2418,18 @@ class Conductor():
             
             arch_player = arch_item_data['loc_player']
             arch_item_name = arch_item_data['loc_name']
-            
-
-            
             arch_item_progression = arch_item_data['loc_progression']
+            arch_mib_flag = arch_item_data['loc_mib_flag']
+            arch_region_rank = arch_item_data['loc_region_rank']
+            
+            
             
             try:
                 
                 # find matching reward based on address
                 reward = self.RM.get_reward_by_address(address)
                 
-                
-                
-                # find matching collectible based on arch_id.csv
+                # find matching collectible based on arch_id.json
                 
                 if arch_player != self.player:
                     collectible = self.CM.create_arch_item(arch_item_name, arch_player, arch_item_progression)
@@ -2442,51 +2441,56 @@ class Conductor():
                     reward.set_collectible(collectible)
                     setattr(reward, 'reward_arch', arch_item_name)
                     setattr(reward, 'reward_arch_player', arch_player)
+                    
+                    if arch_mib_flag and self.arch_options['trapped_chests']:
+                        # update chest flag - Ax will change it to MIB for items 
+                        setattr(reward, 'reward_arch_mib_flag', arch_mib_flag)
+                        mib_modifier = str(arch_region_rank)
+                        if mib_modifier == '10':
+                            mib_modifier = 'A'
+                            
+                        new_reward_type = "A%s" % mib_modifier
+
+                        reward.collectible.reward_type = new_reward_type
                 else:
-                    logger.warning("Error on assigning collectible to reward %s" % arch_item_data )
-
-                
-
+                    logger.warning("Error on assigning collectible to reward %s" % arch_item_data)
             except Exception as e:
                 logger.warning("Error on %s: %s" % (address, e))
 
-            
-        
-        
-                
-        
-        
-        
-        
-        
-        # logger.debug("Randomizing key items...")
-        # num_placed_key_items = self.randomize_key_items()
-        
-        # #logger.debug(num_placed_key_items)
-        # if num_placed_key_items < (int(self.conductor_config['NUM_KEY_ITEMS'z]) - self.free_tablets):
-        #     logger.debug("DID NOT PLACE ALL KEY ITEMS, pass_flag SET TO FALSE...")
-        #     pass_flag = False
-        #     return pass_flag, (None, None)
-        # # while num_placed_key_items < (int(self.conductor_config['NUM_KEY_ITEMS']) - self.free_tablets):
-        # #     logger.debug("DID NOT PLACE ALL KEY ITEMS, RETRYING...")
-            
-        # #     # self.CM.reset_all_of_type(KeyItem)
-        # #     self.CM.reset_all_types()
-        # #     self.RM.reset_rewards_by_style("key")
-        # #     self.RM.reset_rewards_by_style("mib_key")
-        # #     num_placed_key_items = self.randomize_key_items()
+        if self.arch_options['trapped_chests']:
+            rank_lookup = self.DM.files['mib_arch_rank']
+            patch = '\n;MIB arch\norg $D07984\n'
+            for rank in range(1,11):
 
-        # logger.debug("Randomizing rewards...")
-        # self.randomize_rewards_by_areas()
+                chosen_idx = self.RE.choice([i for i in rank_lookup if rank_lookup[i] == rank])
+                chosen_formation = [i for i in self.FM.formations if i.idx == chosen_idx][0]
+                chosen_formation.mib_arch_flag = True
+                chosen_formation.region_rank = rank
+                
+                formation_code = hex(int(chosen_idx)).replace("0x","")
+                if len(formation_code) > 2:
+                    formation_code = "%s, $01" % (formation_code[1:])
+                else:
+                    formation_code = "%s, $00" % formation_code
+                
+                patch += 'db $%s\n' % formation_code
+                patch += 'db $%s\n' % formation_code # doubled because of ffv vanilla weirdness
+            self.FM.mib_arch_patch = patch
+
+
+
+
+
+
+
+
+
 
         logger.debug("Randomizing shops...")
         self.randomize_shops()
         
         
         
-
-
-      
         for i in self.RM.rewards: #this is a fix for an unsolved bug where some rewards don't get collectibles. it's rare, but it happens
             if i.collectible is None:
                 if i.reward_style != 'key':
@@ -2559,12 +2563,14 @@ class Conductor():
         # spoiler = spoiler + self.spoiler_settings()
         spoiler = spoiler + self.starting_crystal_spoiler()
         spoiler = spoiler + self.get_collectible_counts()                
-        spoiler = spoiler + self.RM.get_spoiler(self.world_lock, self.free_tablets)
+        spoiler = spoiler + self.RM.get_spoiler(self.world_lock, self.free_tablets, self.arch_options['trapped_chests'])
         spoiler = spoiler + self.SM.get_spoiler()
         # spoiler = spoiler + self.CM.get_spoiler()    
         # spoiler = spoiler + self.EM.get_spoiler()
         # spoiler = spoiler + self.superbosses_spoiler
-        # spoiler = spoiler + self.FM.get_spoiler(self.remove_ned)
+
+        if self.arch_options['trapped_chests']:
+            spoiler = spoiler + self.FM.get_spoiler_mib_patch()
 
         if self.item_randomization:
             spoiler = spoiler + self.WM.get_spoiler
@@ -2599,7 +2605,7 @@ class Conductor():
         
         self.spoiler = spoiler
         self.patch = patch
-        
+
         return 
 
 
@@ -2635,3 +2641,47 @@ if __name__ == "__main__":
         logger.debug("\n ***** FAILED GENERATION, NO SEED CREATED ***** \n\n")
 
 
+
+
+
+
+
+
+
+
+
+
+if False:
+    
+    for formation in self.FM.formations[:438]:
+        hp_total = 0
+        for enemy_id in [formation.enemy_1,
+                      formation.enemy_2,
+                      formation.enemy_3,
+                      formation.enemy_4,
+                      formation.enemy_5,
+                      formation.enemy_6,
+                      formation.enemy_7,
+                      formation.enemy_8]:
+            if enemy_id != 'FF':
+                enemy = [i for i in self.EM.enemies if i.idx_hex == enemy_id][0]
+                hp_total += enemy.num_hp
+        print("%s|%s|%s " % (formation.idx, formation.enemy_list, hp_total))
+            
+            
+            
+            
+            
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    
+    
+    

@@ -65,6 +65,14 @@ Various NPCs in the game will give you hints about where randomly selected items
 
 [Visit this FFVCD Wiki page for the list of hint locations with screenshots](https://www.bigbridge.studio/cdwiki/doku.php?id=hint_system)
 
+## Trapped Chests
+
+If the Trapped Chests setting is enabled, 30 chests throughout the chosen FFVCD's world will be chosen. These chests
+will have high value items local to this world. 10 random encounters from the game will be placed at these chests,
+and which are decided from a ranking system - generally the later in the vanilla game, the higher the threat of each
+chest. Most Trapped Chests can be fled from, and the fight can be reattempted. Trapped Chests will not contain progression.
+
+
 ## Other information
 
 Some locations in the base game that would be missable are designed to be re-checkable. For example, 

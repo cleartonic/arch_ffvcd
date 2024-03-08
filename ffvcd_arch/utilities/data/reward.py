@@ -33,6 +33,7 @@ class Reward:
         self.collectible = collectible_manager.get_by_name(self.original_reward)
         self.mib_type = None #keep a byte for the monster in a box type, override the type in the asar_output if exists
         self.mib_placed_key_item = False # this flag is used rarely for MIB to change the asar_output
+        self.reward_arch_mib_flag = False
         self.randomized = False
         self.max_world_requirements_flag = False # used for progressive bosses setting
 
@@ -111,13 +112,23 @@ class RewardManager:
 
         return output
 
-    def get_spoiler(self, world_lock, free_tablets):
+    def get_spoiler(self, world_lock, free_tablets, trapped_chests):
         
         output = "-----BOSS CHECKS------\n"
         keys = [x for x in self.rewards if x.reward_style == "key"]
         keys = sorted(keys, key = lambda i: i.description)
         for i in keys:
             output = output + "{:<40}".format("{:<40}".format(i.description)+"{:<40}".format(i.collectible.reward_name))+"\n"
+
+        if trapped_chests:
+            output += "\n-----TRAPPED CHESTS/MIB------\n"
+            keys = [x for x in self.rewards]
+            keys = sorted(keys, key = lambda i: i.description)
+            for i in keys:
+                if i.reward_arch_mib_flag:
+                    output = output + "{:<40}".format("{:<60}".format("%s (%s)" % (i.description, i.original_reward))+"{:<40}".format("%s (MIB)" % i.collectible.reward_name))+"\n"
+
+
         # output = output + "-----*********-----\n\n\n"
         
         # output = output + "-----CHESTS AND EVENTS-----\n"

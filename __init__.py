@@ -116,39 +116,51 @@ class FFVCDWorld(World):
         self.multiworld.get_location("Kelb - CornaJar at Kelb (CornaJar)", self.player).access_rule(\
         lambda state: state.has("Catch Ability", self.player, 1) or state.has("Trainer Crystal", self.player, 1))
             
+        if self.options.trapped_chests:
+            regions = self.multiworld.get_regions().region_cache[self.player]
             
-        # breakpoint()
-        # Handle local items 
-        
-        
- 
-        
-        # This is currently disabled because lone wolf has been deactivated
-        # May need this code in the future
-        
-        ############
-        # LONE WOLF
-        # disallow lone wolf/under bal castle related 
-        # checks for some weird progression problems
-        ############
-        
-        # state = self.multiworld.get_all_state(False)
-        # locations_to_place_this_world = [self.multiworld.get_location("Carwen - Lone Wolf Barrel (Cabin)"\
-        #                                                               ,self.player),
-        #                                   self.multiworld.get_location("Bal Castle - Lone Wolf Chest (Thunder Whip)"\
-        #                                                               ,self.player)]
-
-        # items_to_place = self.random.sample([i for i in placed_items if ITEM_CODE_GIL not in i.groups], \
-        #                                     len(locations_to_place_this_world))
-        
-        # for item in items_to_place:
-        #     state.remove(item)
-        #     self.multiworld.itempool.remove(item)
-
-
-        # fill_restrictive(self.multiworld, state, locations_to_place_this_world, items_to_place,
-        #                   single_player_placement=True, lock=True, allow_excluded=True)
+            valid_regions = []
+            for region_name, region in regions.items():
+                if hasattr(region, "region_rank"):
+                    rank = getattr(region, "region_rank")
+                    if rank:
+                        valid_regions.append(region)            
+            LOC_TYPE_CHEST = 1
+            chosen_mib_locations = [] 
+            for rank in range(1, 11):
+                regions_rank = [i for i in valid_regions if i.region_rank == rank]            
+                locations_rank = [[i2 for i2 in i.locations] for i in regions_rank]
+                locations_rank = [i for i2 in locations_rank for i in i2] # flatten
+                locations_rank = [i for i in locations_rank if i.location_data.location_type == LOC_TYPE_CHEST]
+    
+                self.multiworld.per_slot_randoms[self.player].shuffle(locations_rank)
+                chosen_locations_rank = self.multiworld.per_slot_randoms[self.player].sample(locations_rank, min(3, len(locations_rank)))
+                for i in chosen_locations_rank:
+                    i.mib_flag = True
+                    chosen_mib_locations.append(i)
             
+    
+            
+            state = self.multiworld.get_all_state(False)
+            mib_item_data = dict({(i, item_table[i]) for i in item_table if '10' in item_table[i].groups})
+            sorted_list = sorted(mib_item_data.items())
+            sorted_dict = {}
+            for key, value in sorted_list:
+                sorted_dict[key] = value
+            mib_item_data = sorted_dict
+    
+    
+            mib_item_pool = []
+            
+            for k, v in mib_item_data.items():
+                mib_item_pool.append(create_item(k, v.classification, v.id, self.player, v.groups))
+                
+            mib_items_to_place = self.multiworld.per_slot_randoms[self.player].choices(mib_item_pool, k=len(chosen_mib_locations))
+            
+            
+            fill_restrictive(self.multiworld, state, chosen_mib_locations, mib_items_to_place,
+                               single_player_placement=True, lock=True, allow_excluded=True)
+
             
             
     def parse_options_for_conductor(self):
@@ -171,6 +183,11 @@ class FFVCDWorld(World):
         else:
             options_conductor['remove_flashes'] = False
 
+
+        if self.options.trapped_chests:
+            options_conductor['trapped_chests'] = True
+        else:
+            options_conductor['trapped_chests'] = False
             
         options_conductor['source_rom_abs_path'] = self.source_rom_abs_path
         options_conductor['world_lock'] = self.world_lock
@@ -197,7 +214,9 @@ class FFVCDWorld(World):
                     lname = loc.item.name
                     data[hex(loc.address - loc_id_start).replace("0x","").upper()] = {'loc_name' : lname,
                                                                        'loc_player' : loc.item.player,
-                                                                       'loc_progression' : loc.item.advancement}
+                                                                       'loc_progression' : loc.item.advancement,
+                                                                       'loc_mib_flag' : loc.mib_flag,
+                                                                       'loc_region_rank' : loc.parent_region.region_rank}
                 except:
                     pass
             else:
@@ -205,11 +224,15 @@ class FFVCDWorld(World):
 
         options_conductor = self.parse_options_for_conductor()
 
+
+
+
         
         self.cond = conductor.Conductor(self.multiworld.per_slot_randoms[self.player], options_conductor, arch_data = data, \
                                         player = self.player, seed = self.multiworld.seed)
 
         self.cond.randomize()
+        
         
 
         # move 

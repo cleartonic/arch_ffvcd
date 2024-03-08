@@ -37,6 +37,7 @@ class Formation(object):
         self.assign_enemies(enemy_manager, data_manager, original_flag)
         self.original_enemy_list = self.enemy_list
         self.enemy_change = ''
+        self.mib_arch_flag = False
 
     @property
     def asar_output(self):
@@ -149,7 +150,7 @@ class Formation(object):
 class FormationManager(object):
     def __init__(self, data_manager, enemy_manager):
         self.formations = [Formation(x, data_manager, enemy_manager) for x in data_manager.files['formations'].keys()]
-
+        self.mib_arch_patch = ''
     def get_patch(self,remove_ned_flag):
         output = ";=========="
         output = output + "\n;formations"
@@ -160,10 +161,21 @@ class FormationManager(object):
             formation_list = [i for i in self.formations if i.randomized_boss == 'y']
         for i in formation_list:
             output = output + i.asar_output + "\n"
+            
+        if self.mib_arch_patch:
+            output += self.mib_arch_patch + "\n"
         output = output + "\n"
 
         return output
 
+    def get_spoiler_mib_patch(self):
+        mib_formations = [i for i in self.formations if i.mib_arch_flag]
+        output = "-----TRAPPED CHEST/MIB FORMATIONS-----\n"
+        mib_formations = sorted(mib_formations, key = lambda x: x.region_rank)
+        for f in mib_formations:
+            output += "Rank %s > %s\n" % (f.region_rank, f.enemy_list)
+        output = output + '\n'
+        return output
     def get_spoiler(self,remove_ned_flag):
         output = "-----FORMATIONS-----\n"
         output = output+ "-- List in order of bosses where they appear in power ranking--\n  (WingRaptor appears at X location)\n"

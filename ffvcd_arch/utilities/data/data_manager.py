@@ -26,6 +26,7 @@ class DataManager():
         self.files['gil'] = load_json_data(os.path.join('tables', 'json','gil_rewards.json'))
         self.files['key_items'] = load_json_data(os.path.join('tables', 'json','key_items.json'))
         self.files['rewards'] = load_json_data(os.path.join('tables', 'json','rewards.json'))
+        self.files['mib_arch_rank'] = load_json_data(os.path.join('tables', 'json','mib_arch_rank.json'))
 
 
 

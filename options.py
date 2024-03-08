@@ -43,6 +43,15 @@ class ProgressionChecks(Choice):
 
 
 
+class TrappedChests(Toggle):
+    """
+    When enabled, 30 trapped chests will be spread across the world.
+    These chests will only give high value items local to the player's world
+    """
+    display_name = "Enable Trapped Chests"
+
+
+
 @dataclass
 class ffvcd_options(PerGameCommonOptions):
     job_palettes: JobPalettes
@@ -50,3 +59,4 @@ class ffvcd_options(PerGameCommonOptions):
     remove_flashes : RemoveFlashes
     world_lock : WorldLock
     progression_checks : ProgressionChecks
+    trapped_chests: TrappedChests

@@ -4,9 +4,9 @@ from worlds.generic.Rules import add_item_rule
 from .items import arch_item_offset
 loc_id_start = 342000000
 
-LOC_TYPE_CHEST = 0
-LOC_TYPE_EVENT = 1
-LOC_TYPE_KEY = 2
+LOC_TYPE_CHEST = 1
+LOC_TYPE_EVENT = 2
+LOC_TYPE_KEY = 3
 
 class LocationData:
     def __init__(self, name, address = None, parent = None, area = None, location_type="", type="Item"):
@@ -17,6 +17,7 @@ class LocationData:
         self.area = area
         self.location_type = location_type
         self.type = type
+        
 
 class FFVCDLocation(Location):
     game = "ffvcd"
@@ -27,7 +28,8 @@ class FFVCDLocation(Location):
             location_data.address,
             parent
         )
-
+        self.location_data = location_data
+        self.mib_flag = False
         
         # when progression_checks_setting == 0, this is the "bosses" setting
         # meaning only bosses will give progression checks
