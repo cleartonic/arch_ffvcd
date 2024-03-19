@@ -46,10 +46,18 @@ class TextParser():
                     left = x.find("<")
                     right = x.find(">")+1
                     new_char = x[left:right]
-                    text_list.append(self.text_dict2[new_char])
+                    if new_char not in self.text_dict2:
+                        new_char = ' '
+                    else:
+                        new_char = self.text_dict2[new_char]
+                    text_list.append(new_char)
                     counter = right
                 else:    
-                    text_list.append(self.text_dict2[char])
+                    if char not in self.text_dict2:
+                        new_char = ' '
+                    else:
+                        new_char = self.text_dict2[char]
+                    text_list.append(new_char)
                     counter = counter + 1
             text_asar = 'db'
             for i in text_list:
@@ -76,10 +84,18 @@ class TextParser():
                     left = x.find("<")
                     right = x.find(">")+1
                     new_char = x[left:right]
-                    text_list.append(self.text_dict2[new_char])
+                    if new_char not in self.text_dict2:
+                        new_char = ' '
+                    else:
+                        new_char = self.text_dict2[new_char]
+                    text_list.append(new_char)
                     counter = right
                 else:    
-                    text_list.append(self.text_dict2[char])
+                    if char not in self.text_dict2:
+                        new_char = ' '
+                    else:
+                        new_char = self.text_dict2[char]
+                    text_list.append(new_char)
                     counter = counter + 1
             text_asar = 'db '
             for i in text_list:
@@ -128,10 +144,18 @@ class TextParser():
                 left = x.find("<")
                 right = x.find(">")+1
                 new_char = x[left:right]
-                text_list.append(self.text_dict2[new_char])
+                if new_char not in self.text_dict2:
+                    new_char = ' '
+                else:
+                    new_char = self.text_dict2[new_char]
+                text_list.append(new_char)
                 counter = right
             else:    
-                text_list.append(self.text_dict2[char])
+                if char not in self.text_dict2:
+                    new_char = ' '
+                else:
+                    new_char = self.text_dict2[char]
+                text_list.append(new_char)
                 counter = counter + 1
         text_asar = 'db'
         if ff_fill != None:
@@ -162,13 +186,23 @@ class TextParser():
                 left = x.find("<")
                 right = x.find(">")+1
                 new_char = x[left:right]
-                text_list.append(self.text_dict2[new_char])
+                new_char = x[left:right]
+                if new_char not in self.text_dict2:
+                    new_char = ' '
+                else:
+                    new_char = self.text_dict2[new_char]
+                text_list.append(new_char)
+
                 counter = right
             elif char == "|":
                 text_list.append("01")
                 counter = counter + 1
             else:    
-                text_list.append(self.text_dict2[char])
+                if char not in self.text_dict2:
+                    new_char = ' '
+                else:
+                    new_char = self.text_dict2[char]
+                text_list.append(new_char)
                 counter = counter + 1
         text_asar = 'db'
         for i in text_list:

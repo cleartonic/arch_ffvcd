@@ -45,7 +45,7 @@ pad $C954CB
 ; text
 org $E25BFF
 ;A powerful enemy calls... Proceed?
-db $60, $96, $89, $88, $90, $7E, $8B, $7F, $8E, $85, $96, $7E, $87, $7E, $86, $92, $96, $7C, $7A, $85, $85, $8C, $A3, $A3, $A3, $01, $6F, $8B, $88, $7C, $7E, $7E, $7D, $A2, $00
+db $60, $96, $89, $88, $90, $7E, $8B, $7F, $8E, $85, $96, $7E, $87, $7E, $86, $92, $96, $7C, $7A, $85, $85, $8C, $A3, $A3, $A3, $01, $60, $87, $96, $7A, $85, $8D, $7E, $8B, $87, $7A, $8D, $7E, $96, $7F, $82, $87, $7A, $85, $96, $7B, $88, $8C, $8C, $96, $7A, $90, $7A, $82, $8D, $8C, $A3, $01, $6F, $8B, $88, $7C, $7E, $7E, $7D, $A2, $00
 
 
 ; C83515
@@ -94,6 +94,9 @@ db $F0, $2B, $F8
 
 org $F82BF0
 ; Everything below is post fight 
+db $A2, $C8            ; set address 000A2D bit ON 01
+db $A2, $C9            ; set address 000A2D bit ON 02
+db $A2, $CA            ; set address 000A2D bit ON 04
 db $73
 db $C4, $02
 db $75

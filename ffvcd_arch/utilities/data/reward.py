@@ -40,6 +40,9 @@ class Reward:
 
     @property
     def asar_output(self):
+        
+        if hasattr(self, 'reward_arch_mib_flag') and hasattr(self, 'mib_chest_id'):
+            return f"org ${self.address} \ndb ${self.mib_chest_id}, ${self.collectible.patch_id}"
         if self.mib_type is None:
             try:
                 return f"org ${self.address} \ndb ${self.collectible.reward_type}, ${self.collectible.patch_id}"
@@ -108,6 +111,7 @@ class RewardManager:
         output = output + "\n;Chests and Events"
         output = output + "\n;=================\n"
         for i in self.rewards:
+
             output = output + i.asar_output + "\n"
 
         return output
@@ -126,7 +130,7 @@ class RewardManager:
             keys = sorted(keys, key = lambda i: i.description)
             for i in keys:
                 if i.reward_arch_mib_flag:
-                    output = output + "{:<40}".format("{:<60}".format("%s (%s)" % (i.description, i.original_reward))+"{:<40}".format("%s (MIB)" % i.collectible.reward_name))+"\n"
+                    output = output + "{:<40}".format("{:<60}".format("%s (%s)" % (i.description, i.original_reward))+"{:<40}".format("%s (MIB Rank %s)" % (i.collectible.reward_name, i.reward_arch_region_rank)))+"\n"
 
 
         # output = output + "-----*********-----\n\n\n"

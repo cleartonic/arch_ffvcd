@@ -134,8 +134,6 @@ class Formation(object):
                 # If it's not original, iterate through the list of all enemies 
                 if self.rank == 'standard':
                     for enemy_loop in [x for x in enemy_manager.enemies if x.enemy_rank == 'enemy']:  # Search through first set of enemies before bosses
-#                        if self.enemy_list == 'Ifrit':
-#                            breakpoint()                        
                         if enemy_loop.idx_hex == enemy_id:
                             new_enemy = enemy_loop
                 else:

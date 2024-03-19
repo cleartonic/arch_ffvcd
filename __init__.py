@@ -110,12 +110,13 @@ class FFVCDWorld(World):
 
 
     def create_items(self):
-
-        self.starting_crystals, placed_items = create_world_items(self)
         
-        self.multiworld.get_location("Kelb - CornaJar at Kelb (CornaJar)", self.player).access_rule(\
-        lambda state: state.has("Catch Ability", self.player, 1) or state.has("Trainer Crystal", self.player, 1))
-            
+        # handle trapped chest items first, which are local only
+        # this is to decide number of locations to place these items at
+        # then this is passed to item creation 
+        
+        self.chosen_mib_locations = []        
+        
         if self.options.trapped_chests:
             regions = self.multiworld.get_regions().region_cache[self.player]
             
@@ -125,8 +126,7 @@ class FFVCDWorld(World):
                     rank = getattr(region, "region_rank")
                     if rank:
                         valid_regions.append(region)            
-            LOC_TYPE_CHEST = 1
-            chosen_mib_locations = [] 
+            LOC_TYPE_CHEST = 1 
             for rank in range(1, 11):
                 regions_rank = [i for i in valid_regions if i.region_rank == rank]            
                 locations_rank = [[i2 for i2 in i.locations] for i in regions_rank]
@@ -137,29 +137,27 @@ class FFVCDWorld(World):
                 chosen_locations_rank = self.multiworld.per_slot_randoms[self.player].sample(locations_rank, min(3, len(locations_rank)))
                 for i in chosen_locations_rank:
                     i.mib_flag = True
-                    chosen_mib_locations.append(i)
-            
-    
-            
-            state = self.multiworld.get_all_state(False)
-            mib_item_data = dict({(i, item_table[i]) for i in item_table if '10' in item_table[i].groups})
-            sorted_list = sorted(mib_item_data.items())
-            sorted_dict = {}
-            for key, value in sorted_list:
-                sorted_dict[key] = value
-            mib_item_data = sorted_dict
-    
-    
-            mib_item_pool = []
-            
-            for k, v in mib_item_data.items():
-                mib_item_pool.append(create_item(k, v.classification, v.id, self.player, v.groups))
-                
-            mib_items_to_place = self.multiworld.per_slot_randoms[self.player].choices(mib_item_pool, k=len(chosen_mib_locations))
+                    self.chosen_mib_locations.append(i)
+                    
+                    
+                    
+                    
+                    
+        self.starting_crystals, placed_items, self.mib_items_to_place = create_world_items(self, trapped_chests_flag =\
+                                                                  self.options.trapped_chests,\
+                                                                  chosen_mib_locations = self.chosen_mib_locations)
             
             
-            fill_restrictive(self.multiworld, state, chosen_mib_locations, mib_items_to_place,
-                               single_player_placement=True, lock=True, allow_excluded=True)
+            
+        
+        self.multiworld.get_location("Kelb - CornaJar at Kelb (CornaJar)", self.player).access_rule(\
+        lambda state: state.has("Catch Ability", self.player, 1) or state.has("Trainer Crystal", self.player, 1))
+            
+
+            
+
+
+        
 
             
             
@@ -201,6 +199,14 @@ class FFVCDWorld(World):
             
         return options_conductor
                 
+    def pre_fill(self):
+        if self.options.trapped_chests:
+            state = self.multiworld.get_all_state(False)
+            fill_restrictive(self.multiworld, state, self.chosen_mib_locations, self.mib_items_to_place,
+                               single_player_placement=True, lock=True, allow_excluded=True)
+            
+
+
     def create_regions(self):
         create_regions(self.multiworld, self.player)
 
@@ -226,13 +232,11 @@ class FFVCDWorld(World):
 
 
 
-
         
         self.cond = conductor.Conductor(self.multiworld.per_slot_randoms[self.player], options_conductor, arch_data = data, \
                                         player = self.player, seed = self.multiworld.seed)
 
         self.cond.randomize()
-        
         
 
         # move 
