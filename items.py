@@ -7,6 +7,7 @@ arch_item_offset = 352000000
 EXDEATH_ITEM_ID = 1200
 WORLD2_ACCESS_ITEM_ID = 1201
 WORLD3_ACCESS_ITEM_ID = 1202
+EXDEATH_W2_ITEM_ID = 1203
 
 
 # I tried making these integers for better performance
@@ -25,6 +26,7 @@ ITEM_CODE_KEY_ITEMS = '7'
 ITEM_CODE_MAGIC = '8'
 ITEM_CODE_VICTORY = '9'
 ITEM_CODE_MIB_REWARD = '10'
+ITEM_CODE_EXDEATH_W2 = '11'
 
 class ItemData:
     def __init__(self, item_id, classification, groups):
@@ -42,7 +44,16 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
     
     mib_items_to_place = []
     mib_item_pool = []
+
     
+    exdeath2 = world.multiworld.get_location("ExDeath W2", world.player)    
+    new_item = create_item("Exdeath in World 2",  
+                                ItemClassification.progression, 
+                                EXDEATH_W2_ITEM_ID + arch_item_offset, 
+                                world.player, [ITEM_CODE_EXDEATH_W2])
+    exdeath2.place_locked_item(new_item)
+        
+
     
     # add victory first, manually update location and item table
     exdeath = world.multiworld.get_location("ExDeath", world.player)    
@@ -51,7 +62,8 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
                                 EXDEATH_ITEM_ID + arch_item_offset, 
                                 world.player, [ITEM_CODE_VICTORY])
     exdeath.place_locked_item(new_item)
-    
+
+
     
     ##################
     # trapped chest items handling
@@ -130,7 +142,7 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
     locations_this_world = [i for i in world.multiworld.get_locations(world.player)]
     # this has a minus 1 at the end to accommodate special locations like "ExDeath" at the end
     
-    item_count_to_place = len(locations_this_world) - len(mib_items_to_place) - len(placed_items) - 1
+    item_count_to_place = len(locations_this_world) - len(mib_items_to_place) - len(placed_items) - 2
     
     # get mib item names, if any
     mib_already_chosen_items = [i.name for i in mib_items_to_place]
@@ -666,6 +678,7 @@ item_table = {
     "4th Tablet" : ItemData(1020, ItemClassification.progression, [ITEM_CODE_UNIQUE, ITEM_CODE_KEY_ITEMS]),
 
     "Victory" : ItemData(1200, ItemClassification.progression, [ITEM_CODE_VICTORY]),
+    "Exdeath in World 2" : ItemData(1203, ItemClassification.progression, [ITEM_CODE_EXDEATH_W2]),
 
 }
 

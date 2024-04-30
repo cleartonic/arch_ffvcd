@@ -91,7 +91,7 @@ def create_regions(multiworld, player: int):
                                                         region_rank = 8)
     setup_region_and_entrance(multiworld, player, "Hiryuu Valley", "World 2 Access", access_rule = None,
                               region_rank = 6)
-    setup_region_and_entrance(multiworld, player, "Istory", "World 2 Access", access_rule = None,
+    setup_region_and_entrance(multiworld, player, "Istory", "World 1 Access", access_rule = None,
                               region_rank = 5)
     setup_region_and_entrance(multiworld, player, "Istory Falls", "World 3 Access", access_rule = \
                           lambda state: state.has("Falls Page", player)\
@@ -152,8 +152,7 @@ def create_regions(multiworld, player: int):
     setup_region_and_entrance(multiworld, player, "Rift (3 Tablets)", "World 3 Access", access_rule = \
                               lambda state: state.has("1st Tablet", player) and 
                               state.has("2nd Tablet", player) and
-                              state.has("3rd Tablet", player) and
-                              state.has("4th Tablet", player),
+                              state.has("3rd Tablet", player),
                                                         region_rank = 10)
     setup_region_and_entrance(multiworld, player, "Rift (4 Tablets)", "World 3 Access", access_rule = \
                               lambda state: state.has("1st Tablet", player) and 
@@ -161,7 +160,7 @@ def create_regions(multiworld, player: int):
                               state.has("3rd Tablet", player) and
                               state.has("4th Tablet", player),
                                                         region_rank = 10)
-    setup_region_and_entrance(multiworld, player, "Rugor", "World 2 Access", access_rule = None,
+    setup_region_and_entrance(multiworld, player, "Rugor", "World 3 Access", access_rule = None,
                               region_rank = 6)
     setup_region_and_entrance(multiworld, player, "Ruined City", "World 1 Access", access_rule = None,
                               region_rank = 4)

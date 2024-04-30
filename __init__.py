@@ -152,6 +152,14 @@ class FFVCDWorld(World):
         
         self.multiworld.get_location("Kelb - CornaJar at Kelb (CornaJar)", self.player).access_rule(\
         lambda state: state.has("Catch Ability", self.player, 1) or state.has("Trainer Crystal", self.player, 1))
+
+
+        self.multiworld.get_location("Crescent Island - Power Song from Crescent Town (Power)", self.player).access_rule(\
+        lambda state: state.has("Adamantite", self.player, 1) or state.has("World 2 Access (Item)", self.player, 1))
+
+
+        self.multiworld.get_location("Crescent Island - Hero Song from Crescent Town (Hero)", self.player).access_rule(\
+        lambda state: state.has("World 3 Access (Item)", self.player, 1) and state.has("Mirage Radar", self.player, 1))
             
 
             
@@ -206,6 +214,9 @@ class FFVCDWorld(World):
                                single_player_placement=True, lock=True, allow_excluded=True)
             
 
+    def fill_slot_data(self):
+        slot_data = self.options.as_dict("four_job", "world_lock", "progression_checks", "trapped_chests")
+        return slot_data
 
     def create_regions(self):
         create_regions(self.multiworld, self.player)

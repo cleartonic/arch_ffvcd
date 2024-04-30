@@ -2413,6 +2413,9 @@ class Conductor():
         
         
         for address, arch_item_data in self.arch_data.items():
+            if address == 'C0FFFE':
+                logger.debug("Skipping Exdeath W2 at C0FFFE")
+                continue
             if address == 'C0FFFF':
                 logger.debug("Skipping Exdeath at C0FFFF")
                 continue
