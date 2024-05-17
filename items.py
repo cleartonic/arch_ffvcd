@@ -163,7 +163,7 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
     locations_this_world = [i for i in world.multiworld.get_locations(world.player)]
     # this has a minus 1 at the end to accommodate special locations like "ExDeath" at the end
     
-    item_count_to_place = len(locations_this_world) - len(mib_items_to_place) - len(placed_items) - 1
+    item_count_to_place = len(locations_this_world) - len(mib_items_to_place) - len(placed_items) - 2
     
     # get mib item names, if any
     mib_already_chosen_items = [i.name for i in mib_items_to_place]
