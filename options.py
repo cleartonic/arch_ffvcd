@@ -62,10 +62,11 @@ class JobsAvailable(Range):
 class PlaceAbilities(DefaultOnToggle):
     """
     Job abilities are placed by default. This setting let's the player toggle them off, similar to what four job mode does. 
-    However, this does it independently. Paired with jobs available it can be used to limit player options without applying 
-    all of "Four Job Mode"'s restrictions. This setting only applies when "Four Job Mode" is off.
+    However, this does it independently. Paired with jobs available it can be used to limit player options without applying all of "Four Job Mode"'s restrictions. 
+    This setting only applies when "Four Job Mode" is off.
     """
     display_name = "Place Job Abilities"
+
 
 @dataclass
 class ffvcd_options(PerGameCommonOptions):
