@@ -45,14 +45,7 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
     mib_items_to_place = []
     mib_item_pool = []
 
-    
-    exdeath2 = world.multiworld.get_location("ExDeath W2", world.player)    
-    new_item = create_item("Exdeath in World 2",  
-                                ItemClassification.progression, 
-                                EXDEATH_W2_ITEM_ID + arch_item_offset, 
-                                world.player, [ITEM_CODE_EXDEATH_W2])
-    exdeath2.place_locked_item(new_item)
-        
+
 
     
     # add victory first, manually update location and item table
@@ -63,7 +56,12 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
                                 world.player, [ITEM_CODE_VICTORY])
     exdeath.place_locked_item(new_item)
 
-
+    exdeath = world.multiworld.get_location("ExDeath World 2", world.player)    
+    new_item = create_item("Exdeath in World 2",  
+                                ItemClassification.progression, 
+                                EXDEATH_W2_ITEM_ID + arch_item_offset, 
+                                world.player, [ITEM_CODE_EXDEATH_W2])
+    exdeath.place_locked_item(new_item)
     
     ##################
     # trapped chest items handling
@@ -124,15 +122,43 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
         # first choose starting crystal
         starting_crystals = [world.multiworld.random.choice([i for i in item_table \
                                                              if ITEM_CODE_CRYSTALS in item_table[i].groups])]
-
-        for item_name in [i for i in item_table if ITEM_CODE_CRYSTALS in item_table[i].groups or \
-                              ITEM_CODE_ABILITIES in item_table[i].groups or ITEM_CODE_MAGIC in item_table[i].groups\
-                                  or ITEM_CODE_GIL in item_table[i].groups]:
-            if item_name not in starting_crystals:
+        
+        jobs_to_place = world.multiworld.random.sample([i for i in item_table \
+                                                            if ITEM_CODE_CRYSTALS in item_table[i].groups and i not in starting_crystals],world.options.jobs_available - 1) #minus 1 because of starting job
+        
+        for item_name in [i for i in item_table if ITEM_CODE_CRYSTALS in item_table[i].groups]:
+            if item_name in jobs_to_place:
                 item_data = item_table[item_name]
                 new_item = create_item(item_name, item_data.classification, item_data.id, \
                                        world.player, item_data.groups)
                 placed_items.append(new_item)
+        
+        ###############
+        # PLACE ABILITIES ENABLED
+        # add abilities only enabled
+        ###############
+        if world.options.place_abilities:
+            for item_name in [i for i in item_table if ITEM_CODE_ABILITIES in item_table[i].groups\
+                            or ITEM_CODE_MAGIC in item_table[i].groups\
+                                or ITEM_CODE_GIL in item_table[i].groups]:
+                if item_name not in starting_crystals:
+                    item_data = item_table[item_name]
+                    new_item = create_item(item_name, item_data.classification, item_data.id, \
+                                        world.player, item_data.groups)
+                    placed_items.append(new_item)
+        
+        ###############
+        # PLACE ABILITIES DISABLED
+        # do not add abilities only if diabled
+        ###############
+        else:
+            for item_name in [i for i in item_table if ITEM_CODE_MAGIC in item_table[i].groups\
+                                or ITEM_CODE_GIL in item_table[i].groups]:
+                if item_name not in starting_crystals:
+                    item_data = item_table[item_name]
+                    new_item = create_item(item_name, item_data.classification, item_data.id, \
+                                        world.player, item_data.groups)
+                    placed_items.append(new_item)
 
         
 
@@ -142,7 +168,7 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
     locations_this_world = [i for i in world.multiworld.get_locations(world.player)]
     # this has a minus 1 at the end to accommodate special locations like "ExDeath" at the end
     
-    item_count_to_place = len(locations_this_world) - len(mib_items_to_place) - len(placed_items) - 2
+    item_count_to_place = len(locations_this_world) - len(mib_items_to_place) - len(placed_items)
     
     # get mib item names, if any
     mib_already_chosen_items = [i.name for i in mib_items_to_place]
