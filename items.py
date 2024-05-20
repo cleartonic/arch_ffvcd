@@ -57,11 +57,6 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
     exdeath.place_locked_item(new_item)
 
     exdeath = world.multiworld.get_location("ExDeath World 2", world.player)    
-    new_item = create_item("Exdeath in World 2",  
-                                ItemClassification.progression, 
-                                EXDEATH_W2_ITEM_ID + arch_item_offset, 
-                                world.player, [ITEM_CODE_EXDEATH_W2])
-    exdeath.place_locked_item(new_item)
     
     ##################
     # trapped chest items handling
@@ -704,7 +699,6 @@ item_table = {
     "4th Tablet" : ItemData(1020, ItemClassification.progression, [ITEM_CODE_UNIQUE, ITEM_CODE_KEY_ITEMS]),
 
     "Victory" : ItemData(1200, ItemClassification.progression, [ITEM_CODE_VICTORY]),
-    "Exdeath in World 2" : ItemData(1203, ItemClassification.progression, [ITEM_CODE_EXDEATH_W2]),
 
 }
 
