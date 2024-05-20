@@ -427,6 +427,5 @@ LocationData("Istory Falls - Leviathan (Boss)", address = 0xC0FBAE, area = "Isto
 LocationData("Solitary Island - Stalker (Boss)", address = 0xC0FBB0, area = "Solitary Island",location_type=LOC_TYPE_KEY),
 LocationData("Walse Tower Sunken - GoGo (Boss)", address = 0xC0FBB2, area = "Walse Tower Sunken",location_type=LOC_TYPE_KEY),
 LocationData("North Mountain (World 3) - Bahamut (Boss)", address = 0xC0FBB4, area = "North Mountain (World 3)", location_type=LOC_TYPE_KEY),
-LocationData("ExDeath World 2", address = 0xC0FFFE, area = "Exdeath's Castle", location_type=LOC_TYPE_KEY),
 LocationData("ExDeath", address = 0xC0FFFF, area = "Void", location_type=LOC_TYPE_KEY),
 ]
