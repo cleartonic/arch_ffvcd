@@ -38,6 +38,10 @@ class ItemData:
 def create_item(name: str, classification, item_data_id, player, groups) -> Item:
     return FFVCDItem(name, classification, item_data_id, player, groups)
 
+#not sure this is necessary but wanted to exclude the groups and make absolutely sure everything was set to None for events.
+def create_event(event: str, classification, item_data_id, player) -> Item:
+    return FFVCDEvent(event, classification.progression, None, player)
+
 
 
 def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations = None):
@@ -50,11 +54,24 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
     
     # add victory first, manually update location and item table
     exdeath = world.multiworld.get_location("ExDeath", world.player)    
-    new_item = create_item("Victory",  
+    new_item = create_event("Victory",  
                                 ItemClassification.progression, 
-                                EXDEATH_ITEM_ID + arch_item_offset, 
-                                world.player, [ITEM_CODE_VICTORY])
-    exdeath.place_locked_item(new_item) 
+                                None, 
+                                world.player)
+    # events were being stubborn so just hard coding the location settings for now
+    exdeath.address = None
+    exdeath.event = True
+    exdeath.place_locked_item(new_item)
+
+    exdeath2 = world.multiworld.get_location("ExDeath World 2", world.player)    
+    new_item = create_event("ExDeath World 2",  
+                                ItemClassification.progression, 
+                                None, 
+                                world.player)
+    # events were being stubborn so just hard coding the location settings for now
+    exdeath2.address = None
+    exdeath2.event = True
+    exdeath2.place_locked_item(new_item)
     
     ##################
     # trapped chest items handling
@@ -696,7 +713,8 @@ item_table = {
     "3rd Tablet" : ItemData(1019, ItemClassification.progression, [ITEM_CODE_UNIQUE, ITEM_CODE_KEY_ITEMS]),
     "4th Tablet" : ItemData(1020, ItemClassification.progression, [ITEM_CODE_UNIQUE, ITEM_CODE_KEY_ITEMS]),
 
-    "Victory" : ItemData(1200, ItemClassification.progression, [ITEM_CODE_VICTORY]),
+    #"Victory" : ItemData(1200, ItemClassification.progression, [ITEM_CODE_VICTORY]),
+    #"Exdeath in World 2" : ItemData(1203, ItemClassification.progression, [ITEM_CODE_EXDEATH_W2]),
 
 }
 
@@ -711,4 +729,11 @@ class FFVCDItem(Item):
     def __init__(self, name, classification, item_data_id, player, groups):
         super().__init__(name, classification, item_data_id, player)
         self.groups = groups
+
+#not sure this is necessary but wanted to exclude the groups and make absolutely sure everything was set to None for events.
+class FFVCDEvent(Item):
+    game = "ffvcd"
+    def __init__(self, name, classification, item_data_id, player):
+        super().__init__(name, classification, item_data_id, player)
+        Item.id = None
 
