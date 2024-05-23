@@ -2,7 +2,7 @@ import logging
 import asyncio
 from NetUtils import ClientStatus, color
 from worlds.AutoSNIClient import SNIClient
-from .locations import loc_id_start
+from .locations import loc_id_start, location_data
 from .items import item_table, arch_item_offset
 from .rom import crystal_ram_data, magic_ram_data, ability_ram_data, item_ram_data, \
     key_item_ram_data, gil_ram_data, full_flag_dict
@@ -135,6 +135,10 @@ class FFVCDSNIClient(SNIClient):
                     status3 = check_status_bits(ram_byte, 2, direction)
                     if status1 and status2 and status3:
                         status = True
+                        # Handle Victory
+                        if not ctx.finished_game:
+                            await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
+                            ctx.finished_game = True
                     else:
                         status = False
                         
@@ -173,18 +177,6 @@ class FFVCDSNIClient(SNIClient):
                 recv_index_list = [recv_index % 256, recv_index // 256]            
                 snes_buffered_write(ctx, FFVCD_RECV_PROGRESS_ADDR, bytes(recv_index_list))            
                 arch_item_id = item.item - arch_item_offset
-                
-    
-                ####################            
-                # RECEIVE VICTORY ITEM
-                ####################
-    
-                if arch_item_id == 1200:
-                    # Handle Victory
-                    if not ctx.finished_game:
-                        await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
-                        ctx.finished_game = True
-    
     
                 ####################            
                 # RECEIVE CRYSTALS
@@ -361,7 +353,30 @@ class FFVCDSNIClient(SNIClient):
                             key_item_byte, key_item_addr_offset, key_item_direction = key_item_data_entry
                             snes_buffered_write(ctx, WRAM_START + 0xA00 + key_item_addr_offset, bytes([key_item_byte]))
 
-                            
+                ####################            
+                # Send Events For Tracker
+                ####################
+                tracker_event_locations = ["ExDeath","ExDeath World 2","Piano (Tule)","Piano (Carwen)","Piano (Karnak)",
+                                           "Piano (Jacole)","Piano (Crescent)","Piano (Mua)","Piano (Rugor)","Piano (Mirage)"]
+                local_set_events = {flag_name: False for flag_name in tracker_event_locations}
+                for event_flag_addr, event_flag_data in full_flag_dict.items():
+                    for event in tracker_event_locations:
+                        if event == event_flag_data['name']:
+                             # Send tracker event flags
+                            if local_set_events != self.local_set_events and ctx.slot is not None:
+                                event_bitfield = 0
+                                for i, flag_name in enumerate(tracker_event_locations):
+                                    if local_set_events[flag_name]:
+                                        event_bitfield |= 1 << i
+                                await ctx.send_msgs([{
+                                    "cmd": "Set",
+                                    "key": f"FFVCD_EVENTS_{ctx.team}_{ctx.slot}",
+                                    "default": 0,
+                                    "want_reply": False,
+                                    "operations": [{"operation": "or", "value": event_bitfield}],
+                                }])
+                                self.local_set_events = local_set_events
+
                 await snes_flush_writes(ctx)
             except Exception as e:
                 print("\n\n\n%s\n\n\n"%e)

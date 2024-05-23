@@ -57,8 +57,8 @@ class FFVCDLocation(Location):
             add_item_rule(self, lambda item: not (item.code > (900 + arch_item_offset) and \
                                                   item.code < (999 + arch_item_offset)))
 
-        if location_data.address in [0xC0FFFE,0xC0FFFF]:
-            location_data.event = True
+        #if location_data.address in [0xC0FFFE,0xC0FFFF]:
+        #    location_data.event = True
         
             
 
@@ -430,6 +430,14 @@ LocationData("Istory Falls - Leviathan (Boss)", address = 0xC0FBAE, area = "Isto
 LocationData("Solitary Island - Stalker (Boss)", address = 0xC0FBB0, area = "Solitary Island",location_type=LOC_TYPE_KEY),
 LocationData("Walse Tower Sunken - GoGo (Boss)", address = 0xC0FBB2, area = "Walse Tower Sunken",location_type=LOC_TYPE_KEY),
 LocationData("North Mountain (World 3) - Bahamut (Boss)", address = 0xC0FBB4, area = "North Mountain (World 3)", location_type=LOC_TYPE_KEY),
+LocationData("Piano (Tule)", address = 0xC0FFF6, area = "Tule", location_type=LOC_TYPE_KEY),
+LocationData("Piano (Carwen)", address = 0xC0FFF7, area = "Carwen", location_type=LOC_TYPE_KEY),
+LocationData("Piano (Karnak)", address = 0xC0FFF8, area = "Karnak", location_type=LOC_TYPE_KEY),
+LocationData("Piano (Jacole)", address = 0xC0FFF9, area = "Jacole", location_type=LOC_TYPE_KEY),
+LocationData("Piano (Crescent)", address = 0xC0FFFA, area = "Crescent Island", location_type=LOC_TYPE_KEY),
+LocationData("Piano (Mua)", address = 0xC0FFFB, area = "Mua", location_type=LOC_TYPE_KEY),
+LocationData("Piano (Rugor)", address = 0xC0FFFC, area = "Rugor", location_type=LOC_TYPE_KEY),
+LocationData("Piano (Mirage)", address = 0xC0FFFD, area = "Mirage Village", location_type=LOC_TYPE_KEY),
 LocationData("ExDeath World 2", address = 0xC0FFFE, area = "Exdeath's Castle", location_type=LOC_TYPE_KEY),
 LocationData("ExDeath", address = 0xC0FFFF, area = "Void", location_type=LOC_TYPE_KEY),
 ]

@@ -158,7 +158,16 @@ class FFVCDWorld(World):
         lambda state: state.has("Adamantite", self.player, 1) or state.has("World 2 Access (Item)", self.player, 1))
 
 
+        self.multiworld.get_location("Piano (Mua)", self.player).access_rule(\
+        lambda state: state.has("Adamantite", self.player, 1) or state.has("World 2 Access (Item)", self.player, 1))
+
+        self.multiworld.get_location("Piano (Rugor)", self.player).access_rule(\
+        lambda state: state.has("Adamantite", self.player, 1) or state.has("World 2 Access (Item)", self.player, 1))
+
         self.multiworld.get_location("Crescent Island - Hero Song from Crescent Town (Hero)", self.player).access_rule(\
+        lambda state: state.has("World 3 Access (Item)", self.player, 1) and state.has("Mirage Radar", self.player, 1))
+
+        self.multiworld.get_location("Piano (Mirage)", self.player).access_rule(\
         lambda state: state.has("World 3 Access (Item)", self.player, 1) and state.has("Mirage Radar", self.player, 1))
             
 
