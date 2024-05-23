@@ -6,6 +6,7 @@ from .locations import loc_id_start, location_data
 from .items import item_table, arch_item_offset
 from .rom import crystal_ram_data, magic_ram_data, ability_ram_data, item_ram_data, \
     key_item_ram_data, gil_ram_data, full_flag_dict
+from typing import Dict
 
 snes_logger = logging.getLogger("SNES")
 
@@ -35,10 +36,16 @@ FFVCD_LOADED_GAME_FLAG2 = WRAM_START + 0x6F
 FFVCD_RECV_PROGRESS_ADDR = WRAM_START + 0x9F4
 FFVCD_FILE_NAME_ADDR = WRAM_START + 0x5D9
 
+tracker_event_locations = ["ExDeath","ExDeath World 2","Piano (Tule)","Piano (Carwen)","Piano (Karnak)",
+                           "Piano (Jacole)","Piano (Crescent)","Piano (Mua)","Piano (Rugor)","Piano (Mirage)"]
+
 
 
 class FFVCDSNIClient(SNIClient):
     game = "Final Fantasy V Career Day"
+    local_set_events: Dict[str, bool]
+    local_set_events = {flag_name: False for flag_name in tracker_event_locations}
+
     async def deathlink_kill_player(self, ctx):
         pass
 
@@ -156,11 +163,28 @@ class FFVCDSNIClient(SNIClient):
                 
 
         for new_check_id in new_checks:
-            ctx.locations_checked.add(new_check_id)
             location = ctx.location_names[new_check_id]
-            snes_logger.info(
-                f'New Check: {location} ({len(ctx.locations_checked)}/{len(ctx.missing_locations) + len(ctx.checked_locations)})')
-            await ctx.send_msgs([{"cmd": 'LocationChecks', "locations": [new_check_id]}])
+            if location in tracker_event_locations:
+                snes_logger.info(f'New Event: {flag_name}')
+                # Send tracker event flags
+                if not self.local_set_events[location] and ctx.slot is not None:
+                    event_bitfield = 0
+                    for i, flag_name in enumerate(tracker_event_locations):
+                        if self.local_set_events[flag_name]:
+                            event_bitfield |= 1 << i
+                    await ctx.send_msgs([{
+                        "cmd": "Set",
+                        "key": f"FFVCD_EVENTS_{ctx.team}_{ctx.slot}",
+                        "default": 0,
+                        "want_reply": False,
+                        "operations": [{"operation": "or", "value": event_bitfield}],
+                    }])
+                    self.local_set_events[location] = True
+            else:
+                ctx.locations_checked.add(new_check_id)
+                snes_logger.info(
+                    f'New Check: {location} ({len(ctx.locations_checked)}/{len(ctx.missing_locations) + len(ctx.checked_locations)})')
+                await ctx.send_msgs([{"cmd": 'LocationChecks', "locations": [new_check_id]}])
 
         recv_count = await snes_read(ctx, FFVCD_RECV_PROGRESS_ADDR, 2)
         recv_index = recv_count[0] +recv_count[1] * 256
@@ -353,29 +377,6 @@ class FFVCDSNIClient(SNIClient):
                             key_item_byte, key_item_addr_offset, key_item_direction = key_item_data_entry
                             snes_buffered_write(ctx, WRAM_START + 0xA00 + key_item_addr_offset, bytes([key_item_byte]))
 
-                ####################            
-                # Send Events For Tracker
-                ####################
-                tracker_event_locations = ["ExDeath","ExDeath World 2","Piano (Tule)","Piano (Carwen)","Piano (Karnak)",
-                                           "Piano (Jacole)","Piano (Crescent)","Piano (Mua)","Piano (Rugor)","Piano (Mirage)"]
-                local_set_events = {flag_name: False for flag_name in tracker_event_locations}
-                for event_flag_addr, event_flag_data in full_flag_dict.items():
-                    for event in tracker_event_locations:
-                        if event == event_flag_data['name']:
-                             # Send tracker event flags
-                            if local_set_events != self.local_set_events and ctx.slot is not None:
-                                event_bitfield = 0
-                                for i, flag_name in enumerate(tracker_event_locations):
-                                    if local_set_events[flag_name]:
-                                        event_bitfield |= 1 << i
-                                await ctx.send_msgs([{
-                                    "cmd": "Set",
-                                    "key": f"FFVCD_EVENTS_{ctx.team}_{ctx.slot}",
-                                    "default": 0,
-                                    "want_reply": False,
-                                    "operations": [{"operation": "or", "value": event_bitfield}],
-                                }])
-                                self.local_set_events = local_set_events
 
                 await snes_flush_writes(ctx)
             except Exception as e:

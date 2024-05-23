@@ -87,20 +87,20 @@ class FFVCDWorld(World):
         if self.world_lock == 2:
             new_item = create_item("World 2 Access (Item)",  
                         ItemClassification.progression, 
-                        WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
+                        None, 
                         self.player, ['World Access'])
             self.starting_items[new_item] = 1
             self.multiworld.push_precollected(new_item)
         if self.world_lock == 3:
             new_item = create_item("World 2 Access (Item)",  
                         ItemClassification.progression, 
-                        WORLD2_ACCESS_ITEM_ID + arch_item_offset, 
+                        None, 
                         self.player, ['World Access'])
             self.starting_items[new_item] = 1
             self.multiworld.push_precollected(new_item)
             new_item = create_item("World 3 Access (Item)",  
                         ItemClassification.progression, 
-                        WORLD3_ACCESS_ITEM_ID + arch_item_offset, 
+                        None, 
                         self.player, ['World Access'])
             self.starting_items[new_item] = 1
             self.multiworld.push_precollected(new_item)
