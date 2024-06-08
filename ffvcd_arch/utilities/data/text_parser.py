@@ -72,37 +72,43 @@ class TextParser():
         return return_text
 
     def run_kuzar_encrypt(self, passed_dict):
+
         return_text = ''
         for x in passed_dict.keys():
             # limit length of x here to 30 characters. This is so text doesnt overwrite next slot
-            x = x[:31]
+            
+            modified_key = x[:31]
             counter = 0
             text_list = []
-            while counter < len(x):
+            while counter < len(modified_key):
                 char = x[counter]
-                if char == "<":
-                    left = x.find("<")
-                    right = x.find(">")+1
-                    new_char = x[left:right]
-                    if new_char not in self.text_dict2:
-                        new_char = ' '
-                    else:
-                        new_char = self.text_dict2[new_char]
-                    text_list.append(new_char)
-                    counter = right
-                else:    
-                    if char not in self.text_dict2:
-                        new_char = ' '
-                    else:
-                        new_char = self.text_dict2[char]
-                    text_list.append(new_char)
+                try:
+                    if char == "<":
+                        left = x.find("<")
+                        right = x.find(">")+1
+                        new_char = x[left:right]
+                        if new_char not in self.text_dict2:
+                            new_char = ' '
+                        else:
+                            new_char = self.text_dict2[new_char]
+                        text_list.append(new_char)
+                        counter = right
+                    else:    
+                        if char not in self.text_dict2:
+                            new_char = ' '
+                        else:
+                            new_char = self.text_dict2[char]
+                        text_list.append(new_char)
+                        counter = counter + 1
+                except:
                     counter = counter + 1
+                    
             text_asar = 'db '
             for i in text_list:
                 text_asar = text_asar + " $" + i + ","
             text_asar = text_asar[:-1]
             #print("; "+x)
-            return_text = return_text + "; "+x.replace('@', '\\n') +"\n"
+            return_text = return_text + "; "+modified_key.replace('@', '\\n') +"\n"
             #print('org $'+passed_dict[x])
             return_text = return_text + 'org $'+passed_dict[x] +"\n"
 
