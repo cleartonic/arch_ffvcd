@@ -2,7 +2,6 @@ import logging
 import asyncio
 from NetUtils import ClientStatus, color
 from worlds.AutoSNIClient import SNIClient
-from .options import ffvcd_options
 from .locations import loc_id_start, location_data
 from .items import item_table, arch_item_offset
 from .rom import crystal_ram_data, magic_ram_data, ability_ram_data, item_ram_data, \
@@ -30,6 +29,8 @@ FFVCD_IN_MENU_FLAG_ADDR = WRAM_START + 0x00014B
 FFVCD_IN_MENU_FLAG2_ADDR = WRAM_START + 0x00020D
 FFVCD_IN_MENU_FLAG3_ADDR = WRAM_START + 0x000B45 # this is tied to screen visibility fade in/out
 FFVCD_IN_BATTLE_FLAG_ADDR = WRAM_START + 0x00014D
+FFVCD_PIANO_ADDRESS = 0xA45 #piano flags
+FFVCD_CURRENT_WORLD = 0xA2D #offset from RAM start that stores current world
         
 FFVCD_LOADED_GAME_FLAG = WRAM_START + 0x30
 FFVCD_LOADED_GAME_FLAG2 = WRAM_START + 0x6F
@@ -37,12 +38,12 @@ FFVCD_LOADED_GAME_FLAG2 = WRAM_START + 0x6F
 FFVCD_RECV_PROGRESS_ADDR = WRAM_START + 0x9F4
 FFVCD_FILE_NAME_ADDR = WRAM_START + 0x5D9
 
+FFVCD_GOAL_SETTINGS = 0x3FFFFF
+
 tracker_event_locations = ["ExDeath","ExDeath World 2","Piano (Tule)","Piano (Carwen)","Piano (Karnak)",
                            "Piano (Jacole)","Piano (Crescent)","Piano (Mua)","Piano (Rugor)","Piano (Mirage)"]
 piano_addresses = [0xC0FFF6,0xC0FFF7,0xC0FFF8,0xC0FFF9,0xC0FFFA,0xC0FFFB,0xC0FFFC,0xC0FFFD]
 world_flags = ["world 1", "world 2", "world 3"]
-options = ffvcd_options
-
 
 class FFVCDSNIClient(SNIClient):
     game = "Final Fantasy V Career Day"
@@ -65,8 +66,8 @@ class FFVCDSNIClient(SNIClient):
         
         ctx.game = self.game
         ctx.items_handling = 0b111  # remote items
-
         ctx.rom = rom_name
+        
         return True
 
 
@@ -77,7 +78,6 @@ class FFVCDSNIClient(SNIClient):
         # EVENTS
         ##############
         d1 = await snes_read(ctx, FFVCD_EVENT_FLAG_ADDR, 0x100)
-        
         start = 0xA14 # 0xA14
         ram_dict = {} 
         for idx, i in enumerate(d1):
@@ -94,7 +94,7 @@ class FFVCDSNIClient(SNIClient):
             ram_dict[start+idx] = i
                 
 
-        
+        goal_flags = await snes_read(ctx,FFVCD_GOAL_SETTINGS,0x1)
     
         
 
@@ -155,11 +155,10 @@ class FFVCDSNIClient(SNIClient):
                             ctx.finished_game = True
                     else:
                         status = False
-                elif event_flag_addr in piano_addresses: #and options.piano_percent:
-                    if ram_byte == 0xFF:
-                        if not ctx.finished_game:
-                            await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
-                            ctx.finished_game = True
+                elif event_flag_addr in piano_addresses and check_status_bits(goal_flags[0],1,1): #is piano percent on
+                    if ram_dict[FFVCD_PIANO_ADDRESS] == 0xFF and not ctx.finished_game:
+                        await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
+                        ctx.finished_game = True
 
                 # normal case
                 else:
@@ -172,7 +171,7 @@ class FFVCDSNIClient(SNIClient):
             except:
                 import traceback
                 print("Error checking full_flag_dict: %s" % traceback.print_exc())
-
+        
         for new_check_id in new_checks:
             location = ctx.location_names[new_check_id]
             if location in tracker_event_locations:
@@ -197,8 +196,7 @@ class FFVCDSNIClient(SNIClient):
                     f'New Check: {location} ({len(ctx.locations_checked)}/{len(ctx.missing_locations) + len(ctx.checked_locations)})')
                 await ctx.send_msgs([{"cmd": 'LocationChecks', "locations": [new_check_id]}])
 
-        world_address = 0xA2D #address that stores current world
-        world_byte = ram_dict[world_address]
+        world_byte = ram_dict[FFVCD_CURRENT_WORLD]
         for i, k in enumerate(self.current_world.keys()):
             self.current_world[k] = bool(check_status_bits(world_byte,i,1))
             

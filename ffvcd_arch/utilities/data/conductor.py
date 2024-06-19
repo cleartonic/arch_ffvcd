@@ -16,6 +16,7 @@ from .text_parser import TextParser
 from .monster_in_a_box import MonsterInABoxManager
 # from item_randomization import *
 from .misc_features import randomize_default_abilities, randomize_learning_abilities, free_shop_prices
+from typing import Dict
 import patcher
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
@@ -2369,7 +2370,24 @@ class Conductor():
 #        logger.debug(patch)
         return patch
         
-        
+    def goal_settings(self):
+        goal_array = ["ExDeath1", "Pianos"]
+        goal_dict: Dict[str, bool]
+        goal_dict = {flag_name: False for flag_name in goal_array}
+
+        if self.arch_options["piano_percent"]:
+            goal_dict["Pianos"] = True
+
+        goal_bitfield = 0
+        for i, flag_name in enumerate(goal_array):
+            if goal_dict[flag_name]:
+                goal_bitfield |= 1 << i
+
+        goal_bitfield = i2b(goal_bitfield)
+        goals = "\n;Goals\norg $FFFFFF\ndb $%s" % (goal_bitfield)
+
+        return goals
+
     
     def create_hash(self):
         choices = {"BB":"Crystal",
@@ -2491,8 +2509,8 @@ class Conductor():
                         
                         if collectible.reward_type == '40':
                             new_reward_type = "A%s" % mib_modifier
-                        #elif collectible.reward_type in ['60','30']:
-                        #    new_reward_type = "B%s" % mib_modifier 
+                        elif collectible.reward_type in ['60','30']:
+                            new_reward_type = "B%s" % mib_modifier 
                         #    if collectible.reward_type == '60':
                         #        collectible.ability_id = str(hex(int(("0x" + collectible.ability_id),16) + int("0x40",16)))
 
@@ -2592,6 +2610,11 @@ class Conductor():
             
         patch = patch + self.parse_configs()
 
+        goal_settings = """
+org $FFFFFF
+db $01"""
+        patch = patch + self.goal_settings()
+        print(patch)
         spoiler = ""
         if self.seed is not None and self.setting_string is not None:
             spoiler = spoiler + self.spoiler_intro()

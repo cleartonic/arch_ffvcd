@@ -198,6 +198,11 @@ class FFVCDWorld(World):
         else:
             options_conductor['trapped_chests'] = False
 
+        if self.options.piano_percent:
+            options_conductor['piano_percent'] = True
+        else:
+            options_conductor['piano_percent'] = False
+
         options_conductor['source_rom_abs_path'] = self.source_rom_abs_path
         options_conductor['world_lock'] = self.world_lock
         options_conductor['player'] = self.player
