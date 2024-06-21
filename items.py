@@ -153,7 +153,7 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
     placed_items = []
     for key_item_name in [i for i in item_table if ITEM_CODE_KEY_ITEMS in item_table[i].groups]:
         item_data = item_table[key_item_name]
-        if item_data.classification == ItemClassification.progression:
+        if item_data.classification == ItemClassification.progression and key_item_name not in mib_items_to_place:
             new_item = create_item(key_item_name, item_data.classification, item_data.id, \
                                    world.player, item_data.groups)
             placed_items.append(new_item)
