@@ -2609,12 +2609,8 @@ class Conductor():
 
             
         patch = patch + self.parse_configs()
-
-        goal_settings = """
-org $FFFFFF
-db $01"""
         patch = patch + self.goal_settings()
-        print(patch)
+        
         spoiler = ""
         if self.seed is not None and self.setting_string is not None:
             spoiler = spoiler + self.spoiler_intro()

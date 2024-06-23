@@ -156,10 +156,10 @@ class FFVCDSNIClient(SNIClient):
                     else:
                         status = False
                 elif event_flag_addr in piano_addresses and check_status_bits(goal_flags[0],1,1): #is piano percent on
-                    if ram_dict[FFVCD_PIANO_ADDRESS] == 0xFF and not ctx.finished_game:
+                    status = check_status_bits(ram_byte, loc_bit, direction)
+                    if ram_dict[FFVCD_PIANO_ADDRESS] == 255 and not ctx.finished_game:
                         await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
                         ctx.finished_game = True
-
                 # normal case
                 else:
                     status = check_status_bits(ram_byte, loc_bit, direction)
@@ -171,6 +171,7 @@ class FFVCDSNIClient(SNIClient):
             except:
                 import traceback
                 print("Error checking full_flag_dict: %s" % traceback.print_exc())
+        
         
         for new_check_id in new_checks:
             location = ctx.location_names[new_check_id]

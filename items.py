@@ -120,6 +120,7 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
     
     mib_items_to_place = []
     mib_item_pool = []
+    mib_key_item_excludes = []
     
     ##################
     # AP Models Events as items so let's create our events here
@@ -144,8 +145,10 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
         for k, v in mib_item_data.items():
             mib_item_pool.append(create_item(k, v.classification, v.id, world.player, v.groups))
             
-        mib_items_to_place = world.multiworld.per_slot_randoms[world.player].choices(mib_item_pool, k=len(chosen_mib_locations))
-            
+        mib_items_to_place = world.multiworld.per_slot_randoms[world.player].sample(mib_item_pool, k=len(chosen_mib_locations))
+        for i in mib_items_to_place:
+            if i.classification == ItemClassification.progression:
+                mib_key_item_excludes.append(i.name)
     
     ##################    
     # add progression items
@@ -153,7 +156,8 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
     placed_items = []
     for key_item_name in [i for i in item_table if ITEM_CODE_KEY_ITEMS in item_table[i].groups]:
         item_data = item_table[key_item_name]
-        if item_data.classification == ItemClassification.progression and key_item_name not in mib_items_to_place:
+        if item_data.classification == ItemClassification.progression and key_item_name not in mib_key_item_excludes:
+            
             new_item = create_item(key_item_name, item_data.classification, item_data.id, \
                                    world.player, item_data.groups)
             placed_items.append(new_item)
