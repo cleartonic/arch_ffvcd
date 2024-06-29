@@ -57,11 +57,13 @@ class TrappedChestsSetting(Choice):
     Any: Any items in the multiworld can appear in the chests.
 
     If progression checks are set to bosses then options 2 and 3 will not add progression to trapped chests.
+    If set to "Any" gil cannot land in trapped chests, due to how the world is built gil landing in trapped locations
+    will result in one fewer trapped chests per.
     """
     display_name = "Enable Trapped Chests"
     option_local_high_value = 0
     option_local_high_value_and_progression = 1
-    #option_any = 2
+    option_any = 2
     default = 0
 
 class JobsIncluded(OptionSet):
