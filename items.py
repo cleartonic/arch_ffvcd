@@ -312,6 +312,10 @@ def create_world_items(world, trapped_chests_flag = False, chosen_mib_locations 
             item_groups = getattr(item,'groups')
             for group in [i for i in item_groups if i in initial_job_list]:
                 placed_job_group_list.append(group)
+
+        for group in [i for i in available_job_groups if i in initial_job_list]:
+                placed_job_group_list.append(group)
+
         placed_job_group_list = list(set(placed_job_group_list))
 
     magic_exlude_list = []
