@@ -6,3 +6,5 @@
 *.smc
 __pycache__/*
 basepatch/*
+# PyCharm
+.idea/
